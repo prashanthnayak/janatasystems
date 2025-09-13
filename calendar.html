@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - LegalPro</title>
+    <link rel="stylesheet" href="shared-dashboard-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fbfc;
+            color: #232323;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        /* Sidebar styles moved to shared-dashboard-styles.css */
+
+        /* Sidebar header styles moved to shared-dashboard-styles.css */
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+
+        /* Navigation styles moved to shared-dashboard-styles.css */
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Header styles moved to shared-dashboard-styles.css */
+
+        /* Header h1 styles moved to shared-dashboard-styles.css */
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Button styles moved to shared-dashboard-styles.css */
+
+        /* Calendar Controls */
+        .calendar-controls {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,248,220,0.8));
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.08);
+            border: 1px solid rgba(30, 58, 138, 0.05);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 8px 12px;
+            border: 1px solid #ecf0f1;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(45deg, #1e3a8a, #2563eb);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a8a;
+            text-shadow: 0 1px 2px rgba(30, 58, 138, 0.1);
+        }
+
+        .view-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: 1px solid #ecf0f1;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background: #fef5e7;
+            color: #2c3e50;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(243, 156, 18, 0.2);
+        }
+
+        .view-btn.active {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        /* Calendar Grid */
+        .calendar-container {
+            background: linear-gradient(135deg, #ffffff 0%, #fef7f7 50%, #fff8e1 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(139, 0, 0, 0.15);
+            border: 1px solid rgba(139, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: linear-gradient(135deg, #8b0000 0%, #a50000 100%);
+            border-bottom: 2px solid rgba(139, 0, 0, 0.4);
+        }
+
+        .calendar-header-cell {
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header-cell:last-child {
+            border-right: none;
+        }
+
+        .calendar-body {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            padding: 8px;
+            border-right: 1px solid rgba(139, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(139, 0, 0, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .calendar-day:hover {
+            background: linear-gradient(135deg, rgba(30,58,138,0.05) 0%, rgba(212,175,55,0.03) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
+        }
+
+        .calendar-day.other-month {
+            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+            color: #bdc3c7;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, #fef7f7 0%, #fce7e7 100%);
+            border: 2px solid #fbbf24;
+            box-shadow: 0 4px 20px rgba(252, 231, 231, 0.4);
+            color: #1e40af;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .day-number.today {
+            color: #1e40af;
+            background: rgba(255, 255, 255, 0.7);
+            font-weight: 700;
+        }
+
+        .event {
+            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-bottom: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(6, 95, 70, 0.4);
+        }
+
+        .event:hover {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3);
+        }
+
+        .event.hearing {
+            background: linear-gradient(45deg, #065f46, #047857);
+            color: white;
+        }
+
+        .event.client-meeting {
+            background: linear-gradient(45deg, #065f46, #047857);
+            color: white;
+        }
+
+        .event.deadline {
+            background: linear-gradient(45deg, #065f46, #047857);
+            color: white;
+            box-shadow: 0 2px 8px rgba(6, 95, 70, 0.4);
+        }
+
+        /* Event Details Panel - Removed as requested */
+        /* .event-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .event-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .event-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: background 0.3s;
+        }
+
+        .event-item:hover {
+            background: #f8f9fa;
+        }
+
+        .event-info h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .event-info p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .event-time {
+            font-size: 12px;
+            color: #1e3a8a;
+            font-weight: 500;
+        } */
+
+        /* Week View Styles */
+        .week-view {
+            display: none;
+        }
+
+        .week-view.active {
+            display: block;
+        }
+
+        .week-header {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+            background: #f8f9fa;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .week-header-cell {
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+            border-right: 1px solid #ecf0f1;
+        }
+
+        .week-header-cell:last-child {
+            border-right: none;
+        }
+
+        .week-body {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+        }
+
+        .time-slot {
+            padding: 10px;
+            border-right: 1px solid #ecf0f1;
+            border-bottom: 1px solid #ecf0f1;
+            min-height: 60px;
+            position: relative;
+        }
+
+        .time-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .week-event {
+            background: #1e3a8a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            position: absolute;
+            left: 5px;
+            right: 5px;
+            z-index: 1;
+        }
+
+        .week-event.hearing {
+            background: #e74c3c;
+        }
+
+        .week-event.client-meeting {
+            background: #f39c12;
+        }
+
+        .week-event.deadline {
+            background: #9b59b6;
+        }
+
+        /* Day View Styles */
+        .day-view {
+            display: none;
+        }
+
+        .day-view.active {
+            display: block;
+        }
+
+        .day-header {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .day-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .day-subtitle {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .day-timeline {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .timeline-hour {
+            display: flex;
+            border-bottom: 1px solid #ecf0f1;
+            min-height: 80px;
+        }
+
+        .hour-label {
+            width: 80px;
+            padding: 15px;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
+            border-right: 1px solid #ecf0f1;
+        }
+
+        .hour-content {
+            flex: 1;
+            padding: 15px;
+            position: relative;
+        }
+
+        .day-event {
+            background: #1e3a8a;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .day-event:hover {
+            background: #1d4ed8;
+        }
+
+        .day-event.hearing {
+            background: #e74c3c;
+        }
+
+        .day-event.client-meeting {
+            background: #f39c12;
+        }
+
+        .day-event.deadline {
+            background: #9b59b6;
+        }
+
+        .day-event h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .day-event p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: #1e3a8a;
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .modal-events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-event-item {
+            background: #f8f9fa;
+            border-left: 4px solid #1e3a8a;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-event-item:hover {
+            background: #e8f4fd;
+            transform: translateX(5px);
+        }
+
+        .modal-event-item.hearing {
+            border-left-color: #e74c3c;
+        }
+
+        .modal-event-item.client-meeting {
+            border-left-color: #f39c12;
+        }
+
+        .modal-event-item.deadline {
+            border-left-color: #9b59b6;
+        }
+
+        .modal-event-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .modal-event-details {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .modal-event-time {
+            font-size: 12px;
+            color: #1e3a8a;
+            font-weight: 500;
+        }
+
+        .no-events-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .no-events-message p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-day.selected {
+            background: #d5e8f7 !important;
+            border: 2px solid #1e3a8a !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>LegalPro</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="legal_dashboard.html" class="nav-item">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="cases.html" class="nav-item">
+                    <i>📁</i>
+                    <span>Cases</span>
+                </a>
+                <a href="clients.html" class="nav-item">
+                    <i>👥</i>
+                    <span>Clients</span>
+                </a>
+                <a href="calendar.html" class="nav-item active">
+                    <i>📅</i>
+                    <span>Calendar</span>
+                </a>
+                <!-- Documents and Billing tabs removed as requested -->
+                <!-- <a href="documents.html" class="nav-item">
+                    <i>📋</i>
+                    <span>Documents</span>
+                </a>
+                <a href="billing.html" class="nav-item">
+                    <i>💰</i>
+                    <span>Billing</span>
+                </a> -->
+                <!-- <a href="settings.html" class="nav-item">
+                    <i>⚙️</i>
+                    <span>Settings</span>
+                </a> -->
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Calendar</h1>
+            </div>
+
+            <!-- Calendar Controls -->
+            <div class="calendar-controls">
+                <div class="calendar-nav">
+                    <button class="nav-btn" onclick="previousMonth()">‹</button>
+                    <span class="current-month">January 2024</span>
+                    <button class="nav-btn" onclick="nextMonth()">›</button>
+                </div>
+                <!-- <div class="view-options">
+                    <button class="view-btn active">Month</button>
+                    <button class="view-btn">Week</button>
+                    <button class="view-btn">Day</button>
+                </div> -->
+            </div>
+
+            <!-- Month View -->
+            <div class="calendar-container" id="monthView">
+                <div class="calendar-header">
+                    <div class="calendar-header-cell">Sunday</div>
+                    <div class="calendar-header-cell">Monday</div>
+                    <div class="calendar-header-cell">Tuesday</div>
+                    <div class="calendar-header-cell">Wednesday</div>
+                    <div class="calendar-header-cell">Thursday</div>
+                    <div class="calendar-header-cell">Friday</div>
+                    <div class="calendar-header-cell">Saturday</div>
+                </div>
+                <div class="calendar-body" id="calendarBody">
+                    <!-- Calendar days will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Week View - Commented out for now -->
+            <!-- <div class="week-view" id="weekView">
+                <div class="week-header" id="weekHeader">
+                    Week header will be populated by JavaScript
+                </div>
+                <div class="week-body" id="weekBody">
+                    Week timeline will be populated by JavaScript
+                </div>
+            </div> -->
+
+            <!-- Day View - Commented out for now -->
+            <!-- <div class="day-view" id="dayView">
+                <div class="day-header" id="dayHeader">
+                    Day header will be populated by JavaScript
+                </div>
+                <div class="day-timeline" id="dayTimeline">
+                    Day timeline will be populated by JavaScript
+                </div>
+            </div> -->
+
+            <!-- Event Details Panel - Removed as requested -->
+            <!-- <div class="event-panel">
+                <h3>Today's Events</h3>
+                <div class="event-list">
+                    <div class="event-item">
+                        <div class="event-info">
+                            <h4>No Hearing Scheduled</h4>
+                            <p>Court Room 3A, Judge Williams</p>
+                        </div>
+                        <div class="event-time">10:00 AM</div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-info">
+                            <h4>Client Meeting - Davis Corp</h4>
+                            <p>Conference Room B</p>
+                        </div>
+                        <div class="event-time">2:00 PM</div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-info">
+                            <h4>Document Filing Deadline</h4>
+                            <p>Brown Estate Case</p>
+                        </div>
+                        <div class="event-time">5:00 PM</div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Day Events Modal -->
+    <div id="dayEventsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Events for Selected Day</h2>
+                <span class="close" onclick="closeDayEventsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalEventsList" class="modal-events-list">
+                    <!-- Events will be populated here -->
+                </div>
+                <div id="noEventsMessage" class="no-events-message" style="display: none;">
+                    <p>No events scheduled for this day.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // LegalAPI class definition
+        class LegalAPI {
+            constructor(baseUrl = 'http://localhost:5002/api') {
+                this.baseUrl = baseUrl;
+            }
+
+            async getCases(limit = 50, offset = 0) {
+                try {
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, cases: [], total: 0 };
+                    }
+                    
+                    const response = await fetch(`${this.baseUrl}/cases?limit=${limit}&offset=${offset}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching cases:', error);
+                    return { success: false, cases: [], total: 0 };
+                }
+            }
+
+            async getCaseHistory(cnrNumber) {
+                try {
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, history: [], total: 0 };
+                    }
+                    
+                    const response = await fetch(`${this.baseUrl}/case_history/${cnrNumber}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching case history:', error);
+                    return { success: false, history: [], total: 0 };
+                }
+            }
+
+            async getBatchCaseHistory() {
+                try {
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, all_histories: {} };
+                    }
+                    
+                    const response = await fetch(`${this.baseUrl}/cases/histories/batch`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching batch case history:', error);
+                    return { success: false, all_histories: {} };
+                }
+            }
+        }
+
+        // Initialize API
+        const legalAPI = new LegalAPI();
+        
+        // Calendar functionality
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let currentView = 'month';
+        let calendarEvents = []; // Store all calendar events
+
+        // Load calendar events from database (FAST VERSION!)
+        async function loadCalendarEvents() {
+            try {
+                console.log('📅 DEBUG: loadCalendarEvents function called');
+
+                // FIRST: Check localStorage for cached data (cross-page access)
+                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
+                if (cachedDataFromStorage) {
+                    try {
+                        const parsedData = JSON.parse(cachedDataFromStorage);
+                        console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
+                        
+                        // Check if we have pre-built calendar events from the API (FASTEST!)
+                        if (parsedData.calendar_events) {
+                            console.log('🚀 SUPER FAST MODE: Using pre-built calendar events from API!');
+                            
+                            calendarEvents = parsedData.calendar_events.map(event => ({
+                                date: new Date(event.date),
+                                title: event.title,
+                                description: event.description,
+                                caseTitle: event.caseTitle,
+                                cnrNumber: event.cnrNumber,
+                                type: event.type,
+                                time: event.time
+                            }));
+                            
+                            console.log(`🚀 SUPER FAST MODE: Loaded ${calendarEvents.length} calendar events from API (INSTANT!)`);
+                            generateCalendar(); // Refresh calendar with new events
+                            return;
+                        }
+                        
+                        if (parsedData.cases && parsedData.case_histories) {
+                            console.log('🚀 FAST MODE: Using cached data from localStorage!');
+                            
+                            calendarEvents = [];
+                            const cases = parsedData.cases;
+                            const caseHistories = parsedData.case_histories;
+                            
+                            // Process all case histories from cache (INSTANT!)
+                            cases.forEach(caseData => {
+                                const cnrNumber = caseData.cnr_number;
+                                const history = caseHistories[cnrNumber];
+                                
+                                if (history && history.history && history.history.length > 0) {
+                                    // Add each history entry as a calendar event
+                                    history.history.forEach(entry => {
+                                        if (entry.hearing_date) {
+                                            calendarEvents.push({
+                                                date: new Date(entry.hearing_date),
+                                                title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                                description: entry.order_details || 'No details available',
+                                                caseTitle: caseData.case_title || 'Unknown Case',
+                                                cnrNumber: cnrNumber,
+                                                type: 'hearing',
+                                                time: new Date(entry.hearing_date).toLocaleTimeString('en-US', { 
+                                                    hour: 'numeric', 
+                                                    minute: '2-digit',
+                                                    hour12: true 
+                                                })
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                            
+                            console.log(`🚀 CACHE MODE: Loaded ${calendarEvents.length} calendar events from localStorage cache (INSTANT!)`);
+                            generateCalendar(); // Refresh calendar with new events
+                            return;
+                        }
+                    } catch (parseError) {
+                        console.error('❌ Error parsing localStorage data:', parseError);
+                    }
+                }
+                
+                // SECOND: Check if we have cached data from dashboard (same page)
+                if (window.userDashboardData && window.userDashboardData.cases && window.userDashboardData.case_histories) {
+                    console.log('🚀 FAST MODE: Using cached data from dashboard!');
+                    
+                    calendarEvents = [];
+                    const cases = window.userDashboardData.cases;
+                    const caseHistories = window.userDashboardData.case_histories;
+                    
+                    // Process all case histories from cache (INSTANT!)
+                    cases.forEach(caseData => {
+                        const cnrNumber = caseData.cnr_number;
+                        const history = caseHistories[cnrNumber];
+                        
+                        if (history && history.length > 0) {
+                            // Add each history entry as a calendar event
+                            history.forEach(entry => {
+                                if (entry.hearing_date) {
+                                    calendarEvents.push({
+                                        date: new Date(entry.hearing_date),
+                                        title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                        description: entry.order_details || 'No details available',
+                                        caseTitle: caseData.case_title || 'Unknown Case',
+                                        cnrNumber: cnrNumber,
+                                        type: 'hearing',
+                                        time: new Date(entry.hearing_date).toLocaleTimeString('en-US', { 
+                                            hour: 'numeric', 
+                                            minute: '2-digit',
+                                            hour12: true 
+                                        })
+                                    });
+                                }
+                            });
+                        }
+                    });
+                    
+                    console.log(`🚀 CACHE MODE: Loaded ${calendarEvents.length} calendar events from cache (INSTANT!)`);
+
+                    // DEBUG: Log the events to see what we have
+                    console.log('📅 DEBUG: Calendar events loaded:', calendarEvents.slice(0, 3)); // Show first 3 events
+
+                    generateCalendar(); // Refresh calendar with new events
+                    return;
+                }
+                
+                // THIRD: Try the super fast dashboard API first
+                console.log('📅 Trying SUPER FAST dashboard API...');
+                
+                try {
+                    const dashboardResponse = await legalAPI.getUserDashboardData();
+                    if (dashboardResponse.success && dashboardResponse.dashboard_data && dashboardResponse.dashboard_data.calendar_events) {
+                        console.log('🚀 SUPER FAST MODE: Using pre-built calendar events from dashboard API!');
+                        
+                        calendarEvents = dashboardResponse.dashboard_data.calendar_events.map(event => ({
+                            date: new Date(event.date),
+                            title: event.title,
+                            description: event.description,
+                            caseTitle: event.caseTitle,
+                            cnrNumber: event.cnrNumber,
+                            type: event.type,
+                            time: event.time
+                        }));
+                        
+                        console.log(`🚀 SUPER FAST MODE: Loaded ${calendarEvents.length} calendar events from dashboard API (INSTANT!)`);
+                        generateCalendar(); // Refresh calendar with new events
+                        return;
+                    }
+                } catch (dashboardError) {
+                    console.log('Dashboard API not available, falling back to batch API');
+                }
+
+                // FOURTH: Use the FAST batch API as fallback
+                console.log('📅 FAST MODE: Loading calendar events from batch API...');
+                
+                const batchResponse = await legalAPI.getBatchCaseHistory();
+                if (!batchResponse.success) {
+                    console.error('Failed to load batch case history, falling back to slow method');
+                    await loadCalendarEventsSlow(); // Fallback to old method
+                    return;
+                }
+
+                calendarEvents = [];
+                const allHistories = batchResponse.all_histories;
+                
+                // Process all case histories at once (MUCH FASTER!)
+                Object.keys(allHistories).forEach(cnrNumber => {
+                    const caseData = allHistories[cnrNumber];
+                    const history = caseData.history;
+                    
+                    if (history && history.length > 0) {
+                        // Add each history entry as a calendar event
+                        history.forEach(entry => {
+                            if (entry.hearing_date) {
+                                calendarEvents.push({
+                                    date: new Date(entry.hearing_date),
+                                    title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                    description: entry.order_details || 'No details available',
+                                    caseTitle: caseData.case_title || 'Unknown Case',
+                                    cnrNumber: cnrNumber,
+                                    type: 'hearing',
+                                    time: new Date(entry.hearing_date).toLocaleTimeString('en-US', { 
+                                        hour: 'numeric', 
+                                        minute: '2-digit',
+                                        hour12: true 
+                                    })
+                                });
+                            }
+                        });
+                    }
+                });
+                
+                console.log(`📅 FAST MODE: Loaded ${calendarEvents.length} calendar events from batch API`);
+                generateCalendar(); // Refresh calendar with new events
+                
+            } catch (error) {
+                console.error('Error loading calendar events (fast mode):', error);
+                console.log('Falling back to slow method...');
+                await loadCalendarEventsSlow(); // Fallback to old method
+            }
+        }
+
+        // Fallback slow method (kept for compatibility)
+        async function loadCalendarEventsSlow() {
+            try {
+                console.log('📅 Loading calendar events from database (SLOW FALLBACK)...');
+                
+                // Get all cases
+                const casesResponse = await legalAPI.getCases(100, 0);
+                if (!casesResponse.success) {
+                    console.error('Failed to load cases');
+                    return;
+                }
+
+                calendarEvents = [];
+                
+                // Get case history for each case to populate calendar (SLOW!)
+                for (const caseData of casesResponse.cases) {
+                    const historyResponse = await legalAPI.getCaseHistory(caseData.cnr_number);
+                    if (historyResponse.success && historyResponse.history.length > 0) {
+                        // Add each history entry as a calendar event
+                        historyResponse.history.forEach(entry => {
+                            if (entry.hearing_date) {
+                                calendarEvents.push({
+                                    date: new Date(entry.hearing_date),
+                                    title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                    description: entry.order_details || 'No details available',
+                                    caseTitle: caseData.case_title || 'Unknown Case',
+                                    cnrNumber: caseData.cnr_number,
+                                    type: 'hearing',
+                                    time: new Date(entry.hearing_date).toLocaleTimeString('en-US', { 
+                                        hour: 'numeric', 
+                                        minute: '2-digit',
+                                        hour12: true 
+                                    })
+                                });
+                            }
+                        });
+                    }
+                }
+                
+                console.log(`📅 SLOW MODE: Loaded ${calendarEvents.length} calendar events`);
+                generateCalendar(); // Refresh calendar with new events
+                
+            } catch (error) {
+                console.error('Error loading calendar events (slow mode):', error);
+            }
+        }
+
+        function generateCalendar() {
+            console.log('📅 DEBUG: generateCalendar called, events count:', calendarEvents.length);
+            // Only month view is active for now
+            generateMonthView();
+            // if (currentView === 'month') {
+            //     generateMonthView();
+            // } else if (currentView === 'week') {
+            //     generateWeekView();
+            // } else if (currentView === 'day') {
+            //     generateDayView();
+            // }
+        }
+
+        function generateMonthView() {
+            const calendarBody = document.getElementById('calendarBody');
+            calendarBody.innerHTML = '';
+
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            for (let i = 0; i < 42; i++) {
+                const day = new Date(startDate);
+                day.setDate(startDate.getDate() + i);
+
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                if (day.getMonth() !== currentMonth) {
+                    dayElement.classList.add('other-month');
+                }
+                
+                if (day.toDateString() === new Date().toDateString()) {
+                    dayElement.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                if (day.toDateString() === new Date().toDateString()) {
+                    dayNumber.classList.add('today');
+                }
+                dayNumber.textContent = day.getDate();
+                dayElement.appendChild(dayNumber);
+
+                // Add real events from database
+                const dayEvents = calendarEvents.filter(event =>
+                    event.date.toDateString() === day.toDateString()
+                );
+
+                // DEBUG: Log events found for this day
+                if (dayEvents.length > 0) {
+                    console.log(`📅 DEBUG: Found ${dayEvents.length} events for ${day.toDateString()}:`, dayEvents);
+                }
+
+                dayEvents.forEach(calendarEvent => {
+                    const event = document.createElement('div');
+                    event.className = 'event hearing'; // Default to hearing style
+                    event.textContent = calendarEvent.title.length > 15 ? 
+                        calendarEvent.title.substring(0, 15) + '...' : 
+                        calendarEvent.title;
+                    event.title = `${calendarEvent.title}\n${calendarEvent.description}`; // Tooltip
+                    // Remove click handler entirely - let day click handle everything
+                    dayElement.appendChild(event);
+                });
+
+                dayElement.addEventListener('click', () => {
+                    // Highlight the selected day
+                    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                    dayElement.classList.add('selected');
+                    
+                    // Show modal with events for this day
+                    showDayEventsModal(day, dayEvents);
+                });
+
+                calendarBody.appendChild(dayElement);
+            }
+
+            updateMonthDisplay();
+        }
+
+        // Modal functions
+        function showDayEventsModal(selectedDate, events) {
+            const modal = document.getElementById('dayEventsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalEventsList = document.getElementById('modalEventsList');
+            const noEventsMessage = document.getElementById('noEventsMessage');
+            
+            // Set modal title
+            const dateStr = selectedDate.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            modalTitle.textContent = `Events for ${dateStr}`;
+            
+            // Clear previous content
+            modalEventsList.innerHTML = '';
+            
+            if (events.length === 0) {
+                // Show no events message
+                noEventsMessage.style.display = 'block';
+                modalEventsList.style.display = 'none';
+            } else {
+                // Show events
+                noEventsMessage.style.display = 'none';
+                modalEventsList.style.display = 'block';
+                
+                events.forEach(event => {
+                    const eventItem = document.createElement('div');
+                    eventItem.className = 'modal-event-item hearing'; // Default style
+                    eventItem.innerHTML = `
+                        <div class="modal-event-title">${event.title}</div>
+                        <div class="modal-event-details">${event.description}</div>
+                        <div class="modal-event-time">${event.time}</div>
+                    `;
+                    eventItem.onclick = () => {
+                        window.location.href = `case_details.html?cnr=${event.cnrNumber}`;
+                    };
+                    modalEventsList.appendChild(eventItem);
+                });
+            }
+            
+            // Show modal
+            modal.style.display = 'block';
+        }
+
+        function closeDayEventsModal() {
+            const modal = document.getElementById('dayEventsModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('dayEventsModal');
+            if (event.target === modal) {
+                closeDayEventsModal();
+            }
+        }
+
+        /* Week and Day view functions commented out for now
+        function generateWeekView() {
+            const weekHeader = document.getElementById('weekHeader');
+            const weekBody = document.getElementById('weekBody');
+            
+            weekHeader.innerHTML = '';
+            weekBody.innerHTML = '';
+
+            // Get the start of the current week (Sunday)
+            const today = new Date();
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+
+            // Create header
+            weekHeader.innerHTML = '<div class="week-header-cell">Time</div>';
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(weekStart);
+                day.setDate(weekStart.getDate() + i);
+                
+                const headerCell = document.createElement('div');
+                headerCell.className = 'week-header-cell';
+                headerCell.innerHTML = `
+                    <div>${dayNames[i]}</div>
+                    <div>${day.getDate()}</div>
+                `;
+                weekHeader.appendChild(headerCell);
+            }
+
+            // Create time slots (8 AM to 6 PM)
+            for (let hour = 8; hour <= 18; hour++) {
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-slot';
+                timeLabel.innerHTML = `<div class="time-label">${hour}:00</div>`;
+                weekBody.appendChild(timeLabel);
+
+                // Create day slots for this hour
+                for (let day = 0; day < 7; day++) {
+                    const daySlot = document.createElement('div');
+                    daySlot.className = 'time-slot';
+                    
+                    // Add sample events for demonstration
+                    if (hour === 10 && day === 1) {
+                        const event = document.createElement('div');
+                        event.className = 'week-event hearing';
+                        event.textContent = 'Smith Hearing';
+                        daySlot.appendChild(event);
+                    }
+                    if (hour === 14 && day === 3) {
+                        const event = document.createElement('div');
+                        event.className = 'week-event client-meeting';
+                        event.textContent = 'Davis Meeting';
+                        daySlot.appendChild(event);
+                    }
+                    
+                    daySlot.addEventListener('click', () => {
+                        const selectedDate = new Date(weekStart);
+                        selectedDate.setDate(weekStart.getDate() + day);
+                        switchView('day');
+                        updateDayView(selectedDate);
+                    });
+                    
+                    weekBody.appendChild(daySlot);
+                }
+            }
+        }
+
+        function generateDayView() {
+            updateDayView(new Date());
+        }
+
+        function updateDayView(selectedDate) {
+            const dayHeader = document.getElementById('dayHeader');
+            const dayTimeline = document.getElementById('dayTimeline');
+            
+            dayHeader.innerHTML = `
+                <div class="day-title">${selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+                <div class="day-subtitle">${selectedDate.getFullYear()}</div>
+            `;
+            
+            dayTimeline.innerHTML = '';
+
+            // Generate timeline (8 AM to 6 PM)
+            for (let hour = 8; hour <= 18; hour++) {
+                const timelineHour = document.createElement('div');
+                timelineHour.className = 'timeline-hour';
+                
+                const hourLabel = document.createElement('div');
+                hourLabel.className = 'hour-label';
+                hourLabel.textContent = `${hour}:00`;
+                
+                const hourContent = document.createElement('div');
+                hourContent.className = 'hour-content';
+                
+                // Add real events for this day and hour
+                const dayEvents = calendarEvents.filter(event => 
+                    event.date.toDateString() === selectedDate.toDateString() &&
+                    event.date.getHours() === hour
+                );
+                
+                dayEvents.forEach(calendarEvent => {
+                    const event = document.createElement('div');
+                    event.className = 'day-event hearing'; // Default to hearing style
+                    event.innerHTML = `
+                        <h4>${calendarEvent.caseTitle}</h4>
+                        <p>${calendarEvent.title} • ${calendarEvent.time}</p>
+                    `;
+                    event.onclick = () => {
+                        window.location.href = `case_details.html?cnr=${calendarEvent.cnrNumber}`;
+                    };
+                    hourContent.appendChild(event);
+                });
+                
+                timelineHour.appendChild(hourLabel);
+                timelineHour.appendChild(hourContent);
+                dayTimeline.appendChild(timelineHour);
+            }
+        }
+        */
+
+        function updateMonthDisplay() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            document.querySelector('.current-month').textContent = 
+                `${monthNames[currentMonth]} ${currentYear}`;
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar();
+        }
+
+        // View button functionality
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Only month view is active for now
+                currentView = 'month';
+                generateCalendar();
+                
+                // Get view type from button text - commented out for now
+                // const viewText = this.textContent.toLowerCase();
+                // if (viewText.includes('month')) {
+                //     switchView('month');
+                // } else if (viewText.includes('week')) {
+                //     switchView('week');
+                // } else if (viewText.includes('day')) {
+                //     switchView('day');
+                // }
+            });
+        });
+
+        /* Switch view function commented out for now
+        function switchView(view) {
+            currentView = view;
+            
+            // Hide all views
+            document.getElementById('monthView').style.display = 'none';
+            document.getElementById('weekView').style.display = 'none';
+            document.getElementById('dayView').style.display = 'none';
+            
+            // Show selected view
+            if (view === 'month') {
+                document.getElementById('monthView').style.display = 'block';
+            } else if (view === 'week') {
+                document.getElementById('weekView').style.display = 'block';
+            } else if (view === 'day') {
+                document.getElementById('dayView').style.display = 'block';
+            }
+            
+            generateCalendar();
+        }
+        */
+
+        // Initialize calendar and load data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCalendarEvents(); // Load events from database
+            generateCalendar(); // Generate initial calendar view
+        });
+    </script>
+</body>
+</html> 

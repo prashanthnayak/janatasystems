@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Management Dashboard</title>
+    <link rel="stylesheet" href="shared-dashboard-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fbfc;
+            color: #232323;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #232B3E;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(44,62,80,0.15);
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .sidebar-header h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #D4AF37, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.8;
+            color: #D4AF37;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-item:hover {
+            background: linear-gradient(90deg, rgba(25,118,210,0.2), rgba(33,150,243,0.1));
+            transform: translateX(5px);
+            border-left: 3px solid #1976D2;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.2);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(25,118,210,0.3), rgba(33,150,243,0.2));
+            border-left: 4px solid #1976D2;
+            color: #2196F3;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+        }
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Header styles moved to shared-dashboard-styles.css */
+
+        /* User info and avatar styles moved to shared-dashboard-styles.css */
+
+        /* User avatar hover moved to shared-dashboard-styles.css */
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(44,62,80,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(44,62,80,0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(44,62,80,0.12);
+            border-left: 4px solid #1976D2;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #232323;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 18px;
+            background: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+            border: 1px solid rgba(44,62,80,0.05);
+        }
+
+        .stat-item:hover {
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(44,62,80,0.12);
+            border-left: 4px solid #1976D2;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1976D2;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* Status Colors */
+        .status-success {
+            background: #98FB98;
+            color: #43A047;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-warning {
+            background: #FFF3CD;
+            color: #FFC107;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-error {
+            background: #F8D7DA;
+            color: #E53935;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .accent-gold {
+            color: #D4AF37;
+            font-weight: 600;
+        }
+
+        /* Enhanced Button Styles */
+        .btn-primary {
+            background: linear-gradient(45deg, #1976D2, #2196F3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #1565C0, #1976D2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #43A047, #66BB6A);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(67, 160, 71, 0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(45deg, #388E3C, #43A047);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 160, 71, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #FFC107, #FFD54F);
+            color: #333;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(45deg, #FF8F00, #FFC107);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-gold {
+            background: linear-gradient(45deg, #D4AF37, #FFD700);
+            color: #333;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(45deg, #B8860B, #D4AF37);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ffd700 0%, #daa520 50%, #b8860b 100%);
+            color: #2c3e50;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-left: 20px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .logout-btn:hover::before {
+            left: 100%;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #b8860b 0%, #daa520 50%, #ffd700 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .logout-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .logout-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Case List */
+        .case-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .case-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid rgba(44,62,80,0.08);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 4px;
+        }
+
+        .case-item:hover {
+            background: rgba(25, 118, 210, 0.02);
+            transform: translateX(4px);
+            border-left: 3px solid #1976D2;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+        }
+
+        .case-info h4 {
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #232323;
+            font-weight: 600;
+        }
+
+        .case-info p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .case-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-active {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Hearing List */
+        .hearing-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .hearing-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: background 0.3s;
+        }
+
+        .hearing-item:hover {
+            background: #fef5e7;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2);
+        }
+
+        .hearing-date {
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .date-day {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .date-month {
+            font-size: 10px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .hearing-info {
+            flex: 1;
+        }
+
+        .hearing-info h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .hearing-info p {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .hearing-type {
+            font-size: 10px;
+            color: #3498db;
+            background: #e8f4fd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        /* Recent Activity */
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .activity-item:hover {
+            background: #fef5e7;
+            padding-left: 10px;
+            border-radius: 6px;
+        }
+
+        .activity-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .activity-content h4 {
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        .activity-content p {
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>LegalPro</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </div>
+                <a href="cases.html" class="nav-item">
+                    <i>📁</i>
+                    <span>Cases</span>
+                </a>
+                <a href="clients.html" class="nav-item">
+                    <i>👥</i>
+                    <span>Clients</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <i>📅</i>
+                    <span>Calendar</span>
+                </a>
+                <!-- <a href="settings.html" class="nav-item">
+                    <i>⚙️</i>
+                    <span>Settings</span>
+                </a> -->
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Dashboard</h1>
+                <div class="user-info">
+                    <span id="welcomeMessage">Welcome, Loading...</span>
+                    <div class="user-avatar" id="userAvatar">--</div>
+                    <button onclick="logout()" class="logout-btn" title="Logout">Logout</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Overview Stats -->
+                <div class="card" style="background: linear-gradient(135deg, #e8f4fd 0%, #f8f9fa 100%);">
+                    <div class="card-header">
+                        <h3 class="card-title">Overview</h3>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="activeCasesCount">0</div>
+                            <div class="stat-label">Active Cases</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalCasesCount">0</div>
+                            <div class="stat-label">Total Cases</div>
+                        </div>
+                        <div class="stat-item" onclick="showTodayHearings()" style="cursor: pointer;">
+                            <div class="stat-number" id="todayHearingsCount">0</div>
+                            <div class="stat-label">Today's Hearings</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Hearings -->
+                <div class="card" style="background: linear-gradient(135deg, #e8f4fd 0%, #f8f9fa 100%);">
+                    <div class="card-header">
+                        <h3 class="card-title">Upcoming Hearings</h3>
+                    </div>
+                    <div class="hearing-list" id="upcomingHearings">
+                        <div class="hearing-item">
+                            <div class="hearing-date">
+                                <div class="date-day">--</div>
+                                <div class="date-month">---</div>
+                            </div>
+                            <div class="hearing-info">
+                                <h4>Loading cases...</h4>
+                                <p>Fetching data from database</p>
+                                <span class="hearing-type">Loading</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real Cases -->
+                <div class="card" style="background: linear-gradient(135deg, #e8f4fd 0%, #f8f9fa 100%);">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Cases</h3>
+                    </div>
+                    <div class="activity-list" id="recentCases">
+                        <div class="activity-item">
+                            <div class="activity-content">
+                                <h4>Loading cases...</h4>
+                                <p>Fetching data from database</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Case History - Removed as requested -->
+                <!-- <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Case History</h3>
+                        <div class="card-icon" style="background: #f39c12;">📅</div>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item" onclick="showAllCaseHistory()" style="cursor: pointer;">
+                            <div class="activity-icon">📋</div>
+                            <div class="activity-content">
+                                <h4>View All Case History</h4>
+                                <p id="totalHistoryCount">Loading history...</p>
+                            </div>
+                        </div>
+                        <div class="activity-item" onclick="showTodayHearings()" style="cursor: pointer;">
+                            <div class="activity-icon">🕐</div>
+                            <div class="activity-content">
+                                <h4>Today's Hearings</h4>
+                                <p id="todayHearingsText">Loading today's schedule...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication and User Profile Functions
+        function checkAuth() {
+            console.log('🔐 checkAuth called');
+            const token = localStorage.getItem('userToken');
+            console.log('Token found:', !!token);
+            
+            if (!token) {
+                console.log('❌ No token found, redirecting to login');
+                // Redirect to login if no token
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check what user data we have
+            const userData = localStorage.getItem('userData');
+            const username = localStorage.getItem('username');
+            console.log('User data in localStorage:', !!userData);
+            console.log('Username in localStorage:', username);
+            
+            // Load user profile
+            loadUserProfile();
+        }
+
+        async function loadUserProfile() {
+            try {
+                // Try to get user data from localStorage first (set during login)
+                const userData = localStorage.getItem('userData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    updateUserDisplay(user);
+                    return;
+                }
+
+                // Fallback: try to get from profile API
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    console.error('No authentication token found');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5002/api/auth/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const profileData = await response.json();
+                    if (profileData.success && profileData.user) {
+                        const user = profileData.user;
+                        // Store user data for future use
+                        localStorage.setItem('userData', JSON.stringify(user));
+                        updateUserDisplay(user);
+                        console.log('User profile loaded from API:', user);
+                    }
+                } else {
+                    console.error('Failed to load user profile:', response.status);
+                    // Try to get basic info from token
+                    await loadBasicUserInfo();
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+                // Try to get basic info from token
+                await loadBasicUserInfo();
+            }
+        }
+
+        async function loadBasicUserInfo() {
+            try {
+                const token = localStorage.getItem('userToken');
+                if (!token) return;
+
+                // Try to get username from localStorage
+                const username = localStorage.getItem('username');
+                if (username) {
+                    const user = {
+                        username: username,
+                        full_name: username.charAt(0).toUpperCase() + username.slice(1)
+                    };
+                    updateUserDisplay(user);
+                    return;
+                }
+
+                // If no username in localStorage, try to decode token
+                // This is a simple fallback - in a real app you'd use proper JWT decoding
+                if (token && token.length > 20) {
+                    // For now, show a generic welcome
+                    const user = {
+                        username: 'User',
+                        full_name: 'Legal User'
+                    };
+                    updateUserDisplay(user);
+                }
+            } catch (error) {
+                console.error('Error loading basic user info:', error);
+            }
+        }
+
+        function updateUserDisplay(user) {
+            // Update welcome message
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Welcome, ${user.full_name || user.username}`;
+            }
+            
+            // Update user avatar
+            const userAvatar = document.getElementById('userAvatar');
+            if (userAvatar) {
+                const initials = getUserInitials(user.full_name || user.username);
+                userAvatar.textContent = initials;
+            }
+        }
+
+        function getUserInitials(name) {
+            if (!name) return '--';
+            const parts = name.split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[1][0]).toUpperCase();
+            }
+            return name[0].toUpperCase();
+        }
+
+        async function logout() {
+            try {
+                const token = localStorage.getItem('userToken');
+                if (token) {
+                    // Call logout API
+                    await fetch('http://localhost:5002/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                }
+                
+                // Clear local storage and redirect
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Still redirect even if API call fails
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // LegalAPI class definition
+        class LegalAPI {
+            constructor(baseUrl = 'http://localhost:5002/api') {
+                this.baseUrl = baseUrl;
+            }
+
+            // Get all cases
+            async getCases(userId = null, limit = 50, offset = 0) {
+                try {
+                    let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
+                    if (userId) url += `&user_id=${userId}`;
+                    
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, error: 'No authentication token' };
+                    }
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting cases:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Get case history
+            async getCaseHistory(cnrNumber) {
+                try {
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, error: 'No authentication token' };
+                    }
+                    
+                    const response = await fetch(`${this.baseUrl}/case_history/${cnrNumber}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting case history:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        // Initialize API
+        const legalAPI = new LegalAPI();
+
+        // Load dashboard data (SUPER FAST MODE!)
+        async function loadDashboardData() {
+            try {
+                console.log('🚀 Loading ALL user data (SUPER FAST MODE)...');
+                
+                // Get the auth token from localStorage
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    console.error('No auth token found');
+                    showNotification('❌ No authentication token found', 'error');
+                    return;
+                }
+                
+                // Call the new super-fast endpoint
+                const response = await fetch('http://localhost:5002/api/user/dashboard-data', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.dashboard_data) {
+                    console.log(`✅ SUPER FAST MODE: Loaded ${result.dashboard_data.cases.length} cases, ${result.dashboard_data.clients.length} clients, ${result.dashboard_data.calendar_events.length} events`);
+                    
+                    const cases = result.dashboard_data.cases;
+                    
+                    // Store all data globally for other pages
+                    window.userDashboardData = result.dashboard_data;
+                    
+                    // ALSO store in localStorage for cross-page access
+                    localStorage.setItem('userDashboardData', JSON.stringify(result.dashboard_data));
+                    
+                    console.log('💾 DEBUG: Stored data globally:', Object.keys(window.userDashboardData));
+                    console.log('💾 DEBUG: Cases count stored:', window.userDashboardData.cases.length);
+                    console.log('💾 DEBUG: Case histories count:', Object.keys(window.userDashboardData.case_histories).length);
+                    console.log('💾 DEBUG: Data also stored in localStorage for cross-page access');
+                    
+                    // Update stats
+                    document.getElementById('totalCasesCount').textContent = cases.length;
+                    document.getElementById('activeCasesCount').textContent = cases.filter(c => c.status === 'Active').length;
+                    
+                    // Calculate today's hearings count
+                    if (cases.length > 0 && result.dashboard_data.case_histories) {
+                        const today = new Date().toDateString();
+                        const todayHearings = result.dashboard_data.case_histories.filter(entry => {
+                            const entryDate = new Date(entry.hearing_date).toDateString();
+                            return entryDate === today;
+                        });
+                        document.getElementById('todayHearingsCount').textContent = todayHearings.length;
+                    }
+                    
+                    // Store cases globally
+                    window.allCases = cases;
+                    window.currentCases = cases;
+                    
+                    // Display cases using the correct functions
+                    displayRecentCases(cases.slice(0, 5));
+                    
+                    // Display upcoming hearings
+                    await displayUpcomingHearings(cases.slice(0, 4));
+                    
+                    // Show success notification
+                    showNotification(`✅ Loaded ${cases.length} cases instantly!`, 'success');
+                    
+                    // Show caching info
+                    setTimeout(() => {
+                        showNotification(`🚀 All data cached! Navigation between pages will be INSTANT!`, 'info');
+                    }, 1000);
+                    
+                } else {
+                    console.error('❌ Failed to load user data:', result.error);
+                    console.log('Falling back to slow method...');
+                    // Fallback to old method
+                    await loadDashboardDataSlow();
+                }
+            } catch (error) {
+                console.error('❌ Error loading user data (fast mode):', error);
+                console.log('Falling back to slow method...');
+                // Fallback to old method
+                await loadDashboardDataSlow();
+            }
+        }
+
+        // Fallback slow method (kept for compatibility)
+        async function loadDashboardDataSlow() {
+            try {
+                console.log('🔄 Loading dashboard data (SLOW FALLBACK)...');
+                
+                // Load cases
+                const casesResult = await legalAPI.getCases();
+                if (casesResult.success && casesResult.cases) {
+                    const cases = casesResult.cases;
+                    
+                    // Update stats
+                    document.getElementById('totalCasesCount').textContent = cases.length;
+                    document.getElementById('activeCasesCount').textContent = cases.filter(c => c.status === 'Active').length;
+                    
+                    // Case history loading removed since Case History section was removed
+                    // Load case history count for first case
+                    if (cases.length > 0) {
+                        const historyResult = await legalAPI.getCaseHistory(cases[0].cnr_number);
+                        if (historyResult.success && historyResult.history) {
+                            // Count today's hearings for the stats
+                            const today = new Date().toDateString();
+                            const todayHearings = historyResult.history.filter(entry => {
+                                const entryDate = new Date(entry.hearing_date).toDateString();
+                                return entryDate === today;
+                            });
+                            
+                            document.getElementById('todayHearingsCount').textContent = todayHearings.length;
+                        }
+                    }
+                    
+                    // Display recent cases
+                    displayRecentCases(cases.slice(0, 5));
+                    
+                    // Display upcoming hearings (now uses real hearing dates)
+                    await displayUpcomingHearings(cases.slice(0, 4));
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Display recent cases
+        function displayRecentCases(cases) {
+            const recentCasesContainer = document.getElementById('recentCases');
+            if (!cases || cases.length === 0) {
+                recentCasesContainer.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon">📁</div>
+                        <div class="activity-content">
+                            <h4>No cases found</h4>
+                            <p>No cases available in the database</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            recentCasesContainer.innerHTML = '';
+            cases.forEach(caseData => {
+                const caseItem = document.createElement('div');
+                caseItem.className = 'activity-item';
+                caseItem.style.cursor = 'pointer';
+                caseItem.onclick = () => {
+                    sessionStorage.setItem('viewCaseCNR', caseData.cnr_number);
+                    window.location.href = 'case_details.html';
+                };
+                
+                caseItem.innerHTML = `
+                    <div class="activity-icon">📁</div>
+                    <div class="activity-content">
+                        <h4>${caseData.case_title || 'Untitled Case'}</h4>
+                        <p>CNR: ${caseData.cnr_number} • ${caseData.case_type || 'Unknown Type'}</p>
+                    </div>
+                `;
+                recentCasesContainer.appendChild(caseItem);
+            });
+        }
+
+        // Display upcoming hearings
+        async function displayUpcomingHearings(cases) {
+            const hearingsContainer = document.getElementById('upcomingHearings');
+            if (!cases || cases.length === 0) {
+                hearingsContainer.innerHTML = `
+                    <div class="hearing-item">
+                        <div class="hearing-date">
+                            <div class="date-day">--</div>
+                            <div class="date-month">---</div>
+                        </div>
+                        <div class="hearing-info">
+                            <h4>No cases found</h4>
+                            <p>No cases available</p>
+                            <span class="hearing-type">N/A</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            hearingsContainer.innerHTML = '';
+            const upcomingHearings = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to start of day
+            
+            // Collect all future hearings from all cases
+            for (const caseData of cases) {
+                try {
+                    const historyResult = await legalAPI.getCaseHistory(caseData.cnr_number);
+                    if (historyResult.success && historyResult.history) {
+                        historyResult.history.forEach(entry => {
+                            if (entry.hearing_date) {
+                                const hearingDate = new Date(entry.hearing_date);
+                                hearingDate.setHours(0, 0, 0, 0); // Reset time for comparison
+                                
+                                // Only include future hearings
+                                if (hearingDate >= today) {
+                                    upcomingHearings.push({
+                                        date: hearingDate,
+                                        originalDate: new Date(entry.hearing_date), // Keep original for time display
+                                        caseData: caseData,
+                                        purpose: entry.purpose,
+                                        orderDetails: entry.order_details
+                                    });
+                                }
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Error getting history for case ${caseData.cnr_number}:`, error);
+                }
+            }
+            
+            // Sort by date (earliest first) and take first 4
+            upcomingHearings.sort((a, b) => a.date - b.date);
+            const nextHearings = upcomingHearings.slice(0, 4);
+            
+            if (nextHearings.length === 0) {
+                hearingsContainer.innerHTML = `
+                    <div class="hearing-item">
+                        <div class="hearing-date">
+                            <div class="date-day">--</div>
+                            <div class="date-month">---</div>
+                        </div>
+                        <div class="hearing-info">
+                            <h4>No upcoming hearings</h4>
+                            <p>No future hearings scheduled</p>
+                            <span class="hearing-type">N/A</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display upcoming hearings with real dates
+            nextHearings.forEach(hearing => {
+                const hearingItem = document.createElement('div');
+                hearingItem.className = 'hearing-item';
+                hearingItem.style.cursor = 'pointer';
+                hearingItem.onclick = () => {
+                    sessionStorage.setItem('viewCaseCNR', hearing.caseData.cnr_number);
+                    window.location.href = 'case_details.html';
+                };
+                
+                hearingItem.innerHTML = `
+                    <div class="hearing-date">
+                        <div class="date-day">${hearing.date.getDate()}</div>
+                        <div class="date-month">${hearing.date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</div>
+                    </div>
+                    <div class="hearing-info">
+                        <h4>${hearing.caseData.case_title || 'Untitled Case'}</h4>
+                        <p>${hearing.purpose || 'Hearing'} • ${hearing.originalDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</p>
+                        <span class="hearing-type">${hearing.caseData.case_type || 'Unknown'}</span>
+                    </div>
+                `;
+                hearingsContainer.appendChild(hearingItem);
+            });
+        }
+
+        // Today's Hearings functionality - restored
+        async function showTodayHearings() {
+            try {
+                // Get cases first
+                const casesResult = await legalAPI.getCases();
+                if (!casesResult.success || !casesResult.cases || casesResult.cases.length === 0) {
+                    showNoTodayHearingsModal();
+                    return;
+                }
+
+                // Get case history for all cases and filter for today
+                const today = new Date().toDateString();
+                let todayHearings = [];
+                
+                for (const caseData of casesResult.cases) {
+                    try {
+                        const historyResult = await legalAPI.getCaseHistory(caseData.cnr_number);
+                        if (historyResult.success && historyResult.history) {
+                            const caseTodayHearings = historyResult.history.filter(entry => {
+                                if (entry.hearing_date) {
+                                    const entryDate = new Date(entry.hearing_date).toDateString();
+                                    return entryDate === today;
+                                }
+                                return false;
+                            });
+                            
+                            caseTodayHearings.forEach(hearing => {
+                                todayHearings.push({
+                                    caseData: caseData,
+                                    hearing: hearing
+                                });
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error getting history for case ${caseData.cnr_number}:`, error);
+                    }
+                }
+
+                if (todayHearings.length === 0) {
+                    showNoTodayHearingsModal();
+                    return;
+                }
+
+                showTodayHearingsModal(todayHearings);
+            } catch (error) {
+                console.error('Error loading today\'s hearings:', error);
+                showNoTodayHearingsModal();
+            }
+        }
+
+        // Show modal for today's hearings specifically
+        function showTodayHearingsModal(todayHearings) {
+            const today = new Date();
+            
+            let hearingsHtml = `
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">Today's Hearings - ${today.toLocaleDateString()}</h3>
+                    <div style="display: grid; gap: 15px;">
+            `;
+
+            todayHearings.forEach(item => {
+                const { caseData, hearing } = item;
+                const date = new Date(hearing.hearing_date);
+                const timeStr = date.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+
+                hearingsHtml += `
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border-left: 4px solid #27ae60; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">
+                                    ${timeStr} - ${hearing.purpose || 'Hearing'}
+                                </div>
+                                <div style="font-size: 14px; color: #27ae60; margin-bottom: 3px;">
+                                    <strong>Case:</strong> ${caseData.case_title || 'Untitled Case'}
+                                </div>
+                                <div style="font-size: 14px; color: #7f8c8d;">
+                                    CNR: ${caseData.cnr_number} • ${caseData.case_type || 'Case Type'}
+                                </div>
+                                <div style="font-size: 14px; color: #7f8c8d;">
+                                    ${caseData.court_name || 'Court'}
+                                </div>
+                                ${hearing.order_details ? `<div style="font-size: 12px; color: #95a5a6; margin-top: 5px;">Details: ${hearing.order_details}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            hearingsHtml += `
+                    </div>
+                </div>
+            `;
+
+            createModal('Today\'s Hearings', hearingsHtml, '#27ae60');
+        }
+
+        // Show modal when no hearings today
+        function showNoTodayHearingsModal() {
+            const today = new Date();
+            const noHearingsHtml = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🏛️</div>
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">No Hearings Today</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 20px;">
+                        No hearings are scheduled for ${today.toLocaleDateString()}.
+                    </p>
+                    <p style="color: #95a5a6; font-size: 14px;">
+                        Check the calendar or upcoming hearings for future dates.
+                    </p>
+                </div>
+            `;
+
+            createModal('Today\'s Hearings', noHearingsHtml, '#3498db');
+        }
+
+        // Case History related functions - Commented out since Case History section was removed
+        /*
+        // Show all case history function
+        async function showAllCaseHistory() {
+            try {
+                // Get cases first
+                const casesResult = await legalAPI.getCases();
+                if (!casesResult.success || !casesResult.cases || casesResult.cases.length === 0) {
+                    showNoHearingsModal();
+                    return;
+                }
+
+                // Get case history for the first case
+                const firstCase = casesResult.cases[0];
+                const historyResult = await legalAPI.getCaseHistory(firstCase.cnr_number);
+                
+                if (!historyResult.success || !historyResult.history || historyResult.history.length === 0) {
+                    showNoHearingsModal();
+                    return;
+                }
+
+                showHearingsModal(firstCase, historyResult.history);
+            } catch (error) {
+                console.error('Error loading case history:', error);
+                showNoHearingsModal();
+            }
+        }
+
+        // Show modal with real case history
+        function showHearingsModal(caseData, historyEntries) {
+            const today = new Date();
+            
+            let hearingsHtml = `
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">Case History - ${caseData.cnr_number}</h3>
+                    <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <strong>Case:</strong> ${caseData.case_title || 'Untitled Case'}<br>
+                        <strong>Type:</strong> ${caseData.case_type || 'Unknown'}<br>
+                        <strong>Court:</strong> ${caseData.court_name || 'Unknown Court'}
+                    </div>
+                    <div style="display: grid; gap: 10px;">
+            `;
+
+            // Show recent 10 history entries
+            const recentHistory = historyEntries.slice(0, 10);
+            recentHistory.forEach(entry => {
+                const date = new Date(entry.hearing_date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+
+                hearingsHtml += `
+                    <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">${formattedDate} - ${entry.purpose || 'Hearing'}</div>
+                                <div style="font-size: 14px; color: #7f8c8d;">${caseData.court_name || 'Court'} • ${caseData.case_type || 'Case Type'}</div>
+                                ${entry.order_details ? `<div style="font-size: 12px; color: #95a5a6; margin-top: 5px;">Details: ${entry.order_details}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (historyEntries.length > 10) {
+                hearingsHtml += `
+                    <div style="text-align: center; padding: 10px; color: #7f8c8d; font-style: italic;">
+                        ... and ${historyEntries.length - 10} more entries
+                    </div>
+                `;
+            }
+
+            hearingsHtml += `
+                    </div>
+                </div>
+            `;
+
+            createModal('Case History', hearingsHtml);
+        }
+
+        // Show modal when no hearings available
+        function showNoHearingsModal() {
+            const noHearingsHtml = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📅</div>
+                    <h3 style="color: #2c3e50; margin-bottom: 10px;">No Case History Available</h3>
+                    <p style="color: #7f8c8d;">No hearing records found in the database.</p>
+                    <button onclick="window.location.href='cases.html'" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        View All Cases
+                    </button>
+                </div>
+            `;
+            createModal('Case History', noHearingsHtml);
+        }
+        */
+
+        // Create modal helper function
+        function createModal(title, content, color = '#3498db') {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 30px;
+                border-radius: 8px;
+                max-width: 700px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                position: relative;
+            `;
+
+            modalContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: #2c3e50; margin: 0;">${title}</h2>
+                    <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #7f8c8d;">×</button>
+                </div>
+                ${content}
+            `;
+
+            modal.appendChild(modalContent);
+            modal.className = 'modal-overlay';
+            document.body.appendChild(modal);
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Add interactivity
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadDashboardData();
+        });
+    </script>
+</body>
+</html> 

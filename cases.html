@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cases Management - LegalPro</title>
+    <link rel="stylesheet" href="shared-dashboard-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fbfc;
+            color: #232323;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* All sidebar styles moved to shared-dashboard-styles.css */
+
+        /* Nav menu styles moved to shared-dashboard-styles.css */
+
+        /* All navigation styles moved to shared-dashboard-styles.css */
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Header styles moved to shared-dashboard-styles.css */
+
+        /* Header h1 styles moved to shared-dashboard-styles.css */
+
+        /* Second header definition removed - using shared-dashboard-styles.css */
+
+        /* Duplicate header h1 styles removed - using shared-dashboard-styles.css */
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2);
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        /* Search and Filters */
+        .search-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+
+        /* Cases Table */
+        .cases-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .table-header {
+            background: #f8f9fa;
+            padding: 18px 25px;
+            border-bottom: 2px solid #ecf0f1;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .table-header .table-row {
+            border-bottom: none;
+            padding: 0;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 120px;
+            gap: 25px;
+            padding: 18px 25px;
+            border-bottom: 1px solid #ecf0f1;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .table-row > div:nth-child(4) {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .table-row:hover {
+            background: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .case-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .case-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .case-cnr {
+            font-size: 13px;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .no-data button {
+            margin-top: 15px;
+        }
+
+        .case-type {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .case-client {
+            color: #2c3e50;
+        }
+
+        .case-date {
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .case-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* Action button styles moved to shared-dashboard-styles.css */
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ecf0f1;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            background: #fef5e7;
+            color: #2c3e50;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(243, 156, 18, 0.2);
+        }
+
+        .page-btn.active {
+            background: #1e3a8a;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>LegalPro</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="legal_dashboard.html" class="nav-item">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="cases.html" class="nav-item active">
+                    <i>📁</i>
+                    <span>Cases</span>
+                </a>
+                <a href="clients.html" class="nav-item">
+                    <i>👥</i>
+                    <span>Clients</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <i>📅</i>
+                    <span>Calendar</span>
+                </a>
+                <!-- Documents and Billing tabs removed as requested -->
+                <!-- <a href="documents.html" class="nav-item">
+                    <i>📋</i>
+                    <span>Documents</span>
+                </a>
+                <a href="billing.html" class="nav-item">
+                    <i>💰</i>
+                    <span>Billing</span>
+                </a> -->
+                <!-- <a href="settings.html" class="nav-item">
+                    <i>⚙️</i>
+                    <span>Settings</span>
+                </a> -->
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Cases Management</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="window.location.href='add_case.html'">+ Add Case</button>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-filters">
+                <div class="search-row">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search cases by name, client, or case number...">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Criminal">Criminal</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Family">Family</option>
+                        <option value="Probate">Probate</option>
+                        <option value="Traffic">Traffic</option>
+                        <option value="Employment">Employment</option>
+                        <option value="Immigration">Immigration</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Cases Table -->
+            <div class="cases-table">
+                <div class="table-header">
+                    <div class="table-row">
+                        <div>Case Name</div>
+                        <div>Type</div>
+                        <div>Filing Date</div>
+                        <div>Actions</div>
+                    </div>
+                </div>
+                
+                <div class="table-body">
+                    <!-- Cases will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="page-btn">Previous</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Integration Script -->
+    <script>
+        // LegalAPI class definition
+        class LegalAPI {
+            constructor(baseUrl = 'http://localhost:5002/api') {
+                this.baseUrl = baseUrl;
+            }
+
+            // Get all cases
+            async getCases(userId = null, limit = 50, offset = 0) {
+                try {
+                    let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
+                    if (userId) url += `&user_id=${userId}`;
+                    
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, error: 'No authentication token' };
+                    }
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting cases:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Get scraping status
+            async getScrapingStatus(cnrNumber) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/scraping/status/${cnrNumber}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting scraping status:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        // Initialize API
+        const legalAPI = new LegalAPI();
+    </script>
+    <script>
+        // Database-driven case data
+        let allCases = [];
+        let currentCases = [];
+        let currentPage = 1;
+        const casesPerPage = 5;
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            // Style the notification
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+            
+            // Set background color based on type
+            switch(type) {
+                case 'success':
+                    notification.style.backgroundColor = '#28a745';
+                    break;
+                case 'error':
+                    notification.style.backgroundColor = '#dc3545';
+                    break;
+                case 'warning':
+                    notification.style.backgroundColor = '#ffc107';
+                    notification.style.color = '#212529';
+                    break;
+                default:
+                    notification.style.backgroundColor = '#17a2b8';
+            }
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Load cases from database on page load
+        async function loadCasesFromDatabase() {
+            try {
+                console.log('🔍 DEBUG: Starting loadCasesFromDatabase...');
+                
+                // FIRST: Check localStorage for cached data (cross-page access)
+                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
+                if (cachedDataFromStorage) {
+                    try {
+                        const parsedData = JSON.parse(cachedDataFromStorage);
+                        console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
+                        
+                        if (parsedData.cases) {
+                            console.log('🚀 FAST MODE: Using cached data from localStorage!');
+                            console.log('🚀 DEBUG: Cached cases count:', parsedData.cases.length);
+                            const cachedCases = parsedData.cases;
+                            
+                            allCases = cachedCases.map(caseData => ({
+                                id: caseData.id,
+                                name: caseData.case_title || 'Untitled Case',
+                                client: caseData.petitioner || 'N/A',
+                                cnr_number: caseData.cnr_number,
+                                type: caseData.case_type || 'Unknown',
+                                date: caseData.filing_date || caseData.created_at,
+                                status: caseData.status || 'Pending',
+                                court_name: caseData.court_name,
+                                judge_name: caseData.judge_name,
+                                registration_number: caseData.registration_number
+                            }));
+                            
+                            currentCases = [...allCases];
+                            displayCases();
+                            showNotification(`✅ Loaded ${allCases.length} cases from localStorage cache (INSTANT!)`, 'success');
+                            return;
+                        }
+                    } catch (parseError) {
+                        console.error('❌ Error parsing localStorage data:', parseError);
+                    }
+                }
+                
+                // SECOND: Check if we have cached data from dashboard (same page)
+                console.log('🔍 DEBUG: window.userDashboardData exists?', !!window.userDashboardData);
+                console.log('🔍 DEBUG: window.userDashboardData.cases exists?', !!(window.userDashboardData && window.userDashboardData.cases));
+                
+                if (window.userDashboardData && window.userDashboardData.cases) {
+                    console.log('🚀 FAST MODE: Using cached data from dashboard!');
+                    console.log('🚀 DEBUG: Cached cases count:', window.userDashboardData.cases.length);
+                    const cachedCases = window.userDashboardData.cases;
+                    
+                    allCases = cachedCases.map(caseData => ({
+                        id: caseData.id,
+                        name: caseData.case_title || 'Untitled Case',
+                        client: caseData.petitioner || 'N/A',
+                        cnr_number: caseData.cnr_number,
+                        type: caseData.case_type || 'Unknown',
+                        date: caseData.filing_date || caseData.created_at,
+                        status: caseData.status || 'Pending',
+                        court_name: caseData.court_name,
+                        judge_name: caseData.judge_name,
+                        registration_number: caseData.registration_number
+                    }));
+                    
+                    currentCases = [...allCases];
+                    displayCases();
+                    showNotification(`✅ Loaded ${allCases.length} cases from cache (INSTANT!)`, 'success');
+                    return;
+                }
+                
+                // THIRD: Fallback to API call if no cached data
+                console.log('🔄 SLOW MODE: No cached data, loading from API...');
+                console.log('🔄 DEBUG: Available global data:', Object.keys(window).filter(key => key.includes('user') || key.includes('case')));
+                
+                // Debug: Check if legalAPI is defined
+                if (typeof legalAPI === 'undefined') {
+                    console.error('legalAPI is not defined!');
+                    showNotification('❌ legalAPI is not defined', 'error');
+                    loadSampleData();
+                    return;
+                }
+                
+                const result = await legalAPI.getCases();
+                if (result.success) {
+                    allCases = result.cases.map(caseData => ({
+                        id: caseData.id,
+                        name: caseData.case_title || 'Untitled Case',
+                        client: caseData.petitioner || 'N/A',
+                        cnr_number: caseData.cnr_number,
+                        type: caseData.case_type || 'Unknown',
+                        date: caseData.filing_date || caseData.created_at,
+                        status: caseData.status || 'Pending',
+                        court_name: caseData.court_name,
+                        judge_name: caseData.judge_name,
+                        registration_number: caseData.registration_number
+                    }));
+                    
+                    currentCases = [...allCases];
+                    displayCases();
+                    showNotification(`✅ Loaded ${allCases.length} cases from API`, 'success');
+                } else {
+                    showNotification(`❌ Error loading cases: ${result.error}`, 'error');
+                    // Fallback to sample data
+                    loadSampleData();
+                }
+            } catch (error) {
+                showNotification(`❌ Network Error: ${error.message}`, 'error');
+                // Fallback to sample data
+                loadSampleData();
+            }
+        }
+
+        // Show no data when database fails
+        function loadSampleData() {
+            allCases = [];
+            currentCases = [];
+            displayCases();
+            showNotification('⚠️ No cases found. Add your first case to get started.', 'info');
+        }
+
+        // Search functionality
+        function searchCases() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            currentCases = allCases.filter(caseItem => {
+                const matchesSearch = caseItem.name.toLowerCase().includes(searchTerm) ||
+                                    caseItem.client.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilter === '' || caseItem.type === typeFilter;
+
+                return matchesSearch && matchesType;
+            });
+
+            currentPage = 1;
+            displayCases();
+            updatePagination();
+        }
+
+        // Display cases for current page
+        function displayCases() {
+            const tableBody = document.querySelector('.cases-table .table-body');
+            const startIndex = (currentPage - 1) * casesPerPage;
+            const endIndex = startIndex + casesPerPage;
+            const pageCases = currentCases.slice(startIndex, endIndex);
+
+            tableBody.innerHTML = '';
+
+            if (pageCases.length === 0) {
+                tableBody.innerHTML = `
+                    <div class="no-data">
+                        <p>No cases found</p>
+                        <button onclick="window.location.href='add_case.html'" class="btn btn-primary">Add New Case</button>
+                    </div>
+                `;
+                return;
+            }
+
+            pageCases.forEach(caseItem => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <div class="case-name">
+                        <div class="case-title">${caseItem.name}</div>
+                        <div class="case-cnr">CNR: ${caseItem.cnr_number || 'N/A'}</div>
+                    </div>
+                    <div class="case-type">${caseItem.type}</div>
+                    <div class="case-date">${formatDate(caseItem.date)}</div>
+                    <div class="case-actions">
+                        <button class="btn btn-primary action-btn-view" data-cnr="${caseItem.cnr_number}">View</button>
+                        <button class="btn btn-warning action-btn-edit" data-cnr="${caseItem.cnr_number}">Edit</button>
+                    </div>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Reattach event listeners
+            attachEventListeners();
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(currentCases.length / casesPerPage);
+            const pagination = document.querySelector('.pagination');
+            
+            let paginationHTML = '<button class="page-btn" onclick="changePage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>Previous</button>';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            paginationHTML += '<button class="page-btn" onclick="changePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>Next</button>';
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Change page
+        function changePage(page) {
+            const totalPages = Math.ceil(currentCases.length / casesPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                displayCases();
+                updatePagination();
+            }
+        }
+
+        // Attach event listeners to action buttons
+        function attachEventListeners() {
+            document.querySelectorAll('.action-btn-view').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const cnrNumber = this.getAttribute('data-cnr');
+                    if (cnrNumber) {
+                        // Store CNR for case details page
+                        sessionStorage.setItem('viewCaseCNR', cnrNumber);
+                        window.location.href = 'case_details.html';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.action-btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const cnrNumber = this.getAttribute('data-cnr');
+                    if (cnrNumber) {
+                        // Store CNR for edit page
+                        sessionStorage.setItem('editCaseCNR', cnrNumber);
+                        window.location.href = 'edit_case.html';
+                    }
+                });
+            });
+        }
+
+        // Utility function to format dates
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                return new Date(dateString).toLocaleDateString();
+            } catch {
+                return dateString;
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners
+            document.getElementById('searchInput').addEventListener('input', searchCases);
+            document.getElementById('typeFilter').addEventListener('change', searchCases);
+
+            // Load cases from database
+            loadCasesFromDatabase();
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Case - LegalPro</title>
+    <link rel="stylesheet" href="shared-dashboard-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        /* Sidebar styles moved to shared-dashboard-styles.css */
+
+        /* Sidebar header styles moved to shared-dashboard-styles.css */
+
+        /* Nav menu styles moved to shared-dashboard-styles.css */
+
+        /* Nav item styles moved to shared-dashboard-styles.css */
+
+        /* Navigation styles moved to shared-dashboard-styles.css */
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Header styles moved to shared-dashboard-styles.css */
+
+        /* Header h1 styles moved to shared-dashboard-styles.css */
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed #ecf0f1;
+            border-radius: 6px;
+            padding: 30px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #1e3a8a;
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* CNR Input Group */
+        .cnr-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .cnr-input-group .form-input {
+            flex: 1;
+        }
+
+        .fetch-btn {
+            white-space: nowrap;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        /* Debug Window */
+        .debug-window {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 400px;
+            max-height: 500px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            display: none;
+        }
+
+        .debug-header {
+            background: #34495e;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .debug-title {
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .debug-close {
+            background: none;
+            border: none;
+            color: #ecf0f1;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+        }
+
+        .debug-content {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        .debug-log {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .debug-log.info {
+            background: #1d4ed8;
+            color: #ecf0f1;
+        }
+
+        .debug-log.success {
+            background: #27ae60;
+            color: #ecf0f1;
+        }
+
+        .debug-log.error {
+            background: #c0392b;
+            color: #ecf0f1;
+        }
+
+        .debug-log.warning {
+            background: #f39c12;
+            color: #2c3e50;
+        }
+
+        .debug-timestamp {
+            color: #bdc3c7;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>LegalPro</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="legal_dashboard.html" class="nav-item">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="cases.html" class="nav-item active">
+                    <i>📁</i>
+                    <span>Cases</span>
+                </a>
+                <a href="clients.html" class="nav-item">
+                    <i>👥</i>
+                    <span>Clients</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <i>📅</i>
+                    <span>Calendar</span>
+                </a>
+                <!-- Documents and Billing tabs removed as requested -->
+                <!-- <a href="documents.html" class="nav-item">
+                    <i>📋</i>
+                    <span>Documents</span>
+                </a>
+                <a href="billing.html" class="nav-item">
+                    <i>💰</i>
+                    <span>Billing</span>
+                </a> -->
+                <!-- <a href="settings.html" class="nav-item">
+                    <i>⚙️</i>
+                    <span>Settings</span>
+                </a> -->
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Add New Case</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="window.location.href='cases.html'">Cancel</button>
+                    <button class="btn btn-danger" onclick="logout()" style="margin-left: 10px;">Logout</button>
+                </div>
+            </div>
+
+            <!-- Case Form -->
+            <form id="caseForm" class="form-container">
+                <!-- Basic Case Information -->
+                <div class="form-section">
+                    <h2 class="section-title">Case Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">CNR Number <span class="required">*</span></label>
+                            <div class="cnr-input-group">
+                                <input type="text" class="form-input" name="cnr_number" required placeholder="e.g., KAUP050003552024">
+                                <button type="button" class="btn btn-secondary fetch-btn" onclick="fetchFromECourts()">Fetch from eCourts</button>
+                            </div>
+                            <small class="form-help">Enter the CNR number and click "Fetch from eCourts" to auto-populate other fields</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Case Title <span class="required">*</span></label>
+                            <input type="text" class="form-input" name="caseTitle" required placeholder="Enter case title manually" maxlength="200">
+                            <small class="form-help">Enter a descriptive title for the case (mandatory field)</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Client Name <span class="required">*</span></label>
+                            <input type="text" class="form-input" name="clientName" required placeholder="Enter client name" maxlength="100">
+                            <small class="form-help">Enter the name of the client (mandatory field)</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Registration Number</label>
+                            <input type="text" class="form-input" name="registration_number" placeholder="Will be auto-filled from eCourts" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Case Type</label>
+                            <input type="text" class="form-input" name="case_type" placeholder="Will be auto-filled from eCourts" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Court</label>
+                            <input type="text" class="form-input" name="court_name" placeholder="Will be auto-filled from eCourts" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Filing Date</label>
+                            <input type="date" class="form-input" name="filingDate" placeholder="Will be auto-filled from eCourts" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Case Details -->
+                <div class="form-section">
+                    <h2 class="section-title">Case Details</h2>
+                    <div class="form-group">
+                        <label class="form-label">Additional Notes</label>
+                        <textarea class="form-textarea" name="caseDescription" placeholder="Add any additional notes or details about the case..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-section">
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Case</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Debug Window -->
+    <div class="debug-window" id="debugWindow">
+        <div class="debug-header">
+            <div class="debug-title">🔍 eCourts Debug Console</div>
+            <button class="debug-close" onclick="closeDebugWindow()">×</button>
+        </div>
+        <div class="debug-content" id="debugContent">
+            <!-- Debug logs will be added here -->
+        </div>
+    </div>
+
+    <!-- All functionality is now self-contained in this file -->
+    <script>
+        console.log('🚀 Script tag loaded - JavaScript is running');
+        
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+        
+        function checkAuth() {
+            const token = localStorage.getItem('userToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (!token || !userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const user = JSON.parse(userData);
+            console.log('✅ User authenticated:', user.username, 'Role:', user.role);
+            
+            // Add user info to page if needed
+            // You can add a user info display here
+        }
+        
+        function logout() {
+            const token = localStorage.getItem('userToken');
+            
+            // Call logout API
+            fetch('http://localhost:5005/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).finally(() => {
+                // Clear local storage and redirect
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userData');
+                window.location.href = 'login.html';
+            });
+        }
+        
+        // LegalAPI class definition
+        class LegalAPI {
+            constructor(baseUrl = 'http://localhost:5002/api') {
+                this.baseUrl = baseUrl;
+            }
+
+            // Add new case with CNR number
+            async addCase(caseData) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/cases`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(caseData)
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error adding case:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Get case by CNR number
+            async getCase(cnrNumber) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting case:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Trigger scraping from eCourts
+            async triggerScraping(cnrNumber) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/scraping/trigger/${cnrNumber}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error triggering scraping:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        // Initialize API
+        const legalAPI = new LegalAPI();
+
+        // Form submission handler
+        async function handleAddCaseForm(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const cnrNumber = formData.get('cnr_number').trim();
+            
+            if (!cnrNumber) {
+                showNotification('❌ CNR Number is required', 'error');
+                return;
+            }
+            
+            showNotification('🔄 Saving case to database...', 'info');
+            alert('💾 SAVE CASE CLICKED!\n\nSaving case to database...');
+            
+            try {
+                // Get user-entered data
+                const userData = {
+                    case_title: formData.get('caseTitle'),
+                    client_name: formData.get('clientName'),
+                    case_type: formData.get('case_type'),
+                    court_name: formData.get('court_name'),
+                filing_date: formData.get('filingDate'),
+                case_description: formData.get('caseDescription'),
+                    registration_number: formData.get('registration_number')
+                };
+                
+                // Step 3: Save to database (combines user data with scraped data)
+                const response = await fetch('http://localhost:5002/api/cases/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cnr_number: cnrNumber,
+                        user_data: userData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                    if (result.success) {
+                    showNotification(`✅ Case saved successfully! ${result.message}`, 'success');
+                    alert(`🎉 SUCCESS! Case saved to database!\n\n${result.message}\n\nRedirecting to cases list in 2 seconds...`);
+                    
+                    // Clear temporary scraped data from sessionStorage
+                    sessionStorage.removeItem('temp_scraped_data');
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                    // Optionally redirect to cases list
+                        setTimeout(() => {
+                            window.location.href = 'cases.html';
+                        }, 2000);
+                    } else {
+                    showNotification(`❌ Failed to save case: ${result.error}`, 'error');
+                    alert(`❌ FAILED! Could not save case to database:\n\n${result.error}`);
+                }
+            } catch (error) {
+                showNotification(`❌ Error saving case: ${error.message}`, 'error');
+                alert(`💥 ERROR! Something went wrong:\n\n${error.message}`);
+            }
+        }
+
+        // Fetch case data from eCourts - Make it globally accessible
+        window.fetchFromECourts = async function() {
+            alert('🚀 fetchFromECourts function called!'); // Test alert
+            console.log('🔄 fetchFromECourts function called');
+            
+            // Test if function is working
+            console.log('✅ Function is accessible and running');
+            
+            const cnrNumber = document.querySelector('input[name="cnr_number"]').value.trim();
+            console.log('CNR Number:', cnrNumber);
+            
+            showNotification('🔄 Fetching case data from eCourts...', 'info');
+            console.log('🔄 Making API call to trigger scraping...');
+            
+            try {
+                // Step 1: Trigger scraping
+                alert('🚀 Scraper is being called...'); // Temporary alert to test
+                showNotification('🚀 Scraper is being called...', 'info');
+                console.log('🔄 Sending POST request to API...');
+                const response = await fetch(`http://localhost:5002/api/scraping/trigger/${cnrNumber}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                console.log('📡 API Response status:', response.status);
+                const result = await response.json();
+                console.log('📡 API Response:', result);
+                
+                if (result.success) {
+                    const caseData = result.data;
+                    
+                    // Check if we have real data (not simulated)
+                    if (caseData.case_type && 
+                        caseData.case_type !== 'Unknown' && 
+                        caseData.case_type !== 'N/A' &&
+                        caseData.case_type !== 'Civil') {  // Only if we have actual scraped data
+                        
+                        // Step 2: Store scraped data in temporary storage (sessionStorage)
+                        const tempData = {
+                            cnr_number: cnrNumber,
+                            case_type: caseData.case_type,
+                            court_name: caseData.court_name,
+                            registration_number: caseData.registration_number,
+                            filing_date: caseData.filing_date,
+                            petitioner: caseData.petitioner,
+                            respondent: caseData.respondent,
+                            judge_name: caseData.judge_name,
+                            case_history: caseData.case_history,
+                            scraped_at: new Date().toISOString()
+                        };
+                        
+                        sessionStorage.setItem('temp_scraped_data', JSON.stringify(tempData));
+                        
+                        // Auto-fill form with technical case details from temporary data
+                                        let filledFields = 0;
+                                        
+                        // Only populate technical fields, not user input fields
+                        if (tempData.registration_number && tempData.registration_number !== 'Unknown') {
+                            document.querySelector('input[name="registration_number"]').value = tempData.registration_number;
+                                            filledFields++;
+                                        }
+                        if (tempData.case_type && tempData.case_type !== 'Unknown') {
+                            document.querySelector('input[name="case_type"]').value = tempData.case_type;
+                                            filledFields++;
+                                        }
+                        if (tempData.court_name && tempData.court_name !== 'Unknown Court') {
+                            document.querySelector('input[name="court_name"]').value = tempData.court_name;
+                                            filledFields++;
+                                        }
+                        if (tempData.filing_date) {
+                            // Convert from DD-MM-YYYY to YYYY-MM-DD format for HTML date input
+                            const dateParts = tempData.filing_date.split('-');
+                            if (dateParts.length === 3) {
+                                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                                document.querySelector('input[name="filingDate"]').value = formattedDate;
+                                            filledFields++;
+                            }
+                        }
+
+                        
+                        showNotification(`✅ Auto-filled ${filledFields} technical fields from scraped data! (Data stored temporarily)`, 'success');
+                        return; // Success, stop polling
+                    } else {
+                        showNotification('⚠️ Scraping completed but no meaningful data found. Please try again.', 'warning');
+                    }
+                } else {
+                    showNotification(`❌ Scraping failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('❌ Error in fetchFromECourts:', error);
+                showNotification(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Simple notification system - Old commented function removed
+        
+        function showNotification(message, type = 'info', duration = 5000, position = 'top-right') {
+            const notification = document.createElement('div');
+                notification.setAttribute('role', 'alert'); // ARIA role for accessibility
+                notification.setAttribute('aria-live', 'polite'); // Announces to screen readers
+
+                // Base styles - Modern, polished design
+            notification.style.cssText = `
+                position: fixed;
+                    padding: 16px 20px;
+                    border-radius: 8px;
+                color: white;
+                    font-weight: 600;
+                    font-size: 14px;
+                z-index: 1000;
+                    opacity: 0;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    backdrop-filter: blur(10px);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    max-width: 320px;
+                    line-height: 1.4;
+                    letter-spacing: 0.025em;
+                `;
+
+                // Positioning
+                if (position === 'top-right') {
+                    notification.style.top = '20px';
+                    notification.style.right = '20px';
+                    notification.style.transform = 'translateX(100%)'; // For slide-in
+                } else if (position === 'top-left') {
+                    notification.style.top = '20px';
+                    notification.style.left = '20px';
+                    notification.style.transform = 'translateX(-100%)';
+                } // Add more positions as needed
+
+                // Colors based on type - Modern, vibrant color scheme
+                switch (type) {
+                    case 'success': 
+                        notification.style.backgroundColor = '#10B981'; 
+                        notification.style.color = '#FFFFFF';
+                        notification.style.borderLeft = '4px solid #059669';
+                        break;
+                    case 'error': 
+                        notification.style.backgroundColor = '#EF4444'; 
+                        notification.style.color = '#FFFFFF';
+                        notification.style.borderLeft = '4px solid #DC2626';
+                        break;
+                    case 'warning': 
+                        notification.style.backgroundColor = '#F59E0B'; 
+                        notification.style.color = '#FFFFFF';
+                        notification.style.borderLeft = '4px solid #D97706';
+                        break;
+                    default: 
+                        notification.style.backgroundColor = '#3B82F6'; 
+                        notification.style.color = '#FFFFFF';
+                        notification.style.borderLeft = '4px solid #2563EB';
+                        break;
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+                // Slide in animation
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateX(0)';
+                }, 10); // Small delay for smooth transition
+
+                // Auto-remove with fade out
+            setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = position.includes('right') ? 'translateX(100%)' : 'translateX(-100%)';
+                    setTimeout(() => notification.remove(), 300); // Wait for fade out
+                }, duration);
+
+                // Handle stacking: Adjust top position if multiple exist
+                const existingNotifications = document.querySelectorAll(`[role="alert"]`);
+                if (existingNotifications.length > 1) {
+                    const lastNotification = existingNotifications[existingNotifications.length - 2];
+                    const lastBottom = lastNotification.getBoundingClientRect().bottom;
+                    notification.style.top = `${lastBottom + 10}px`; // Stack below with gap
+                }
+            }
+
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 DOM Content Loaded - Initializing page...');
+            
+            // Test if fetchFromECourts function is accessible
+            console.log('🔍 Testing fetchFromECourts function accessibility...');
+            if (typeof window.fetchFromECourts === 'function') {
+                console.log('✅ fetchFromECourts function is accessible!');
+            } else {
+                console.log('❌ fetchFromECourts function is NOT accessible!');
+                console.log('Available functions:', Object.keys(window).filter(key => typeof window[key] === 'function'));
+            }
+            
+            // Add form submission handler
+            const form = document.getElementById('caseForm');
+            if (form) {
+                console.log('✅ Form found and handler attached');
+                form.addEventListener('submit', handleAddCaseForm);
+            } else {
+                console.error('❌ Form not found!');
+            }
+            
+            // Fetch button is already working with onclick="fetchFromECourts()"
+            // No need to add additional event listeners
+            console.log('✅ Fetch button ready with onclick handler');
+            
+            // Functions are now working properly
+            console.log('✅ All functions are accessible and working');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Case - LegalPro</title>
+    <link rel="stylesheet" href="shared-dashboard-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        /* Sidebar styles moved to shared-dashboard-styles.css */
+
+        /* Sidebar header styles moved to shared-dashboard-styles.css */
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-item:hover {
+            background: #34495e;
+        }
+
+        .nav-item.active {
+            background: #1e3a8a;
+        }
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Header styles moved to shared-dashboard-styles.css */
+
+        /* Header h1 styles moved to shared-dashboard-styles.css */
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .form-input[readonly] {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            border-color: #dee2e6;
+        }
+
+        .form-input[readonly]:focus {
+            border-color: #dee2e6;
+            box-shadow: none;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed #ecf0f1;
+            border-radius: 6px;
+            padding: 30px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #1e3a8a;
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>LegalPro</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="legal_dashboard.html" class="nav-item">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="cases.html" class="nav-item active">
+                    <i>📁</i>
+                    <span>Cases</span>
+                </a>
+                <a href="clients.html" class="nav-item">
+                    <i>👥</i>
+                    <span>Clients</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <i>📅</i>
+                    <span>Calendar</span>
+                </a>
+                <!-- Documents and Billing tabs removed as requested -->
+                <!-- <a href="documents.html" class="nav-item">
+                    <i>📋</i>
+                    <span>Documents</span>
+                </a>
+                <a href="billing.html" class="nav-item">
+                    <i>💰</i>
+                    <span>Billing</span>
+                </a> -->
+                <!-- <a href="settings.html" class="nav-item">
+                    <i>⚙️</i>
+                    <span>Settings</span>
+                </a> -->
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Edit Case</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="window.location.href='cases.html'">Cancel</button>
+                    <button class="btn btn-danger">Delete Case</button>
+                    <button class="btn btn-primary" onclick="updateCase()">Update Case</button>
+                </div>
+            </div>
+
+            <!-- Case Form -->
+            <form id="caseForm" class="form-container">
+                <!-- Basic Case Information -->
+                <div class="form-section">
+                    <h2 class="section-title">Case Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">CNR Number <span class="required">*</span></label>
+                            <input type="text" class="form-input" name="cnr_number" id="cnr_number" required readonly>
+                            <small class="form-help">CNR number cannot be changed</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Case Title <span class="required">*</span></label>
+                            <input type="text" class="form-input" name="caseTitle" id="caseTitle" required placeholder="Enter case title" maxlength="200">
+                            <small class="form-help">Enter a descriptive title for the case (mandatory field)</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Client Name <span class="required">*</span></label>
+                            <input type="text" class="form-input" name="clientName" id="clientName" required placeholder="Enter client name" maxlength="100">
+                            <small class="form-help">Enter the name of the client (mandatory field)</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Registration Number</label>
+                            <input type="text" class="form-input" name="caseNumber" id="caseNumber" placeholder="Registration number" readonly>
+                            <small class="form-help">Registration number cannot be changed</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Case Type</label>
+                            <input type="text" class="form-input" name="caseType" id="caseType" placeholder="Case type" readonly>
+                            <small class="form-help">Case type cannot be changed</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Court</label>
+                            <input type="text" class="form-input" name="court" id="court" placeholder="Court name" readonly>
+                            <small class="form-help">Court cannot be changed</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Filing Date</label>
+                            <input type="date" class="form-input" name="filingDate" id="filingDate">
+                            <small class="form-help">Filing date cannot be changed</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Case Details -->
+                <div class="form-section">
+                    <h2 class="section-title">Case Details</h2>
+                    <div class="form-group">
+                        <label class="form-label">Additional Notes</label>
+                        <textarea class="form-textarea" name="caseDescription" id="caseDescription" placeholder="Add any additional notes or details about the case..."></textarea>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Action Buttons -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-danger" onclick="deleteCase()">
+                    <i class="fas fa-trash"></i> Delete Case
+                </button>
+                <button type="button" class="btn btn-primary" onclick="updateCase()">
+                    <i class="fas fa-save"></i> Update Case
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // LegalAPI class definition
+        class LegalAPI {
+            constructor(baseUrl = 'http://localhost:5002/api') {
+                this.baseUrl = baseUrl;
+            }
+
+            // Get case by CNR number
+            async getCase(cnrNumber) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting case:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Update case
+            async updateCase(cnrNumber, caseData) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(caseData)
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error updating case:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Delete case
+            async deleteCase(cnrNumber) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error deleting case:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        // Initialize API
+        const legalAPI = new LegalAPI();
+
+        // Load case data from database
+        async function loadCaseData() {
+            // Try to get CNR from session storage
+            const cnrNumber = sessionStorage.getItem('editCaseCNR');
+            
+            if (cnrNumber) {
+                try {
+                    const result = await legalAPI.getCase(cnrNumber);
+                    if (result.success && result.case) {
+                        const caseData = result.case;
+                        
+                        // Populate form fields with real data
+                        document.getElementById('cnr_number').value = caseData.cnr_number || '';
+                        document.getElementById('caseTitle').value = caseData.case_title || '';
+                        document.getElementById('clientName').value = caseData.client_name || '';
+                        document.getElementById('caseNumber').value = caseData.registration_number || '';
+                        document.getElementById('caseType').value = caseData.case_type || '';
+                        document.getElementById('court').value = caseData.court_name || '';
+                        // Convert date format for HTML date input (yyyy-MM-dd)
+                        if (caseData.filing_date) {
+                            try {
+                                // Handle different date formats
+                                let date;
+                                if (typeof caseData.filing_date === 'string') {
+                                    // If it's already a string, try to parse it
+                                    date = new Date(caseData.filing_date);
+                                } else {
+                                    // If it's a date object
+                                    date = caseData.filing_date;
+                                }
+                                
+                                if (!isNaN(date.getTime())) {
+                                    const formattedDate = date.toISOString().split('T')[0];
+                                    document.getElementById('filingDate').value = formattedDate;
+                                    console.log('Date converted successfully:', caseData.filing_date, '->', formattedDate);
+                                } else {
+                                    document.getElementById('filingDate').value = '';
+                                    console.log('Invalid date format:', caseData.filing_date);
+                                }
+                            } catch (error) {
+                                console.error('Error converting date:', error);
+                                document.getElementById('filingDate').value = '';
+                            }
+                        } else {
+                            document.getElementById('filingDate').value = '';
+                        }
+                        document.getElementById('caseDescription').value = caseData.case_description || '';
+                        
+                        console.log('Loaded real case data for editing:', caseData);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error loading case data:', error);
+                }
+            }
+            
+            // If no real data available, clear all fields
+            document.getElementById('cnr_number').value = '';
+            document.getElementById('caseTitle').value = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('caseNumber').value = '';
+            document.getElementById('caseType').value = '';
+            document.getElementById('court').value = '';
+            document.getElementById('filingDate').value = '';
+            document.getElementById('caseDescription').value = '';
+        }
+
+        // Form submission
+        document.getElementById('caseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateCase();
+        });
+
+        async function updateCase() {
+            // Get form data
+            const formData = new FormData(document.getElementById('caseForm'));
+            const caseData = {};
+            
+            for (let [key, value] of formData.entries()) {
+                caseData[key] = value;
+            }
+
+            // Validate required fields
+            const requiredFields = ['caseTitle', 'clientName'];
+            const missingFields = requiredFields.filter(field => !caseData[field]);
+
+            if (missingFields.length > 0) {
+                alert('Please fill in all required fields: ' + missingFields.join(', '));
+                return;
+            }
+
+            // Get CNR from session storage
+            const cnrNumber = sessionStorage.getItem('editCaseCNR');
+            
+            if (cnrNumber) {
+                try {
+                    const result = await legalAPI.updateCase(cnrNumber, caseData);
+                    if (result.success) {
+                        alert('Case updated successfully!');
+                        window.location.href = 'cases.html';
+                    } else {
+                        alert('Error updating case: ' + result.error);
+                    }
+                } catch (error) {
+                    alert('Error updating case: ' + error.message);
+                }
+            } else {
+                alert('No case selected for editing');
+            }
+        }
+
+        async function deleteCase() {
+            const caseName = document.getElementById('caseTitle').value || 'this case';
+            const cnrNumber = sessionStorage.getItem('editCaseCNR');
+            
+            if (!cnrNumber) {
+                alert('No case selected for deletion');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete the case "${caseName}"? This action cannot be undone and will also delete all associated case history.`)) {
+                try {
+                    const result = await legalAPI.deleteCase(cnrNumber);
+                    if (result.success) {
+                        alert('Case deleted successfully!');
+                        window.location.href = 'cases.html';
+                    } else {
+                        alert('Error deleting case: ' + result.error);
+                    }
+                } catch (error) {
+                    alert('Error deleting case: ' + error.message);
+                }
+            }
+        }
+
+        // Initialize page
+        loadCaseData();
+    </script>
+</body>
+</html> 

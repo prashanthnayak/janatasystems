@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Logs - Legal System</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .header {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #00ff00;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #00ff00;
+            font-size: 24px;
+        }
+        
+        .controls {
+            margin: 10px 0;
+        }
+        
+        .btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background: #00cc00;
+        }
+        
+        .log-container {
+            background: #000;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            height: 70vh;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .log-entry.error {
+            color: #ff4444;
+        }
+        
+        .log-entry.success {
+            color: #00ff00;
+        }
+        
+        .log-entry.info {
+            color: #00aaff;
+        }
+        
+        .log-entry.warning {
+            color: #ffaa00;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 10px;
+        }
+        
+        .source {
+            color: #666;
+            font-size: 10px;
+            font-style: italic;
+        }
+        
+        .auto-scroll {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Real-Time System Logs</h1>
+        <p>Live logs from scraper, API, and database operations</p>
+        <div class="controls">
+            <button class="btn" onclick="clearLogs()">Clear Logs</button>
+            <button class="btn" onclick="refreshLogs()">Refresh</button>
+        </div>
+    </div>
+    
+    <div class="log-container" id="logContainer">
+        <div class="log-entry info">🔄 Connecting to API server...</div>
+    </div>
+    
+    <div id="status" class="status">🔴 Connecting...</div>
+    <button class="auto-scroll" id="autoScrollBtn" title="Auto-scroll to bottom">↓</button>
+
+    <script>
+        const logContainer = document.getElementById('logContainer');
+        const autoScrollBtn = document.getElementById('autoScrollBtn');
+        const statusDiv = document.getElementById('status');
+        let autoScroll = true;
+        let lastLogCount = 0;
+        let pollingInterval = null;
+        
+        // Function to add log entry
+        function addLogEntry(logData) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${logData.type}`;
+            
+            const sourceText = logData.source !== 'system' ? ` [${logData.source}]` : '';
+            logEntry.innerHTML = `
+                <span class="timestamp">[${logData.timestamp}]</span>
+                <span class="source">${sourceText}</span>
+                ${logData.message}
+            `;
+            logContainer.appendChild(logEntry);
+            
+            if (autoScroll) {
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        }
+        
+        // Toggle auto-scroll
+        autoScrollBtn.addEventListener('click', () => {
+            autoScroll = !autoScroll;
+            autoScrollBtn.textContent = autoScroll ? '↓' : '↑';
+            autoScrollBtn.title = autoScroll ? 'Auto-scroll enabled' : 'Auto-scroll disabled';
+        });
+        
+        // Function to fetch logs from API
+        async function fetchLogs() {
+            try {
+                const response = await fetch('http://localhost:5002/api/logs?limit=100');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const logs = result.logs;
+                    
+                    // Only add new logs
+                    if (logs.length > lastLogCount) {
+                        const newLogs = logs.slice(lastLogCount);
+                        newLogs.forEach(log => addLogEntry(log));
+                        lastLogCount = logs.length;
+                    }
+                    
+                    // Update status
+                    statusDiv.innerHTML = `🟢 Connected (${logs.length} logs)`;
+                    statusDiv.style.borderColor = '#00ff00';
+                    statusDiv.style.color = '#00ff00';
+                    
+                    return true;
+                } else {
+                    throw new Error(result.error || 'Failed to fetch logs');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '🔴 Connection failed';
+                statusDiv.style.borderColor = '#ff4444';
+                statusDiv.style.color = '#ff4444';
+                console.error('Error fetching logs:', error);
+                return false;
+            }
+        }
+        
+        // Function to clear logs
+        async function clearLogs() {
+            try {
+                const response = await fetch('http://localhost:5002/api/logs/clear', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    logContainer.innerHTML = '<div class="log-entry info">🧹 Logs cleared</div>';
+                    lastLogCount = 0;
+                    addLogEntry({
+                        timestamp: new Date().toLocaleString(),
+                        message: 'Logs cleared successfully',
+                        type: 'info',
+                        source: 'system'
+                    });
+                }
+            } catch (error) {
+                console.error('Error clearing logs:', error);
+            }
+        }
+        
+        // Function to refresh logs
+        function refreshLogs() {
+            fetchLogs();
+        }
+        
+        // Start polling for logs
+        function startPolling() {
+            // Initial fetch
+            fetchLogs();
+            
+            // Poll every 2 seconds
+            pollingInterval = setInterval(fetchLogs, 2000);
+        }
+        
+        // Stop polling
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+        
+        // Initialize
+        startPolling();
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', stopPolling);
+    </script>
+</body>
+</html> 

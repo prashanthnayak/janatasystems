@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Details - LegalPro</title>
+    <link rel="stylesheet" href="shared-dashboard-styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        /* Sidebar styles moved to shared-dashboard-styles.css */
+
+        /* Sidebar header styles moved to shared-dashboard-styles.css */
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+
+        /* Navigation styles moved to shared-dashboard-styles.css */
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Header styles moved to shared-dashboard-styles.css */
+
+        /* Header h1 styles moved to shared-dashboard-styles.css */
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Case Overview */
+        .case-overview {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .case-title h2 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .case-subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .case-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-active {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .case-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        /* Case Details Grid */
+        .case-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .case-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .detail-value {
+            color: #7f8c8d;
+            text-align: right;
+        }
+
+        /* Special styling for case description */
+        .detail-row:has(#caseDescription) .detail-value {
+            text-align: left;
+            max-width: 60%;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        /* Timeline */
+        .timeline {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-left: 2px solid #ecf0f1;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #1e3a8a;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: #7f8c8d;
+            min-width: 80px;
+        }
+
+        .timeline-content h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .timeline-content p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        /* Documents section removed */
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .case-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .case-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>LegalPro</h2>
+                <p>Management System</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="legal_dashboard.html" class="nav-item">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="cases.html" class="nav-item">
+                    <i>📁</i>
+                    <span>Cases</span>
+                </a>
+                <a href="clients.html" class="nav-item">
+                    <i>👥</i>
+                    <span>Clients</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <i>📅</i>
+                    <span>Calendar</span>
+                </a>
+                <!-- <a href="settings.html" class="nav-item">
+                    <i>⚙️</i>
+                    <span>Settings</span>
+                </a> -->
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Case Details</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="window.location.href='cases.html'">Back to Cases</button>
+                    <button class="btn btn-danger" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Case Overview -->
+            <div class="case-overview">
+                <div class="case-header">
+                    <div class="case-title">
+                        <h2 id="caseTitle">No Case Selected</h2>
+                        <p class="case-subtitle" id="caseSubtitle">CNR Number: </p>
+                    </div>
+                </div>
+
+                <div class="case-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="daysSinceFiling">-</div>
+                        <div class="stat-label">Days Since Filing</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalHearings">-</div>
+                        <div class="stat-label">Total Hearings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="latestStatus">-</div>
+                        <div class="stat-label">Latest Status</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Details Grid -->
+            <div class="case-details-grid">
+                <!-- Left Column - Case Information -->
+                <div class="case-section">
+                    <h3 class="section-title">Case Information</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Client Name</span>
+                        <span class="detail-value" id="clientName"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Registration Number</span>
+                        <span class="detail-value" id="registrationNumber"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Case Type</span>
+                        <span class="detail-value" id="caseType"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Court</span>
+                        <span class="detail-value" id="court"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Filing Date</span>
+                        <span class="detail-value" id="filingDate"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Additional Notes</span>
+                        <span class="detail-value" id="caseDescription"></span>
+                    </div>
+                </div>
+
+                <!-- Right Column - Case Timeline -->
+                <div class="case-section">
+                    <h3 class="section-title">Case Timeline</h3>
+                    <div class="timeline" id="caseTimeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date"></div>
+                            <div class="timeline-content">
+                                <h4>No Case History Available</h4>
+                                <p>No hearing records found for this case.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // LegalAPI class definition
+        class LegalAPI {
+            constructor(baseUrl = 'http://localhost:5002/api') {
+                this.baseUrl = baseUrl;
+            }
+
+            // Get case by CNR number
+            async getCase(cnrNumber) {
+                try {
+                    console.log('🔍 DEBUG: getCase called with CNR:', cnrNumber);
+                    
+                    const token = localStorage.getItem('userToken');
+                    console.log('🔍 DEBUG: Token from localStorage:', token ? 'EXISTS' : 'MISSING');
+                    
+                    if (!token) {
+                        console.error('❌ No auth token found');
+                        return { success: false, error: 'No authentication token found' };
+                    }
+
+                    console.log('🔍 DEBUG: Making API call to:', `${this.baseUrl}/cases/${cnrNumber}`);
+                    console.log('🔍 DEBUG: With headers:', { 'Authorization': `Bearer ${token.substring(0, 10)}...`, 'Content-Type': 'application/json' });
+
+                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    console.log('🔍 DEBUG: Response status:', response.status);
+                    console.log('🔍 DEBUG: Response headers:', response.headers);
+                    
+                    const result = await response.json();
+                    console.log('🔍 DEBUG: Response data:', result);
+                    
+                    return result;
+                } catch (error) {
+                    console.error('❌ Error getting case:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Get all cases
+            async getCases(userId = null, limit = 50, offset = 0) {
+                try {
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, error: 'No authentication token found' };
+                    }
+
+                    let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
+                    if (userId) url += `&user_id=${userId}`;
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting cases:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Get case history
+            async getCaseHistory(cnrNumber) {
+                try {
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, error: 'No authentication token found' };
+                    }
+
+                    const response = await fetch(`${this.baseUrl}/case_history/${cnrNumber}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting case history:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        // Initialize API
+        const legalAPI = new LegalAPI();
+
+        // Get case details from URL parameters or session storage
+        async function getCaseDetails() {
+            console.log('🚀 DEBUG: getCaseDetails function called');
+            
+            // Check if user is authenticated
+            const token = localStorage.getItem('userToken');
+            console.log('🔍 DEBUG: Token check:', token ? 'EXISTS' : 'MISSING');
+            
+            if (!token) {
+                console.error('❌ No auth token found - redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Try to get CNR from URL parameters first, then session storage
+            const urlParams = new URLSearchParams(window.location.search);
+            let cnrNumber = urlParams.get('cnr') || sessionStorage.getItem('viewCaseCNR');
+            console.log('🔍 DEBUG: CNR Number found:', cnrNumber);
+            
+            if (cnrNumber) {
+                try {
+                    // FIRST: Check localStorage for cached data (cross-page access)
+                    const cachedDataFromStorage = localStorage.getItem('userDashboardData');
+                    if (cachedDataFromStorage) {
+                        try {
+                            const parsedData = JSON.parse(cachedDataFromStorage);
+                            console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
+                            
+                            if (parsedData.cases) {
+                                console.log('🚀 FAST MODE: Using cached data from localStorage!');
+                                const cachedCases = parsedData.cases;
+                                const caseData = cachedCases.find(c => c.cnr_number === cnrNumber);
+                                
+                                if (caseData) {
+                                    console.log('✅ DEBUG: Case data loaded from localStorage cache:', caseData);
+                                    
+                                    // Update page with real data
+                                    document.getElementById('caseTitle').textContent = caseData.case_title || 'Untitled Case';
+                                    document.getElementById('caseSubtitle').textContent = `CNR Number: ${caseData.cnr_number || ''}`;
+                                    
+                                    // Update case information
+                                    document.getElementById('clientName').textContent = caseData.client_name || '';
+                                    document.getElementById('registrationNumber').textContent = caseData.registration_number || '';
+                                    document.getElementById('caseType').textContent = caseData.case_type || '';
+                                    document.getElementById('court').textContent = caseData.court_name || '';
+                                    document.getElementById('filingDate').textContent = caseData.filing_date || '';
+                                    document.getElementById('caseDescription').textContent = caseData.case_description || '';
+                                    
+                                    // Load case history from cache
+                                    await loadCaseHistoryFromCache(cnrNumber);
+                                    
+                                    // Calculate and display statistics
+                                    await updateCaseStatistics(cnrNumber, caseData.filing_date);
+                                    
+                                    console.log('✅ DEBUG: Page updated with localStorage cached case data');
+                                    return;
+                                } else {
+                                    console.log('⚠️ DEBUG: Case not found in localStorage cache, falling back to API...');
+                                }
+                            }
+                        } catch (parseError) {
+                            console.error('❌ Error parsing localStorage data:', parseError);
+                        }
+                    }
+                    
+                    // SECOND: Check if we have cached data from dashboard (same page)
+                    if (window.userDashboardData && window.userDashboardData.cases) {
+                        console.log('🚀 FAST MODE: Using cached data from dashboard!');
+                        const cachedCases = window.userDashboardData.cases;
+                        const caseData = cachedCases.find(c => c.cnr_number === cnrNumber);
+                        
+                        if (caseData) {
+                            console.log('✅ DEBUG: Case data loaded from cache:', caseData);
+                            
+                            // Update page with real data
+                            document.getElementById('caseTitle').textContent = caseData.case_title || 'Untitled Case';
+                            document.getElementById('caseSubtitle').textContent = `CNR Number: ${caseData.cnr_number || ''}`;
+                            
+                            // Update case information
+                            document.getElementById('clientName').textContent = caseData.client_name || '';
+                            document.getElementById('registrationNumber').textContent = caseData.registration_number || '';
+                            document.getElementById('caseType').textContent = caseData.case_type || '';
+                            document.getElementById('court').textContent = caseData.court_name || '';
+                            document.getElementById('filingDate').textContent = caseData.filing_date || '';
+                            document.getElementById('caseDescription').textContent = caseData.case_description || '';
+                            
+                            // Load case history from cache
+                            await loadCaseHistoryFromCache(cnrNumber);
+                            
+                            // Calculate and display statistics
+                            await updateCaseStatistics(cnrNumber, caseData.filing_date);
+                            
+                            console.log('✅ DEBUG: Page updated with cached case data');
+                            return;
+                        } else {
+                            console.log('⚠️ DEBUG: Case not found in cache, falling back to API...');
+                        }
+                    }
+                    
+                    // THIRD: Fallback to API call if no cached data
+                    console.log('🔄 SLOW MODE: Loading case from API...');
+                    
+                    console.log('🔍 DEBUG: Calling legalAPI.getCase with CNR:', cnrNumber);
+                    const result = await legalAPI.getCase(cnrNumber);
+                    console.log('🔍 DEBUG: getCase result:', result);
+                    
+                    if (result.success && result.case) {
+                        const caseData = result.case;
+                        console.log('✅ DEBUG: Case data loaded successfully:', caseData);
+                        
+                        // Update page with real data
+                        document.getElementById('caseTitle').textContent = caseData.case_title || 'Untitled Case';
+                        document.getElementById('caseSubtitle').textContent = `CNR Number: ${caseData.cnr_number || ''}`;
+                        
+                        // Update case information
+                        document.getElementById('clientName').textContent = caseData.client_name || '';
+                        document.getElementById('registrationNumber').textContent = caseData.registration_number || '';
+                        document.getElementById('caseType').textContent = caseData.case_type || '';
+                        document.getElementById('court').textContent = caseData.court_name || '';
+                        document.getElementById('filingDate').textContent = caseData.filing_date || '';
+                        document.getElementById('caseDescription').textContent = caseData.case_description || '';
+                        
+                        // Client information section removed
+                        
+                        // Load case history
+                        await loadCaseHistory(cnrNumber);
+                        
+                        // Calculate and display statistics
+                        await updateCaseStatistics(cnrNumber, caseData.filing_date);
+                        
+                        console.log('✅ DEBUG: Page updated with case data');
+                        return;
+                    } else {
+                        console.error('❌ DEBUG: Failed to load case:', result.error);
+                        // Show error message
+                        document.getElementById('caseTitle').textContent = 'Error Loading Case';
+                        document.getElementById('caseSubtitle').textContent = `CNR: ${cnrNumber}`;
+                        document.getElementById('caseTitle').style.color = '#e74c3c';
+                    }
+                } catch (error) {
+                    console.error('❌ DEBUG: Error loading case details:', error);
+                    // Show error message
+                    document.getElementById('caseTitle').textContent = 'Error Loading Case';
+                    document.getElementById('caseSubtitle').textContent = `CNR: ${cnrNumber}`;
+                    document.getElementById('caseTitle').style.color = '#e74c3c';
+                }
+            } else {
+                console.log('⚠️ DEBUG: No CNR number found');
+            }
+            
+            // If no real data available, show empty/blank data
+            document.getElementById('caseTitle').textContent = 'No Case Selected';
+            document.getElementById('caseSubtitle').textContent = 'CNR Number: ';
+            
+            // Clear all fields
+            document.getElementById('clientName').textContent = '';
+            document.getElementById('registrationNumber').textContent = '';
+            document.getElementById('caseType').textContent = '';
+            document.getElementById('court').textContent = '';
+            document.getElementById('filingDate').textContent = '';
+            document.getElementById('caseDescription').textContent = '';
+            // Client information elements removed
+            
+            // Clear case history
+            clearCaseHistory();
+        }
+
+        // Load case history from cache (SUPER FAST!)
+        async function loadCaseHistoryFromCache(cnrNumber) {
+            try {
+                // FIRST: Check localStorage for cached data (cross-page access)
+                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
+                if (cachedDataFromStorage) {
+                    try {
+                        const parsedData = JSON.parse(cachedDataFromStorage);
+                        if (parsedData.case_histories) {
+                            const caseHistories = parsedData.case_histories;
+                            const history = caseHistories[cnrNumber];
+                            
+                            if (history && history.length > 0) {
+                                displayCaseHistory(history);
+                                return;
+                            }
+                        }
+                    } catch (parseError) {
+                        console.error('❌ Error parsing localStorage data:', parseError);
+                    }
+                }
+                
+                // SECOND: Check if we have cached data from dashboard (same page)
+                if (window.userDashboardData && window.userDashboardData.case_histories) {
+                    const caseHistories = window.userDashboardData.case_histories;
+                    const history = caseHistories[cnrNumber];
+                    
+                    if (history && history.length > 0) {
+                        displayCaseHistory(history);
+                        return;
+                    }
+                }
+                
+                // Fallback to API if no cached history
+                await loadCaseHistory(cnrNumber);
+            } catch (error) {
+                console.error('Error loading case history from cache:', error);
+                // Fallback to API
+                await loadCaseHistory(cnrNumber);
+            }
+        }
+
+        // Load case history from database
+        async function loadCaseHistory(cnrNumber) {
+            try {
+                const result = await legalAPI.getCaseHistory(cnrNumber);
+                
+                if (result.success && result.history && result.history.length > 0) {
+                    displayCaseHistory(result.history);
+                } else {
+                    clearCaseHistory();
+                }
+            } catch (error) {
+                console.error('Error loading case history:', error);
+                clearCaseHistory();
+            }
+        }
+
+        // Display case history in timeline
+        function displayCaseHistory(historyEntries) {
+            const timelineContainer = document.getElementById('caseTimeline');
+            if (!timelineContainer) return;
+            
+            timelineContainer.innerHTML = '';
+            
+            // Sort by hearing date (newest first)
+            const sortedHistory = historyEntries.sort((a, b) => {
+                return new Date(b.hearing_date) - new Date(a.hearing_date);
+            });
+            
+            sortedHistory.forEach(entry => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+                
+                const date = new Date(entry.hearing_date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                timelineItem.innerHTML = `
+                    <div class="timeline-date">${entry.hearing_date !== 'N/A' ? entry.hearing_date : 'Date not available'}</div>
+                    <div class="timeline-content">
+                        <h4>${entry.purpose || 'Hearing'}</h4>
+                        <p><strong>Purpose of Hearing:</strong> ${entry.purpose || 'Not specified'}</p>
+                        <p><strong>Hearing Date:</strong> ${entry.hearing_date !== 'N/A' ? entry.hearing_date : 'Date not available'}</p>
+                    </div>
+                `;
+                
+                timelineContainer.appendChild(timelineItem);
+            });
+        }
+
+        // Clear case history
+        function clearCaseHistory() {
+            const timelineContainer = document.getElementById('caseTimeline');
+            if (timelineContainer) {
+                timelineContainer.innerHTML = `
+                    <div class="timeline-item">
+                        <div class="timeline-date"></div>
+                        <div class="timeline-content">
+                            <h4>No Case History Available</h4>
+                            <p>No hearing records found for this case.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Update case statistics
+        async function updateCaseStatistics(cnrNumber, filingDate) {
+            try {
+                // Calculate days since filing
+                let daysSinceFiling = '-';
+                if (filingDate) {
+                    const filing = new Date(filingDate);
+                    const today = new Date();
+                    const diffTime = Math.abs(today - filing);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    daysSinceFiling = diffDays.toString();
+                }
+                
+                // Get case history to calculate total hearings and latest status
+                const result = await legalAPI.getCaseHistory(cnrNumber);
+                
+                let totalHearings = '0';
+                let latestStatus = '-';
+                
+                if (result.success && result.history && result.history.length > 0) {
+                    totalHearings = result.history.length.toString();
+                    
+                    // Get the latest status (most recent hearing purpose)
+                    const sortedHistory = result.history.sort((a, b) => {
+                        return new Date(b.hearing_date) - new Date(a.hearing_date);
+                    });
+                    
+                    if (sortedHistory.length > 0) {
+                        latestStatus = sortedHistory[0].purpose || '-';
+                    }
+                }
+                
+                // Update the statistics display
+                document.getElementById('daysSinceFiling').textContent = daysSinceFiling;
+                document.getElementById('totalHearings').textContent = totalHearings;
+                document.getElementById('latestStatus').textContent = latestStatus;
+                
+            } catch (error) {
+                console.error('Error updating case statistics:', error);
+                // Set default values on error
+                document.getElementById('daysSinceFiling').textContent = '-';
+                document.getElementById('totalHearings').textContent = '-';
+                document.getElementById('latestStatus').textContent = '-';
+            }
+        }
+
+        // Initialize page
+        getCaseDetails();
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userData');
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Document action buttons removed - documents section no longer exists
+    </script>
+</body>
+</html> 
