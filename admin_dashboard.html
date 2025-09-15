@@ -1566,9 +1566,6 @@
                                     <td>${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button class="btn btn-primary btn-sm" onclick="editUser(${user.id})" title="Edit User">
-                                                ✏️ Edit
-                                            </button>
                                             <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id}, '${user.username}')" title="Delete User">
                                                 🗑️ Delete
                                             </button>
