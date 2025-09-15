@@ -1026,7 +1026,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             
             cursor.execute("""
-                SELECT id, username, email, full_name, phone, password_hash, plain_password, role, is_active, created_at, last_login
+                SELECT id, username, email, full_name, phone, role, is_active, created_at, last_login
                 FROM users ORDER BY role, username
             """)
             
@@ -1039,12 +1039,10 @@ class DatabaseManager:
                     'email': row[2],
                     'full_name': row[3],
                     'phone': row[4],
-                    'password': row[5],
-                    'plain_password': row[6],
-                    'role': row[7],
-                    'is_active': row[8],
-                    'created_at': row[9],
-                    'last_login': row[10]
+                    'role': row[5],
+                    'is_active': row[6],
+                    'created_at': row[7],
+                    'last_login': row[8]
                 }
                 users.append(user_data)
             

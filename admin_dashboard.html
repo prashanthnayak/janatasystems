@@ -899,7 +899,6 @@
                                     <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th>Password</th>
                                     <th>Role</th>
                                     <th>Status</th>
                                     <th>Created</th>
@@ -909,7 +908,7 @@
                             </thead>
                     <tbody id="usersTableBody">
                         <tr>
-                            <td colspan="10" style="text-align: center; padding: 20px;">
+                            <td colspan="9" style="text-align: center; padding: 20px;">
                                 Loading users...
                             </td>
                         </tr>
@@ -1529,6 +1528,7 @@
                 });
 
                 const result = await response.json();
+                console.log('Load users API response:', result);
 
                 if (result.success && result.users) {
                     // Update users table
@@ -1552,14 +1552,6 @@
                                     <td>${user.full_name || 'N/A'}</td>
                                     <td>${user.email || 'N/A'}</td>
                                     <td>${user.phone && user.phone.trim() ? user.phone : '—'}</td>
-                                    <td>
-                                        <div class="password-cell">
-                                            <span class="password-mask" id="password-${user.id}" data-password="${user.plain_password || user.password || 'N/A'}">••••••</span>
-                                            <button class="btn-show-password" onclick="togglePassword(${user.id})" title="Show/Hide Password">
-                                                👁️
-                                            </button>
-                                        </div>
-                                    </td>
                                     <td>
                                         <span class="role-badge role-${user.role}">
                                             ${user.role.toUpperCase()}
