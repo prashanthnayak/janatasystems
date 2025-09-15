@@ -102,7 +102,6 @@ sudo dnf install -y \
     xorg-x11-server-Xvfb \
     gtk3-devel \
     nss-devel \
-    GConf2-devel \
     xorg-x11-xauth \
     dbus-glib-devel \
     dbus-glib \
@@ -117,9 +116,18 @@ sudo dnf install -y \
     libXfixes \
     libXi \
     libXrender \
-    libXss \
     liberation-fonts \
-    xdg-utils
+    liberation-fonts-common \
+    xdg-utils \
+    at-spi2-atk \
+    at-spi2-core \
+    cups-libs \
+    gtk3 \
+    libdrm \
+    libxkbcommon \
+    libxshmfence \
+    mesa-libgbm \
+    vulkan-loader
 
 log_success "Chrome dependencies installed"
 

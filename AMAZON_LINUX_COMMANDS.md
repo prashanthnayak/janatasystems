@@ -54,13 +54,30 @@ sudo dnf install -y \
     xorg-x11-server-Xvfb \
     gtk3-devel \
     nss-devel \
-    GConf2-devel \
     xorg-x11-xauth \
     dbus-glib-devel \
     alsa-lib \
     libXtst \
     libXrandr \
-    liberation-fonts
+    libXScrnSaver \
+    libXcomposite \
+    libXcursor \
+    libXdamage \
+    libXext \
+    libXfixes \
+    libXi \
+    libXrender \
+    liberation-fonts \
+    liberation-fonts-common \
+    xdg-utils \
+    at-spi2-atk \
+    at-spi2-core \
+    cups-libs \
+    gtk3 \
+    libdrm \
+    libxkbcommon \
+    libxshmfence \
+    mesa-libgbm
 
 # Download and install Chrome
 cd /tmp

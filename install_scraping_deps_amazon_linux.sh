@@ -59,11 +59,9 @@ sudo dnf install -y \
     xorg-x11-server-Xvfb \
     gtk3-devel \
     nss-devel \
-    GConf2-devel \
     xorg-x11-xauth \
     dbus-glib-devel \
     dbus-glib \
-    dbus-python \
     alsa-lib \
     libXtst \
     libXrandr \
@@ -75,10 +73,18 @@ sudo dnf install -y \
     libXfixes \
     libXi \
     libXrender \
-    libXss \
-    fonts-liberation \
     liberation-fonts \
-    xdg-utils
+    liberation-fonts-common \
+    xdg-utils \
+    at-spi2-atk \
+    at-spi2-core \
+    cups-libs \
+    drpm \
+    gtk3 \
+    libdrm \
+    libxkbcommon \
+    libxshmfence \
+    mesa-libgbm
 
 log_success "System dependencies installed"
 
