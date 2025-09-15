@@ -1057,7 +1057,7 @@ class DatabaseManager:
             if conn:
                 conn.close()
 
-    def create_user(self, username, password_hash, email, full_name, phone=None, role='user', status='active', plain_password=None):
+    def create_user(self, username, password_hash, email, full_name, phone=None, role='user', status='active'):
         """Create a new user"""
         try:
             conn = self.get_connection()

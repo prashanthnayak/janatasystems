@@ -954,8 +954,7 @@ def create_user():
             full_name=full_name,
             phone=phone,
             role=role,
-            status=status,
-            plain_password=password
+            status=status
         )
         
         if user_id:
@@ -969,7 +968,8 @@ def create_user():
                 'user_id': user_id
             })
         else:
-            return jsonify({'success': False, 'error': 'Failed to create user'}), 500
+            legal_api.add_log(f"Failed to create user: {username}", 'error', 'admin')
+            return jsonify({'success': False, 'error': 'Failed to create user - database operation failed'}), 500
             
     except Exception as e:
         legal_api.add_log(f"Error creating user: {str(e)}", 'error', 'admin')
