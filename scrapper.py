@@ -293,18 +293,18 @@ def scrape_case_details(cnr_number):
 
 def extract_case_details(driver):
     """Extract case details from the results page"""
-        case_data = {
-            'case_title': 'Unknown',
-            'petitioner': 'Unknown',
-            'respondent': 'Unknown',
-            'case_type': 'Civil',
-            'court_name': 'Unknown Court',
-            'judge_name': 'Unknown Judge',
-            'status': 'Active',
-            'filing_date': None,
-            'registration_number': 'Unknown'
-        }
-        
+    case_data = {
+        'case_title': 'Unknown',
+        'petitioner': 'Unknown',
+        'respondent': 'Unknown',
+        'case_type': 'Civil',
+        'court_name': 'Unknown Court',
+        'judge_name': 'Unknown Judge',
+        'status': 'Active',
+        'filing_date': None,
+        'registration_number': 'Unknown'
+    }
+    
     try:
         # Get the page source for debugging
         page_source = driver.page_source
@@ -342,14 +342,14 @@ def extract_case_details(driver):
                         try:
                             # Try to parse the business date as filing date
                             case_data['filing_date'] = business_date
-        except:
-            pass
+                        except:
+                            pass
                     elif hearing_date and hearing_date != '' and case_data['filing_date'] is None:
-        try:
+                        try:
                             # Try to parse the hearing date as filing date
                             case_data['filing_date'] = hearing_date
-        except:
-            pass
+                        except:
+                            pass
                     
                     # Break after first row since we have the main info
                     break

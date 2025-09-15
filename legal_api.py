@@ -21,8 +21,7 @@ from functools import wraps
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from database_setup import DatabaseManager
-# Temporarily comment out scrapper import due to indentation issues
-# from scrapper import scrape_case_details
+from scrapper import scrape_case_details
 
 app = Flask(__name__)
 #CORS(app)
@@ -162,9 +161,8 @@ class LegalAPI:
             try:
                 self.add_log(f"Starting scraping attempt {attempt} of {MAX_RETRIES} for CNR: {cnr_number}", 'info', 'scraper')
                 
-                # Scrape the data - temporarily disabled
-                # result = scrape_case_details(cnr_number)
-                result = {'success': False, 'error': 'Scraping temporarily disabled'}
+                # Scrape the data
+                result = scrape_case_details(cnr_number)
                 
                 if result and result.get('success'):
                     # Step 2: Store in temporary storage

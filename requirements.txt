@@ -1,0 +1,28 @@
+# Legal Management System - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Flask framework
+flask==2.3.3
+flask-cors==4.0.0
+
+# Database
+psycopg2-binary==2.9.7
+
+# Web scraping
+selenium==4.20.0
+
+# Image processing and AI
+pillow==10.0.1
+transformers==4.35.0
+torch==2.1.0
+torchvision==0.16.0
+
+# HTTP requests
+requests==2.31.0
+
+# Date handling
+python-dateutil==2.8.2
+
+# Additional utilities
+beautifulsoup4==4.12.2
+lxml==4.9.3
