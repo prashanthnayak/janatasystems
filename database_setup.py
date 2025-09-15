@@ -13,7 +13,7 @@ class DatabaseManager:
     def __init__(self):
         # Database connection parameters
         self.db_params = {
-            'host': '52.23.206.51',
+            'host': 'localhost',  # Changed from 52.23.206.51 to localhost
             'database': 'legal_management',
             'user': 'prashanth',
             'password': 'secure_password_123',
