@@ -939,8 +939,9 @@ def create_user():
             existing_user = legal_api.db.get_user_by_username(username)
             if existing_user:
                 return jsonify({'success': False, 'error': 'Username already exists'}), 400
-        except:
-            pass  # Method might not exist, continue
+        except Exception as e:
+            print(f"Error checking existing user: {e}")
+            pass  # Continue if method fails
         
         # Hash password
         password_hash = hashlib.sha256(password.encode()).hexdigest()

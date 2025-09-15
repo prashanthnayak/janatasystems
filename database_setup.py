@@ -98,6 +98,7 @@ class DatabaseManager:
                     email VARCHAR(100) UNIQUE NOT NULL,
                     password_hash VARCHAR(255) NOT NULL,
                     full_name VARCHAR(100) NOT NULL,
+                    phone VARCHAR(15),
                     role VARCHAR(10) DEFAULT 'user',
                     is_active BOOLEAN DEFAULT true,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -1068,10 +1069,10 @@ class DatabaseManager:
             # Insert new user (using is_active instead of status for compatibility)
             is_active = status == 'active'
             cursor.execute("""
-                INSERT INTO users (username, email, password_hash, plain_password, full_name, phone, role, is_active, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                INSERT INTO users (username, email, password_hash, full_name, phone, role, is_active, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
                 RETURNING id
-            """, (username, email, password_hash, plain_password, full_name, phone, role, is_active))
+            """, (username, email, password_hash, full_name, phone, role, is_active))
             
             user_id = cursor.fetchone()[0]
             conn.commit()
@@ -1225,6 +1226,39 @@ class DatabaseManager:
             print(f"Error deleting user: {e}")
             return False
 
+    def add_phone_column_to_users(self):
+        """Add phone column to users table if it doesn't exist"""
+        try:
+            conn = self.get_connection()
+            if not conn:
+                return False
+                
+            cursor = conn.cursor()
+            
+            # Check if phone column exists
+            cursor.execute("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='users' AND column_name='phone'
+            """)
+            
+            if not cursor.fetchone():
+                # Add phone column
+                cursor.execute("ALTER TABLE users ADD COLUMN phone VARCHAR(15)")
+                conn.commit()
+                print("✅ Added phone column to users table")
+            else:
+                print("✅ Phone column already exists in users table")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error adding phone column: {e}")
+            return False
+        finally:
+            if 'conn' in locals() and conn:
+                conn.close()
+
     def recreate_users_table(self):
         """Drop and recreate users table with correct structure"""
         try:
@@ -1243,6 +1277,7 @@ class DatabaseManager:
                     email VARCHAR(100) UNIQUE NOT NULL,
                     password_hash VARCHAR(255) NOT NULL,
                     full_name VARCHAR(100) NOT NULL,
+                    phone VARCHAR(15),
                     role VARCHAR(10) DEFAULT 'user',
                     is_active BOOLEAN DEFAULT true,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -1279,4 +1314,4 @@ if __name__ == "__main__":
     db_manager = DatabaseManager()
     db_manager.create_tables()
     db_manager.migrate_add_client_name() 
-    db_manager.recreate_users_table()  # Recreate users table with correct structure 
+    db_manager.add_phone_column_to_users()  # Recreate users table with correct structure 
