@@ -1373,15 +1373,27 @@
         }
 
         function logout() {
+            console.log('Logout function called');
             const token = localStorage.getItem('userToken');
+            console.log('Token for logout:', token ? 'Token exists' : 'No token found');
             
             // Call logout API
-            fetch('http://52.23.206.51:5005/api/auth/logout', {
+            fetch('http://52.23.206.51:5002/api/auth/logout', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
+            }).then(response => {
+                console.log('Logout API response status:', response.status);
+                return response.json();
+            }).then(data => {
+                console.log('Logout API response data:', data);
+            }).catch(error => {
+                console.log('Logout API call failed:', error);
+                // Continue with logout even if API call fails
             }).finally(() => {
+                console.log('Clearing localStorage and redirecting...');
                 // Clear local storage and redirect
                 localStorage.removeItem('userToken');
                 localStorage.removeItem('userData');
