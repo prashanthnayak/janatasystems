@@ -700,7 +700,7 @@
                     return;
                 }
 
-                const response = await fetch('http://localhost:5002/api/auth/profile', {
+                const response = await fetch('http://52.23.206.51:5002/api/auth/profile', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -787,7 +787,7 @@
                 const token = localStorage.getItem('userToken');
                 if (token) {
                     // Call logout API
-                    await fetch('http://localhost:5002/api/auth/logout', {
+                    await fetch('http://52.23.206.51:5002/api/auth/logout', {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -810,7 +810,7 @@
 
         // LegalAPI class definition
         class LegalAPI {
-            constructor(baseUrl = 'http://localhost:5002/api') {
+            constructor(baseUrl = 'http://52.23.206.51:5002/api') {
                 this.baseUrl = baseUrl;
             }
 
@@ -881,7 +881,7 @@
                 }
                 
                 // Call the new super-fast endpoint
-                const response = await fetch('http://localhost:5002/api/user/dashboard-data', {
+                const response = await fetch('http://52.23.206.51:5002/api/user/dashboard-data', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'

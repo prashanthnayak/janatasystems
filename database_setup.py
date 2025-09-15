@@ -13,10 +13,10 @@ class DatabaseManager:
     def __init__(self):
         # Database connection parameters
         self.db_params = {
-            'host': 'localhost',
+            'host': '52.23.206.51',
             'database': 'legal_management',
             'user': 'prashanth',
-            'password': '',
+            'password': 'secure_password_123',
             'port': '5432'
         }
     

@@ -438,7 +438,7 @@ def extract_case_details(driver):
 def send_log_to_api(message, log_type='info', source='scraper'):
     """Send log message to API server"""
     try:
-        requests.post('http://localhost:5002/api/logs/add', 
+        requests.post('http://52.23.206.51:5002/api/logs/add', 
                      json={'message': message, 'type': log_type, 'source': source},
                      timeout=1)
     except:

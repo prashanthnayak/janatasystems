@@ -498,7 +498,7 @@
             const token = localStorage.getItem('userToken');
             
             // Call logout API
-            fetch('http://localhost:5005/api/auth/logout', {
+            fetch('http://52.23.206.51:5005/api/auth/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -513,7 +513,7 @@
         
         // LegalAPI class definition
         class LegalAPI {
-            constructor(baseUrl = 'http://localhost:5002/api') {
+            constructor(baseUrl = 'http://52.23.206.51:5002/api') {
                 this.baseUrl = baseUrl;
             }
 
@@ -593,7 +593,7 @@
                 };
                 
                 // Step 3: Save to database (combines user data with scraped data)
-                const response = await fetch('http://localhost:5002/api/cases/save', {
+                const response = await fetch('http://52.23.206.51:5002/api/cases/save', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -649,7 +649,7 @@
                 alert('🚀 Scraper is being called...'); // Temporary alert to test
                 showNotification('🚀 Scraper is being called...', 'info');
                 console.log('🔄 Sending POST request to API...');
-                const response = await fetch(`http://localhost:5002/api/scraping/trigger/${cnrNumber}`, {
+                const response = await fetch(`http://52.23.206.51:5002/api/scraping/trigger/${cnrNumber}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

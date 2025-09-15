@@ -25,7 +25,12 @@ from database_setup import DatabaseManager
 # from scrapper import scrape_case_details
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
+CORS(app,
+     origins=["http://52.23.206.51:8000", "http://localhost:8000"],
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     supports_credentials=True)  # This is crucial!
 
 # Global temporary storage for scraped data
 temp_scraped_data = {}
@@ -1122,4 +1127,4 @@ def delete_user(user_id):
 if __name__ == '__main__':
     legal_api.add_log("API server starting up", 'info', 'system')
     print("🚀 Starting Legal API Server on port 5002...")
-    app.run(host='127.0.0.1', port=5002, debug=False) 
+    app.run(host='0.0.0.0', port=5002, debug=False) 

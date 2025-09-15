@@ -1328,7 +1328,13 @@
                 await loadUsers();
                 
                 // Load cases
-                const casesResponse = await fetch('http://localhost:5002/api/cases');
+                //const casesResponse = await fetch('http://52.23.206.51:5002/api/cases');
+		// Load cases
+		const casesResponse = await fetch('http://52.23.206.51:5002/api/cases', {
+    			headers: {
+        			'Authorization': `Bearer ${token}`
+    			}
+		});
                 if (casesResponse.ok) {
                     const casesResult = await casesResponse.json();
                     if (casesResult.success) {
@@ -1371,7 +1377,7 @@
             const token = localStorage.getItem('userToken');
             
             // Call logout API
-            fetch('http://localhost:5005/api/auth/logout', {
+            fetch('http://52.23.206.51:5005/api/auth/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -1462,8 +1468,9 @@
                 }
 
                 // Make API call to create user
-                const response = await fetch('http://localhost:5002/api/admin/users/create', {
+                const response = await fetch('http://52.23.206.51:5002/api/admin/users/create', {
                     method: 'POST',
+		    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -1505,7 +1512,7 @@
                 }
 
                 // Make API call to get users
-                const response = await fetch('http://localhost:5002/api/admin/users', {
+                const response = await fetch('http://52.23.206.51:5002/api/admin/users', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1636,10 +1643,10 @@
             button.disabled = true;
 
             // Test the API health
-            fetch('http://localhost:5002/api/auth/profile', {
+            fetch('http://52.23.206.51:5002/api/auth/profile', {
                 method: 'OPTIONS',
                 headers: {
-                    'Origin': 'http://localhost:8000'
+                    'Origin': 'http://52.23.206.51:8000'
                 }
             })
             .then(response => {
@@ -1888,7 +1895,7 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 deleteBtn.disabled = true;
 
                 // Make API call to delete user
-                fetch(`http://localhost:5002/api/admin/users/${userId}`, {
+                fetch(`http://52.23.206.51:5002/api/admin/users/${userId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('userToken')}`
@@ -1972,11 +1979,11 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 }
 
                 console.log('Making API call to update user:', userId);
-                console.log('API URL:', `http://localhost:5002/api/admin/users/${userId}`);
+                console.log('API URL:', `http://52.23.206.51:5002/api/admin/users/${userId}`);
                 console.log('Request payload:', formData);
 
                 // Make API call to update user
-                const response = await fetch(`http://localhost:5002/api/admin/users/${userId}`, {
+                const response = await fetch(`http://52.23.206.51:5002/api/admin/users/${userId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
