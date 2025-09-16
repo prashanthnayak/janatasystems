@@ -35,7 +35,7 @@ db = DatabaseManager()
 
 # ----------------------- CONFIG ---------------------------------
 CNR_NUMBER = "KAUP050003552024"          # <-- change as required
-HEADLESS = False                         # Set to False for faster loading (mimics normal browser)
+HEADLESS = True                          # Set to True for EC2/headless servers
 CSV_FOLDER = Path("~/Desktop/shantharam").expanduser()
 CAPTCHA_FOLDER = Path("~/Desktop/captcha_images").expanduser()
 OCR_MODEL_NAME = "anuashok/ocr-captcha-v3"
@@ -55,15 +55,31 @@ def create_driver(headless: bool = True) -> webdriver.Chrome:
         if headless:
             chrome_options.add_argument("--headless=new")
         
-        # Essential options for stability
+        # Essential options for stability (CRITICAL for EC2)
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         
+        # Additional EC2/headless server options
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-plugins")
+        chrome_options.add_argument("--disable-images")  # Speed up loading
+        # chrome_options.add_argument("--disable-javascript")  # Commented out - needed for e-courts
+        chrome_options.add_argument("--disable-background-timer-throttling")
+        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+        chrome_options.add_argument("--disable-renderer-backgrounding")
+        chrome_options.add_argument("--disable-features=TranslateUI")
+        chrome_options.add_argument("--disable-ipc-flooding-protection")
+        chrome_options.add_argument("--single-process")  # Use single process for stability
+        chrome_options.add_argument("--disable-web-security")  # If needed for CORS
+        chrome_options.add_argument("--remote-debugging-port=9222")  # For debugging
+        
         # Window size and position
         chrome_options.add_argument("--window-size=1920,1080")
-        chrome_options.add_argument("--start-maximized")
+        # Remove --start-maximized for headless mode
+        if not headless:
+            chrome_options.add_argument("--start-maximized")
         
         # Mimic real browser to avoid throttling
         chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36")
