@@ -454,9 +454,21 @@ def extract_case_details(driver):
 def send_log_to_api(message, log_type='info', source='scraper'):
     """Send log message to API server"""
     try:
-        requests.post('http://52.23.206.51:5002/api/logs/add', 
-                     json={'message': message, 'type': log_type, 'source': source},
-                     timeout=1)
+        # Try localhost first, then fallback to the original IP
+        urls_to_try = [
+            'http://localhost:5002/api/logs/add',
+            'http://127.0.0.1:5002/api/logs/add',
+            'http://52.23.206.51:5002/api/logs/add'
+        ]
+        
+        for url in urls_to_try:
+            try:
+                requests.post(url, 
+                             json={'message': message, 'type': log_type, 'source': source},
+                             timeout=1)
+                break  # If successful, stop trying other URLs
+            except:
+                continue  # Try next URL
     except:
         # Silently fail if API is not available
         pass
