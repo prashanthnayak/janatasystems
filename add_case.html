@@ -499,7 +499,7 @@
             const token = localStorage.getItem('userToken');
             
             // Call logout API
-            fetch('http://52.23.206.51:5005/api/auth/logout', {
+            fetch(config.getApiUrl('/auth/logout'), {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -594,10 +594,18 @@
                 };
                 
                 // Step 3: Save to database (combines user data with scraped data)
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    showNotification('❌ Please login first', 'error');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
                 const response = await fetch(config.getApiUrl('/cases/save'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                         cnr_number: cnrNumber,
