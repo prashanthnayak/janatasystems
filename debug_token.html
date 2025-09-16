@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Token Authentication</title>
+    <script src="config.js"></script>
+</head>
+<body>
+    <h1>🔍 Debug Token Authentication</h1>
+    
+    <div style="margin: 20px;">
+        <h2>Current Token Info</h2>
+        <button onclick="checkToken()">Check Current Token</button>
+        <div id="tokenInfo"></div>
+    </div>
+    
+    <div style="margin: 20px;">
+        <h2>Test Login</h2>
+        <input type="text" id="username" placeholder="Username" value="admin">
+        <input type="password" id="password" placeholder="Password" value="admin123">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div style="margin: 20px;">
+        <h2>Test Save Case API</h2>
+        <input type="text" id="cnr" placeholder="CNR Number" value="TEST123">
+        <button onclick="testSaveCase()">Test Save Case</button>
+        <div id="saveResult"></div>
+    </div>
+    
+    <div style="margin: 20px;">
+        <h2>Console Output</h2>
+        <div id="console" style="background: #f0f0f0; padding: 10px; height: 300px; overflow-y: scroll; font-family: monospace; font-size: 12px;"></div>
+    </div>
+
+    <script>
+        // Capture console output
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function addToConsole(message, type = 'log') {
+            const consoleDiv = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            consoleDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+
+        async function checkToken() {
+            const resultDiv = document.getElementById('tokenInfo');
+            
+            try {
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                const token = localStorage.getItem('userToken');
+                const userData = localStorage.getItem('userData');
+                
+                console.log('🔍 Checking stored token...');
+                console.log('Token:', token ? token.substring(0, 20) + '...' : 'null');
+                console.log('User data:', userData);
+                
+                if (!token) {
+                    resultDiv.innerHTML = `<p>❌ No token found in localStorage</p>`;
+                    return;
+                }
+                
+                // Test token with a simple API call
+                const response = await fetch(config.getApiUrl('/server-info'), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p><strong>Token:</strong> ${token.substring(0, 20)}...</p>
+                    <p><strong>User Data:</strong> ${userData || 'null'}</p>
+                    <p><strong>Token Test Status:</strong> ${response.status}</p>
+                    <p><strong>Token Test Response:</strong> <pre>${JSON.stringify(data, null, 2)}</pre></p>
+                `;
+                
+            } catch (error) {
+                console.error('Token check failed:', error);
+                resultDiv.innerHTML = `<p>❌ Token check failed: ${error.message}</p>`;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            resultDiv.innerHTML = '<p>🔄 Testing login...</p>';
+            
+            try {
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                console.log('🔄 Testing login with:', username);
+                
+                const response = await fetch(config.getApiUrl('/auth/login'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('userToken', data.token);
+                    localStorage.setItem('userData', JSON.stringify(data.user || {}));
+                    console.log('✅ Login successful, token saved');
+                } else {
+                    console.error('❌ Login failed:', data.error);
+                }
+                
+                resultDiv.innerHTML = `
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <p><strong>Success:</strong> ${data.success}</p>
+                    <p><strong>Token:</strong> ${data.token ? data.token.substring(0, 20) + '...' : 'null'}</p>
+                    <p><strong>Response:</strong> <pre>${JSON.stringify(data, null, 2)}</pre></p>
+                `;
+                
+            } catch (error) {
+                console.error('Login test failed:', error);
+                resultDiv.innerHTML = `<p>❌ Login test failed: ${error.message}</p>`;
+            }
+        }
+
+        async function testSaveCase() {
+            const resultDiv = document.getElementById('saveResult');
+            const cnr = document.getElementById('cnr').value;
+            
+            resultDiv.innerHTML = '<p>🔄 Testing save case...</p>';
+            
+            try {
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    resultDiv.innerHTML = '<p>❌ No token found. Please login first.</p>';
+                    return;
+                }
+                
+                console.log('🔄 Testing save case with token:', token.substring(0, 20) + '...');
+                
+                const response = await fetch(config.getApiUrl('/cases/save'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        cnr_number: cnr,
+                        user_data: {
+                            case_title: 'Test Case',
+                            client_name: 'Test Client'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <p><strong>Success:</strong> ${data.success}</p>
+                    <p><strong>Error:</strong> ${data.error || 'None'}</p>
+                    <p><strong>Response:</strong> <pre>${JSON.stringify(data, null, 2)}</pre></p>
+                `;
+                
+            } catch (error) {
+                console.error('Save case test failed:', error);
+                resultDiv.innerHTML = `<p>❌ Save case test failed: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-initialize config when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔄 Page loaded, initializing config...');
+            try {
+                await config.init();
+                console.log('✅ Config initialized on page load');
+                await checkToken(); // Auto-check token on load
+            } catch (error) {
+                console.error('❌ Config initialization failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>
