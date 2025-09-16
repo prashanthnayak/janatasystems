@@ -1,6 +1,6 @@
 /**
- * Dynamic Configuration for Legal Management System
- * Automatically detects the current server IP and configures API endpoints
+ * Simple Dynamic Configuration for Legal Management System
+ * Uses browser location to determine API host (no server endpoint needed)
  */
 
 class Config {
@@ -14,45 +14,12 @@ class Config {
     async init() {
         if (this.initialized) return;
         
-        try {
-            // Method 1: Try to get IP from a config endpoint
-            this.API_HOST = await this.getServerIP();
-        } catch (error) {
-            console.log('Could not get server IP, falling back to current host');
-            // Method 2: Use current browser host as fallback
-            this.API_HOST = window.location.hostname;
-        }
+        // Simple approach: use the current browser's hostname
+        // This works because the browser is accessing the same server
+        this.API_HOST = window.location.hostname;
         
         this.initialized = true;
         console.log(`🌐 API Host configured: ${this.API_HOST}`);
-    }
-
-    async getServerIP() {
-        try {
-            // Build the correct URL for the API server
-            const apiHost = window.location.hostname;
-            const apiUrl = `http://${apiHost}:5002/api/server-info`;
-            
-            console.log(`🔍 Trying to get server info from: ${apiUrl}`);
-            
-            const response = await fetch(apiUrl, {
-                method: 'GET'
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('✅ Got server info:', data);
-                return data.public_ip || data.hostname || apiHost;
-            } else {
-                console.log('❌ Server info request failed:', response.status);
-            }
-        } catch (error) {
-            console.log('❌ Server info endpoint not available:', error.message);
-        }
-
-        // Fallback: use current hostname
-        console.log('🔄 Using fallback hostname:', window.location.hostname);
-        return window.location.hostname;
     }
 
     getApiUrl(endpoint = '') {
