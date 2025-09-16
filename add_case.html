@@ -633,24 +633,33 @@
 
         // Fetch case data from eCourts - Make it globally accessible
         window.fetchFromECourts = async function() {
-            alert('🚀 fetchFromECourts function called!'); // Test alert
             console.log('🔄 fetchFromECourts function called');
-            
-            // Test if function is working
-            console.log('✅ Function is accessible and running');
             
             const cnrNumber = document.querySelector('input[name="cnr_number"]').value.trim();
             console.log('CNR Number:', cnrNumber);
+            
+            if (!cnrNumber) {
+                showNotification('❌ Please enter a CNR number first', 'error');
+                return;
+            }
+            
+            // Ensure config is initialized
+            if (!config.initialized) {
+                console.log('🔄 Config not initialized, initializing now...');
+                showNotification('🔄 Initializing configuration...', 'info');
+                await config.init();
+            }
             
             showNotification('🔄 Fetching case data from eCourts...', 'info');
             console.log('🔄 Making API call to trigger scraping...');
             
             try {
                 // Step 1: Trigger scraping
-                alert('🚀 Scraper is being called...'); // Temporary alert to test
-                showNotification('🚀 Scraper is being called...', 'info');
-                console.log('🔄 Sending POST request to API...');
-                const response = await fetch(`${config.getApiUrl('/scraping/trigger/${cnrNumber}')}`, {
+                const apiUrl = config.getApiUrl('/scraping/trigger/' + cnrNumber);
+                console.log('🔄 Sending POST request to:', apiUrl);
+                showNotification('🚀 Triggering scraper...', 'info');
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
