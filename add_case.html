@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="config.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Case - LegalPro</title>
@@ -593,7 +594,7 @@
                 };
                 
                 // Step 3: Save to database (combines user data with scraped data)
-                const response = await fetch('http://52.23.206.51:5002/api/cases/save', {
+                const response = await fetch(config.getApiUrl('/cases/save'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -649,7 +650,7 @@
                 alert('🚀 Scraper is being called...'); // Temporary alert to test
                 showNotification('🚀 Scraper is being called...', 'info');
                 console.log('🔄 Sending POST request to API...');
-                const response = await fetch(`http://52.23.206.51:5002/api/scraping/trigger/${cnrNumber}`, {
+                const response = await fetch(`${config.getApiUrl('/scraping/trigger/${cnrNumber}')}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

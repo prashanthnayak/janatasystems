@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="config.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
@@ -326,7 +327,7 @@
                     console.log('CAPTCHA expected:', currentCaptcha);
                     
                     // Call login API
-                    const response = await fetch('http://52.23.206.51:5002/api/auth/login', {
+                    const response = await fetch(config.getApiUrl('/auth/login'), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

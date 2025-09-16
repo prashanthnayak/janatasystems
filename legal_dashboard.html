@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="config.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Legal Management Dashboard</title>
@@ -700,7 +701,7 @@
                     return;
                 }
 
-                const response = await fetch('http://52.23.206.51:5002/api/auth/profile', {
+                const response = await fetch(config.getApiUrl('/auth/profile'), {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -787,7 +788,11 @@
                 const token = localStorage.getItem('userToken');
                 if (token) {
                     // Call logout API
-                    await fetch('http://52.23.206.51:5002/api/auth/logout', {
+                    await 
+        // Wait for config to initialize
+        await config.init();
+        
+        fetch(config.getApiUrl('/auth/logout'), {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -881,7 +886,7 @@
                 }
                 
                 // Call the new super-fast endpoint
-                const response = await fetch('http://52.23.206.51:5002/api/user/dashboard-data', {
+                const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'

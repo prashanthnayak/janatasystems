@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="config.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - LegalPro</title>
@@ -1327,9 +1328,13 @@
                 await loadUsers();
                 
                 // Load cases
-                //const casesResponse = await fetch('http://52.23.206.51:5002/api/cases');
+                //const casesResponse = await fetch(config.getApiUrl('/cases'));
 		// Load cases
-		const casesResponse = await fetch('http://52.23.206.51:5002/api/cases', {
+		const casesResponse = await 
+        // Wait for config to initialize
+        await config.init();
+        
+        fetch(config.getApiUrl('/cases'), {
     			headers: {
         			'Authorization': `Bearer ${token}`
     			}
@@ -1378,7 +1383,7 @@
             console.log('Token for logout:', token ? 'Token exists' : 'No token found');
             
             // Call logout API
-            fetch('http://52.23.206.51:5002/api/auth/logout', {
+            fetch(config.getApiUrl('/auth/logout'), {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -1480,7 +1485,7 @@
 
                 // Make API call to create user
                 console.log('Making API call to create user...');
-                const response = await fetch('http://52.23.206.51:5002/api/admin/users/create', {
+                const response = await fetch(config.getApiUrl('/admin/users/create'), {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -1532,7 +1537,7 @@
                 }
 
                 // Make API call to get users
-                const response = await fetch('http://52.23.206.51:5002/api/admin/users', {
+                const response = await fetch(config.getApiUrl('/admin/users'), {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1653,10 +1658,10 @@
             button.disabled = true;
 
             // Test the API health
-            fetch('http://52.23.206.51:5002/api/auth/profile', {
+            fetch(config.getApiUrl('/auth/profile'), {
                 method: 'OPTIONS',
                 headers: {
-                    'Origin': 'http://52.23.206.51:8000'
+                    'Origin': config.getWebUrl()
                 }
             })
             .then(response => {
@@ -1905,7 +1910,7 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 deleteBtn.disabled = true;
 
                 // Make API call to delete user
-                fetch(`http://52.23.206.51:5002/api/admin/users/${userId}`, {
+                fetch(`${config.getApiUrl('/admin/users/${userId}')}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('userToken')}`
@@ -1989,11 +1994,11 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 }
 
                 console.log('Making API call to update user:', userId);
-                console.log('API URL:', `http://52.23.206.51:5002/api/admin/users/${userId}`);
+                console.log('API URL:', `${config.getApiUrl('/admin/users/${userId}')}`);
                 console.log('Request payload:', formData);
 
                 // Make API call to update user
-                const response = await fetch(`http://52.23.206.51:5002/api/admin/users/${userId}`, {
+                const response = await fetch(`${config.getApiUrl('/admin/users/${userId}')}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

@@ -25,8 +25,24 @@ from scrapper import scrape_case_details
 
 app = Flask(__name__)
 #CORS(app)
+# Dynamic CORS configuration
+def get_cors_origins():
+    """Get CORS origins dynamically"""
+    try:
+        import requests
+        # Get current public IP
+        response = requests.get('https://api.ipify.org', timeout=5)
+        public_ip = response.text.strip()
+        return [
+            f"http://{public_ip}:8000",
+            "http://localhost:8000",
+            "http://127.0.0.1:8000"
+        ]
+    except:
+        return ["http://localhost:8000", "http://127.0.0.1:8000"]
+
 CORS(app,
-     origins=["http://52.23.206.51:8000", "http://localhost:8000"],
+     origins=get_cors_origins(),
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      supports_credentials=True)  # This is crucial!
@@ -1122,6 +1138,52 @@ def delete_user(user_id):
         except Exception as e:
             legal_api.add_log(f"Error deleting user: {str(e)}", 'error', 'admin')
             return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/server-info', methods=['GET'])
+def get_server_info():
+    """Get server information including public IP"""
+    try:
+        import requests
+        
+        # Get public IP from multiple sources
+        public_ip = None
+        ip_services = [
+            'https://api.ipify.org',
+            'https://checkip.amazonaws.com',
+            'https://ipinfo.io/ip'
+        ]
+        
+        for service in ip_services:
+            try:
+                response = requests.get(service, timeout=5)
+                if response.status_code == 200:
+                    public_ip = response.text.strip()
+                    break
+            except:
+                continue
+        
+        # Get local IP as fallback
+        import socket
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+        
+        return jsonify({
+            'success': True,
+            'public_ip': public_ip,
+            'local_ip': local_ip,
+            'hostname': hostname,
+            'api_port': 5002,
+            'web_port': 8000
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'local_ip': '127.0.0.1',
+            'api_port': 5002,
+            'web_port': 8000
+        })
 
 if __name__ == '__main__':
     legal_api.add_log("API server starting up", 'info', 'system')

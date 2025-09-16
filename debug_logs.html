@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="config.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal Logs - Legal System</title>
@@ -170,7 +171,11 @@
         // Function to fetch logs from API
         async function fetchLogs() {
             try {
-                const response = await fetch('http://52.23.206.51:5002/api/logs?limit=100');
+                const response = await 
+        // Wait for config to initialize
+        await config.init();
+        
+        fetch(config.getApiUrl('/logs?limit=100'));
                 const result = await response.json();
                 
                 if (result.success) {
@@ -204,7 +209,11 @@
         // Function to clear logs
         async function clearLogs() {
             try {
-                const response = await fetch('http://52.23.206.51:5002/api/logs/clear', {
+                const response = await 
+        // Wait for config to initialize
+        await config.init();
+        
+        fetch(config.getApiUrl('/logs/clear'), {
                     method: 'POST'
                 });
                 const result = await response.json();
