@@ -1014,11 +1014,23 @@
                     // Calculate today's hearings count
                     if (cases.length > 0 && result.dashboard_data.case_histories) {
                         const today = new Date().toDateString();
-                        const todayHearings = result.dashboard_data.case_histories.filter(entry => {
-                            const entryDate = new Date(entry.hearing_date).toDateString();
-                            return entryDate === today;
+                        let todayHearingsCount = 0;
+                        
+                        // case_histories is an object with CNR keys, not an array
+                        Object.values(result.dashboard_data.case_histories).forEach(caseHistory => {
+                            if (caseHistory.history && Array.isArray(caseHistory.history)) {
+                                caseHistory.history.forEach(entry => {
+                                    if (entry.hearing_date) {
+                                        const entryDate = new Date(entry.hearing_date).toDateString();
+                                        if (entryDate === today) {
+                                            todayHearingsCount++;
+                                        }
+                                    }
+                                });
+                            }
                         });
-                        document.getElementById('todayHearingsCount').textContent = todayHearings.length;
+                        
+                        document.getElementById('todayHearingsCount').textContent = todayHearingsCount;
                     }
                     
                     // Store cases globally
