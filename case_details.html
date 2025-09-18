@@ -515,6 +515,19 @@
         const legalAPI = new LegalAPI();
 
         // Get case details from URL parameters or session storage
+        // Main function to load case data - calls getCaseDetails
+        async function loadCaseData(cnrNumber) {
+            console.log('📄 loadCaseData called for CNR:', cnrNumber);
+            
+            // Store CNR in sessionStorage for consistency
+            if (cnrNumber) {
+                sessionStorage.setItem('viewCaseCNR', cnrNumber);
+            }
+            
+            // Call the main case details loading function
+            await getCaseDetails();
+        }
+
         async function getCaseDetails() {
             console.log('🚀 DEBUG: getCaseDetails function called');
             
