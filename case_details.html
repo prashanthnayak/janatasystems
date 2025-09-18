@@ -883,9 +883,13 @@
                     lastCacheUpdate = currentCacheUpdate;
                     
                     // Reload the current case data
-                    const cnrFromUrl = new URLSearchParams(window.location.search).get('cnr');
-                    if (cnrFromUrl) {
-                        loadCaseData(cnrFromUrl);
+                    let cnrNumber = new URLSearchParams(window.location.search).get('cnr');
+                    if (!cnrNumber) {
+                        cnrNumber = sessionStorage.getItem('viewCaseCNR');
+                    }
+                    if (cnrNumber) {
+                        console.log('📄 Refreshing case details for CNR:', cnrNumber);
+                        loadCaseData(cnrNumber);
                     }
                 }
             }, 1000); // Check every second
@@ -893,17 +897,28 @@
 
         // Initialize page when DOM loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Get CNR from URL parameters
+            // Get CNR from URL parameters first
             const urlParams = new URLSearchParams(window.location.search);
-            const cnrNumber = urlParams.get('cnr');
+            let cnrNumber = urlParams.get('cnr');
+            
+            // If no URL parameter, check sessionStorage
+            if (!cnrNumber) {
+                cnrNumber = sessionStorage.getItem('viewCaseCNR');
+                console.log('📄 No URL parameter, checking sessionStorage:', cnrNumber);
+            } else {
+                console.log('📄 Found CNR in URL parameter:', cnrNumber);
+            }
             
             if (cnrNumber) {
                 console.log('📄 Loading case details for CNR:', cnrNumber);
                 loadCaseData(cnrNumber);
+                
+                // Store in sessionStorage for consistency
+                sessionStorage.setItem('viewCaseCNR', cnrNumber);
             } else {
-                console.error('❌ No CNR parameter found in URL');
+                console.error('❌ No CNR parameter found in URL or sessionStorage');
                 document.getElementById('caseTitle').textContent = 'Error: Case not found';
-                document.getElementById('caseSubtitle').textContent = 'No CNR number provided';
+                document.getElementById('caseSubtitle').textContent = 'No CNR number provided in URL or session';
             }
             
             // Start listening for cache updates
