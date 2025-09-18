@@ -703,6 +703,9 @@
                     }
                     console.log('💾 Cleared cached data to show new case immediately');
                     
+                    // Notify other pages that cache has been updated
+                    localStorage.setItem('cacheUpdated', Date.now().toString());
+                    
                     // Reset form
                     event.target.reset();
                     

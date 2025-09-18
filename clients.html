@@ -900,8 +900,25 @@
         document.getElementById('typeFilter').addEventListener('change', searchClients);
         document.getElementById('statusFilter').addEventListener('change', searchClients);
 
+        // Listen for cache updates from other pages
+        function listenForCacheUpdates() {
+            let lastCacheUpdate = localStorage.getItem('cacheUpdated');
+            
+            setInterval(() => {
+                const currentCacheUpdate = localStorage.getItem('cacheUpdated');
+                if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
+                    console.log('👥 Cache updated by another page, refreshing clients...');
+                    lastCacheUpdate = currentCacheUpdate;
+                    loadClientsFromCases(); // Reload clients data
+                }
+            }, 1000); // Check every second
+        }
+
         // Load clients when page loads
-        document.addEventListener('DOMContentLoaded', loadClientsFromCases);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClientsFromCases();
+            listenForCacheUpdates(); // Start listening for cache updates
+        });
     </script>
 </body>
 </html> 

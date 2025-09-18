@@ -1405,10 +1405,26 @@
         }
         */
 
+        // Listen for cache updates from other pages
+        function listenForCacheUpdates() {
+            let lastCacheUpdate = localStorage.getItem('cacheUpdated');
+            
+            setInterval(() => {
+                const currentCacheUpdate = localStorage.getItem('cacheUpdated');
+                if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
+                    console.log('📅 Cache updated by another page, refreshing calendar...');
+                    lastCacheUpdate = currentCacheUpdate;
+                    loadCalendarEvents(); // Reload calendar data
+                    generateCalendar(); // Regenerate calendar view
+                }
+            }, 1000); // Check every second
+        }
+
         // Initialize calendar and load data
         document.addEventListener('DOMContentLoaded', function() {
             loadCalendarEvents(); // Load events from database
             generateCalendar(); // Generate initial calendar view
+            listenForCacheUpdates(); // Start listening for cache updates
         });
     </script>
 </body>

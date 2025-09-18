@@ -623,6 +623,9 @@
                         }
                         console.log('✏️ Cleared cached data to force refresh with updated data');
                         
+                        // Notify other pages that cache has been updated
+                        localStorage.setItem('cacheUpdated', Date.now().toString());
+                        
                         window.location.href = 'cases.html';
                     } else {
                         alert('Error updating case: ' + result.error);
@@ -663,6 +666,9 @@
                             delete window.userDashboardData;
                         }
                         console.log('🗑️ Cleared cached data to force refresh');
+                        
+                        // Notify other pages that cache has been updated
+                        localStorage.setItem('cacheUpdated', Date.now().toString());
                         
                         window.location.href = 'cases.html';
                     } else {

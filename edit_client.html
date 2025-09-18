@@ -472,6 +472,9 @@
             }
             console.log('👤 Cleared cached data to show updated client immediately');
             
+            // Notify other pages that cache has been updated
+            localStorage.setItem('cacheUpdated', Date.now().toString());
+            
             // Redirect to clients page
             window.location.href = 'clients.html';
         }
@@ -487,6 +490,9 @@
                     delete window.userDashboardData;
                 }
                 console.log('👤 Cleared cached data to remove deleted client immediately');
+                
+                // Notify other pages that cache has been updated
+                localStorage.setItem('cacheUpdated', Date.now().toString());
                 
                 window.location.href = 'clients.html';
             }
