@@ -41,17 +41,33 @@ def test_delete_case():
     # Test 2: API endpoint test (if we have a token)
     print("\n2️⃣ Testing API endpoint...")
     
-    # Check if API server is running
-    try:
-        response = requests.get('http://localhost:5002/api/server-info', timeout=5)
-        if response.status_code == 200:
-            print("✅ API server is running")
-            server_info = response.json()
-            print(f"   Server: {server_info}")
-        else:
-            print(f"⚠️ API server responded with status: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Cannot connect to API server: {e}")
+    # Check if API server is running (try multiple endpoints)
+    api_endpoints = [
+        'http://localhost:5002/api/server-info',
+        'http://127.0.0.1:5002/api/server-info',
+        'http://18.234.219.146:5002/api/server-info'
+    ]
+    
+    server_info = None
+    api_base = None
+    
+    for endpoint in api_endpoints:
+        try:
+            print(f"🔍 Trying: {endpoint}")
+            response = requests.get(endpoint, timeout=5)
+            if response.status_code == 200:
+                print(f"✅ API server found at: {endpoint}")
+                server_info = response.json()
+                print(f"   Server: {server_info}")
+                api_base = endpoint.replace('/api/server-info', '/api')
+                break
+            else:
+                print(f"⚠️ {endpoint} responded with status: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Cannot connect to {endpoint}: {e}")
+    
+    if not api_base:
+        print("❌ No API server found")
         return
     
     # For API testing, we need a valid token
@@ -59,15 +75,21 @@ def test_delete_case():
     try:
         conn = db.get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT token, user_id, username FROM user_sessions ORDER BY created_at DESC LIMIT 5")
+        cursor.execute("""
+            SELECT s.session_token, s.user_id, u.username 
+            FROM user_sessions s 
+            JOIN users u ON s.user_id = u.id 
+            WHERE s.expires_at > NOW() 
+            ORDER BY s.created_at DESC LIMIT 5
+        """)
         sessions = cursor.fetchall()
         conn.close()
         
         if sessions:
             print(f"✅ Found {len(sessions)} active sessions:")
             for session in sessions:
-                token, user_id, username = session
-                print(f"   - User {user_id} ({username}): {token[:20]}...")
+                session_token, user_id, username = session
+                print(f"   - User {user_id} ({username}): {session_token[:20]}...")
                 
                 # Test API delete with this token
                 print(f"\n🔥 Testing API DELETE with user {username}...")
@@ -82,13 +104,13 @@ def test_delete_case():
                 print(f"   Deleting case: {test_cnr_api}")
                 
                 headers = {
-                    'Authorization': f'Bearer {token}',
+                    'Authorization': f'Bearer {session_token}',
                     'Content-Type': 'application/json'
                 }
                 
                 try:
                     delete_response = requests.delete(
-                        f'http://localhost:5002/api/cases/{test_cnr_api}',
+                        f'{api_base}/cases/{test_cnr_api}',
                         headers=headers,
                         timeout=10
                     )

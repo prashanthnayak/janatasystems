@@ -20,26 +20,26 @@
     
     <div class="test-section">
         <h2>1. Configuration Test</h2>
-        <button onclick="testConfig()">Test Config</button>
+        <button id="testConfigBtn">Test Config</button>
         <div id="configLog" class="log"></div>
     </div>
     
     <div class="test-section">
         <h2>2. Authentication Test</h2>
-        <button onclick="testAuth()">Check Token</button>
+        <button id="testAuthBtn">Check Token</button>
         <div id="authLog" class="log"></div>
     </div>
     
     <div class="test-section">
         <h2>3. Get Cases Test</h2>
-        <button onclick="getCases()">Get Cases</button>
+        <button id="getCasesBtn">Get Cases</button>
         <div id="casesLog" class="log"></div>
     </div>
     
     <div class="test-section">
         <h2>4. Delete Case Test</h2>
         <input type="text" id="cnrInput" placeholder="Enter CNR Number" style="width: 300px;">
-        <button onclick="testDelete()">Delete Case</button>
+        <button id="testDeleteBtn">Delete Case</button>
         <div id="deleteLog" class="log"></div>
     </div>
 
@@ -241,6 +241,14 @@
         // Auto-initialize
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🚀 Test page loaded');
+            
+            // Add event listeners to buttons
+            document.getElementById('testConfigBtn').addEventListener('click', testConfig);
+            document.getElementById('testAuthBtn').addEventListener('click', testAuth);
+            document.getElementById('getCasesBtn').addEventListener('click', getCases);
+            document.getElementById('testDeleteBtn').addEventListener('click', testDelete);
+            
+            // Auto-run config test
             await testConfig();
         });
     </script>
