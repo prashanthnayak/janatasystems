@@ -400,14 +400,43 @@
     <script>
         // LegalAPI class definition
         class LegalAPI {
-            constructor(baseUrl = 'http://52.23.206.51:5002/api') {
+            constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
+            }
+            
+            async init() {
+                if (!this.baseUrl) {
+                    // Use dynamic config
+                    if (typeof config !== 'undefined') {
+                        if (!config.initialized) {
+                            await config.init();
+                        }
+                        this.baseUrl = config.getApiUrl('');
+                    } else {
+                        // Fallback to localhost
+                        this.baseUrl = 'http://localhost:5002/api';
+                    }
+                }
+                console.log('🔗 LegalAPI using base URL:', this.baseUrl);
             }
 
             // Get case by CNR number
             async getCase(cnrNumber) {
                 try {
-                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`);
+                    await this.init();
+                    
+                    const token = localStorage.getItem('userToken');
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
+                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
+                        headers: headers
+                    });
                     return await response.json();
                 } catch (error) {
                     console.error('Error getting case:', error);
@@ -418,11 +447,20 @@
             // Update case
             async updateCase(cnrNumber, caseData) {
                 try {
+                    await this.init();
+                    
+                    const token = localStorage.getItem('userToken');
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
                     const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: headers,
                         body: JSON.stringify(caseData)
                     });
                     return await response.json();
@@ -435,13 +473,34 @@
             // Delete case
             async deleteCase(cnrNumber) {
                 try {
+                    await this.init();
+                    
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        return { success: false, error: 'No authentication token found' };
+                    }
+                    
+                    console.log('🗑️ Deleting case:', cnrNumber);
+                    
                     const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
                         }
                     });
-                    return await response.json();
+                    
+                    console.log('🗑️ Delete response status:', response.status);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('🗑️ Delete failed:', errorText);
+                        return { success: false, error: `Delete failed: ${response.status} - ${errorText}` };
+                    }
+                    
+                    const result = await response.json();
+                    console.log('🗑️ Delete result:', result);
+                    return result;
                 } catch (error) {
                     console.error('Error deleting case:', error);
                     return { success: false, error: error.message };
