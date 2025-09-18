@@ -699,9 +699,8 @@
                 }
                 
                 showNotification('🔄 Fetching case data from eCourts... This may take 30-60 seconds', 'info');
-            console.log('🔄 Making API call to trigger scraping...');
-            
-            try {
+                console.log('🔄 Making API call to trigger scraping...');
+                
                 // Step 1: Trigger scraping
                 const apiUrl = config.getApiUrl('/scraping/trigger/' + cnrNumber);
                 console.log('🔄 Sending POST request to:', apiUrl);
