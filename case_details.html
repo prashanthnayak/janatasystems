@@ -693,9 +693,21 @@
                             const caseHistories = parsedData.case_histories;
                             const history = caseHistories[cnrNumber];
                             
-                            if (history && history.length > 0) {
-                                displayCaseHistory(history);
-                                return;
+                            console.log('📄 DEBUG: Found cached case history:', history);
+                            
+                            if (history) {
+                                // Check if history has a nested history property (object format)
+                                if (history.history && Array.isArray(history.history) && history.history.length > 0) {
+                                    console.log('📄 DEBUG: Using nested history format');
+                                    displayCaseHistory(history.history);
+                                    return;
+                                }
+                                // Check if history is directly an array
+                                else if (Array.isArray(history) && history.length > 0) {
+                                    console.log('📄 DEBUG: Using direct array format');
+                                    displayCaseHistory(history);
+                                    return;
+                                }
                             }
                         }
                     } catch (parseError) {
@@ -708,9 +720,21 @@
                     const caseHistories = window.userDashboardData.case_histories;
                     const history = caseHistories[cnrNumber];
                     
-                    if (history && history.length > 0) {
-                        displayCaseHistory(history);
-                        return;
+                    console.log('📄 DEBUG: Found window cached case history:', history);
+                    
+                    if (history) {
+                        // Check if history has a nested history property (object format)
+                        if (history.history && Array.isArray(history.history) && history.history.length > 0) {
+                            console.log('📄 DEBUG: Using nested history format from window');
+                            displayCaseHistory(history.history);
+                            return;
+                        }
+                        // Check if history is directly an array
+                        else if (Array.isArray(history) && history.length > 0) {
+                            console.log('📄 DEBUG: Using direct array format from window');
+                            displayCaseHistory(history);
+                            return;
+                        }
                     }
                 }
                 
@@ -847,6 +871,44 @@
             sessionStorage.clear();
             window.location.href = 'login.html';
         }
+
+        // Listen for cache updates from other pages
+        function listenForCacheUpdates() {
+            let lastCacheUpdate = localStorage.getItem('cacheUpdated');
+            
+            setInterval(() => {
+                const currentCacheUpdate = localStorage.getItem('cacheUpdated');
+                if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
+                    console.log('📄 Cache updated by another page, refreshing case details...');
+                    lastCacheUpdate = currentCacheUpdate;
+                    
+                    // Reload the current case data
+                    const cnrFromUrl = new URLSearchParams(window.location.search).get('cnr');
+                    if (cnrFromUrl) {
+                        loadCaseData(cnrFromUrl);
+                    }
+                }
+            }, 1000); // Check every second
+        }
+
+        // Initialize page when DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get CNR from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const cnrNumber = urlParams.get('cnr');
+            
+            if (cnrNumber) {
+                console.log('📄 Loading case details for CNR:', cnrNumber);
+                loadCaseData(cnrNumber);
+            } else {
+                console.error('❌ No CNR parameter found in URL');
+                document.getElementById('caseTitle').textContent = 'Error: Case not found';
+                document.getElementById('caseSubtitle').textContent = 'No CNR number provided';
+            }
+            
+            // Start listening for cache updates
+            listenForCacheUpdates();
+        });
 
         // Document action buttons removed - documents section no longer exists
     </script>
