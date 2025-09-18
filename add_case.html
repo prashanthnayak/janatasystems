@@ -600,6 +600,58 @@
                 return;
             }
             
+            // Check if CNR already exists before saving
+            console.log('🔍 Checking if CNR already exists before saving...');
+            showNotification('🔍 Checking if case already exists...', 'info');
+            
+            try {
+                // Ensure config is initialized
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    showNotification('❌ Please login first', 'error');
+                    return;
+                }
+                
+                // Check if case exists
+                const checkUrl = config.getApiUrl(`/cases/${cnrNumber}`);
+                const checkResponse = await fetch(checkUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (checkResponse.status === 200) {
+                    // Case exists
+                    const existingCase = await checkResponse.json();
+                    if (existingCase.success && existingCase.case) {
+                        const caseTitle = existingCase.case.case_title || 'Untitled Case';
+                        showNotification(`❌ CNR ${cnrNumber} already exists!`, 'error', 8000);
+                        alert(`⚠️ CANNOT SAVE - CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\nCase Title: ${caseTitle}\n\nThis case is already in your database. Please check the case management page or use a different CNR number.`);
+                        return;
+                    }
+                } else if (checkResponse.status === 403) {
+                    // Access denied - case exists but belongs to another user
+                    showNotification(`❌ CNR ${cnrNumber} already exists in the system`, 'error', 8000);
+                    alert(`⚠️ CANNOT SAVE - CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\n\nThis case already exists in the system but may belong to another user. Please use a different CNR number.`);
+                    return;
+                } else if (checkResponse.status === 404) {
+                    // Case doesn't exist, proceed with save
+                    console.log('✅ CNR not found in database, proceeding with save...');
+                } else {
+                    console.log('⚠️ Unexpected response status during save check:', checkResponse.status);
+                    // Continue with save - better to allow save than block legitimate requests
+                }
+            } catch (error) {
+                console.log('⚠️ Error checking CNR existence during save:', error);
+                // Continue with save - network errors shouldn't block the process
+                showNotification('⚠️ Could not verify if case exists. Proceeding with save...', 'warning');
+            }
+            
             showNotification('🔄 Saving case to database...', 'info');
             alert('💾 SAVE CASE CLICKED!\n\nSaving case to database...');
             
@@ -678,6 +730,60 @@
             if (!cnrNumber) {
                 showNotification('❌ Please enter a CNR number first', 'error');
                 return;
+            }
+            
+            // Check if CNR already exists for this user
+            console.log('🔍 Checking if CNR already exists in database...');
+            showNotification('🔍 Checking if case already exists...', 'info');
+            
+            try {
+                // Ensure config is initialized for the check
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    showNotification('❌ Please login first', 'error');
+                    return;
+                }
+                
+                // Check if case exists
+                const checkUrl = config.getApiUrl(`/cases/${cnrNumber}`);
+                console.log('🔍 Checking URL:', checkUrl);
+                
+                const checkResponse = await fetch(checkUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (checkResponse.status === 200) {
+                    // Case exists
+                    const existingCase = await checkResponse.json();
+                    if (existingCase.success && existingCase.case) {
+                        const caseTitle = existingCase.case.case_title || 'Untitled Case';
+                        showNotification(`❌ CNR ${cnrNumber} already exists!`, 'error', 8000);
+                        alert(`⚠️ CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\nCase Title: ${caseTitle}\n\nThis case is already in your database. Please check the case management page or use a different CNR number.`);
+                        return;
+                    }
+                } else if (checkResponse.status === 404) {
+                    // Case doesn't exist, proceed with fetch
+                    console.log('✅ CNR not found in database, proceeding with fetch...');
+                } else if (checkResponse.status === 403) {
+                    // Access denied - case exists but belongs to another user
+                    showNotification(`❌ CNR ${cnrNumber} already exists in the system`, 'error', 8000);
+                    alert(`⚠️ CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\n\nThis case already exists in the system but may belong to another user. Please use a different CNR number.`);
+                    return;
+                } else {
+                    console.log('⚠️ Unexpected response status:', checkResponse.status);
+                    // Continue with fetch - better to allow fetch than block legitimate requests
+                }
+            } catch (error) {
+                console.log('⚠️ Error checking CNR existence:', error);
+                // Continue with fetch - network errors shouldn't block the process
+                showNotification('⚠️ Could not verify if case exists. Proceeding with fetch...', 'warning');
             }
             
             // Get the fetch button and show loading state
