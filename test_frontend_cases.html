@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Cases Loading</title>
+    <script src="config.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Frontend Cases Loading Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Configuration Test</h2>
+        <button class="btn-primary" onclick="testConfig()">Test Config</button>
+        <div id="configResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Authentication Test</h2>
+        <button class="btn-primary" onclick="testLogin()">Test Login</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Cases API Test</h2>
+        <button class="btn-success" onclick="testCasesAPI()">Test Cases API</button>
+        <div id="casesResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Dashboard Data Test</h2>
+        <button class="btn-warning" onclick="testDashboardData()">Test Dashboard Data</button>
+        <div id="dashboardResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Current Token Info</h2>
+        <button class="btn-primary" onclick="showTokenInfo()">Show Token Info</button>
+        <div id="tokenInfo"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <div id="console" style="background: #f0f0f0; padding: 10px; height: 300px; overflow-y: scroll; font-family: monospace; font-size: 12px;"></div>
+    </div>
+
+    <script>
+        // Capture console output
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function addToConsole(message, type = 'log') {
+            const consoleDiv = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            consoleDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+
+        async function testConfig() {
+            const resultDiv = document.getElementById('configResult');
+            resultDiv.innerHTML = '<p>🔄 Testing config...</p>';
+            
+            try {
+                console.log('🧪 Testing config initialization...');
+                
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                const apiUrl = config.getApiUrl('/server-info');
+                console.log('Config API URL:', apiUrl);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Config Test Successful</h4>
+                        <p><strong>API Host:</strong> ${config.API_HOST}</p>
+                        <p><strong>API Port:</strong> ${config.API_PORT}</p>
+                        <p><strong>Sample URL:</strong> ${apiUrl}</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Config test failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Config Test Failed</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.innerHTML = '<p>🔄 Testing login...</p>';
+            
+            try {
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                console.log('🧪 Testing login...');
+                
+                const response = await fetch(config.getApiUrl('/auth/login'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Login response:', data);
+                
+                if (data.success) {
+                    localStorage.setItem('userToken', data.token);
+                    if (data.user) {
+                        localStorage.setItem('userData', JSON.stringify(data.user));
+                    }
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Login Successful</h4>
+                            <p><strong>Token:</strong> ${data.token.substring(0, 20)}...</p>
+                            <p><strong>User:</strong> ${data.user ? data.user.username : 'N/A'} (${data.user ? data.user.role : 'N/A'})</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Login Failed</h4>
+                            <p>${data.error}</p>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Login test failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Login Test Failed</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testCasesAPI() {
+            const resultDiv = document.getElementById('casesResult');
+            resultDiv.innerHTML = '<p>🔄 Testing cases API...</p>';
+            
+            try {
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ No Token</h4>
+                            <p>Please run login test first</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                console.log('🧪 Testing cases API...');
+                
+                const response = await fetch(config.getApiUrl('/cases'), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Cases API status:', response.status);
+                
+                const data = await response.json();
+                console.log('Cases API response:', data);
+                
+                if (response.ok && data.success) {
+                    const cases = data.cases || [];
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Cases API Successful</h4>
+                            <p><strong>Cases Found:</strong> ${cases.length}</p>
+                            <pre>${JSON.stringify(cases, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Cases API Failed</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Error:</strong> ${data.error || 'Unknown error'}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Cases API test failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Cases API Test Failed</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testDashboardData() {
+            const resultDiv = document.getElementById('dashboardResult');
+            resultDiv.innerHTML = '<p>🔄 Testing dashboard data...</p>';
+            
+            try {
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ No Token</h4>
+                            <p>Please run login test first</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                console.log('🧪 Testing dashboard data...');
+                
+                const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Dashboard API status:', response.status);
+                
+                const data = await response.json();
+                console.log('Dashboard API response:', data);
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Dashboard Data Successful</h4>
+                            <p><strong>Cases:</strong> ${data.cases ? data.cases.length : 0}</p>
+                            <p><strong>Users:</strong> ${data.users ? data.users.length : 0}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Dashboard Data Failed</h4>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Error:</strong> ${data.error || 'Unknown error'}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Dashboard data test failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Dashboard Data Test Failed</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showTokenInfo() {
+            const resultDiv = document.getElementById('tokenInfo');
+            
+            const token = localStorage.getItem('userToken');
+            const userData = localStorage.getItem('userData');
+            
+            resultDiv.innerHTML = `
+                <div class="info">
+                    <h4>🔑 Current Token Info</h4>
+                    <p><strong>Token:</strong> ${token ? token.substring(0, 30) + '...' : '❌ None'}</p>
+                    <p><strong>User Data:</strong> ${userData || '❌ None'}</p>
+                    ${userData ? `<pre>${JSON.stringify(JSON.parse(userData), null, 2)}</pre>` : ''}
+                </div>
+            `;
+        }
+
+        // Auto-initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔄 Page loaded, initializing...');
+            await testConfig();
+            showTokenInfo();
+        });
+    </script>
+</body>
+</html>
