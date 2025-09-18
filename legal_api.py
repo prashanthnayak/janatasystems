@@ -236,6 +236,7 @@ class LegalAPI:
                 'filing_date': user_data.get('filing_date') or self.convert_date_format(scraped_data.get('filing_date')),
                 'case_description': user_data.get('case_description', ''),
                 'registration_number': user_data.get('registration_number') or scraped_data.get('registration_number', 'N/A'),
+                'user_id': user_data.get('user_id'),  # Include user_id from authenticated user
                 'case_history': scraped_data.get('case_history', [])
             }
             
