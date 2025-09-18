@@ -1168,28 +1168,46 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Reset time to start of day
             
-            // Collect all future hearings from all cases
+            // Collect all future hearings from all cases using cached dashboard data
+            console.log('🔍 DEBUG: Available case histories:', window.userDashboardData?.case_histories ? Object.keys(window.userDashboardData.case_histories) : 'None');
+            
             for (const caseData of cases) {
                 try {
-                    const historyResult = await legalAPI.getCaseHistory(caseData.cnr_number);
-                    if (historyResult.success && historyResult.history) {
-                        historyResult.history.forEach(entry => {
+                    console.log(`🔍 DEBUG: Processing case ${caseData.cnr_number}`);
+                    
+                    // Use cached case history data from dashboard
+                    const caseHistory = window.userDashboardData?.case_histories?.[caseData.cnr_number];
+                    
+                    if (caseHistory && caseHistory.history && Array.isArray(caseHistory.history)) {
+                        console.log(`🔍 DEBUG: Found ${caseHistory.history.length} history entries for ${caseData.cnr_number}`);
+                        
+                        caseHistory.history.forEach(entry => {
                             if (entry.hearing_date) {
                                 const hearingDate = new Date(entry.hearing_date);
                                 hearingDate.setHours(0, 0, 0, 0); // Reset time for comparison
                                 
+                                console.log(`🔍 DEBUG: Checking hearing date ${entry.hearing_date} (${hearingDate.toDateString()}) vs today (${today.toDateString()})`);
+                                
                                 // Only include future hearings
                                 if (hearingDate >= today) {
+                                    console.log(`✅ DEBUG: Adding upcoming hearing for ${caseData.cnr_number} on ${entry.hearing_date}`);
                                     upcomingHearings.push({
                                         date: hearingDate,
-                                        originalDate: new Date(entry.hearing_date), // Keep original for time display
+                                        originalDate: new Date(entry.hearing_date),
                                         caseData: caseData,
                                         purpose: entry.purpose,
-                                        orderDetails: entry.order_details
+                                        orderDetails: entry.order_details,
+                                        judge: entry.judge,
+                                        cnr: caseData.cnr_number,
+                                        caseTitle: caseData.case_title || 'Unknown Case'
                                     });
+                                } else {
+                                    console.log(`⏰ DEBUG: Skipping past hearing for ${caseData.cnr_number} on ${entry.hearing_date}`);
                                 }
                             }
                         });
+                    } else {
+                        console.log(`❌ DEBUG: No case history found for ${caseData.cnr_number}`);
                     }
                 } catch (error) {
                     console.error(`Error getting history for case ${caseData.cnr_number}:`, error);
@@ -1200,7 +1218,10 @@
             upcomingHearings.sort((a, b) => a.date - b.date);
             const nextHearings = upcomingHearings.slice(0, 4);
             
+            console.log(`🔍 DEBUG: Found ${upcomingHearings.length} total upcoming hearings, showing ${nextHearings.length}`);
+            
             if (nextHearings.length === 0) {
+                console.log('❌ DEBUG: No upcoming hearings found - all dates are in the past');
                 hearingsContainer.innerHTML = `
                     <div class="hearing-item">
                         <div class="hearing-date">
@@ -1209,13 +1230,15 @@
                         </div>
                         <div class="hearing-info">
                             <h4>No upcoming hearings</h4>
-                            <p>No future hearings scheduled</p>
-                            <span class="hearing-type">N/A</span>
+                            <p>All hearing dates are in the past</p>
+                            <span class="hearing-type">Check case history for details</span>
                         </div>
                     </div>
                 `;
                 return;
             }
+            
+            console.log('✅ DEBUG: Displaying upcoming hearings:', nextHearings.map(h => `${h.cnr} on ${h.date.toDateString()}`));
             
             // Display upcoming hearings with real dates
             nextHearings.forEach(hearing => {
