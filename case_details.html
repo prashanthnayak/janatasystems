@@ -578,8 +578,8 @@
                                     // Load case history from cache
                                     await loadCaseHistoryFromCache(cnrNumber);
                                     
-                                    // Calculate and display statistics
-                                    await updateCaseStatistics(cnrNumber, caseData.filing_date);
+                                    // Calculate and display statistics (will be handled by loadCaseHistoryFromCache)
+                                    // updateCaseStatistics will be called from loadCaseHistoryFromCache with history data
                                     
                                     console.log('✅ DEBUG: Page updated with localStorage cached case data');
                                     return;
@@ -616,8 +616,8 @@
                             // Load case history from cache
                             await loadCaseHistoryFromCache(cnrNumber);
                             
-                            // Calculate and display statistics
-                            await updateCaseStatistics(cnrNumber, caseData.filing_date);
+                            // Calculate and display statistics (will be handled by loadCaseHistoryFromCache)
+                            // updateCaseStatistics will be called from loadCaseHistoryFromCache with history data
                             
                             console.log('✅ DEBUG: Page updated with cached case data');
                             return;
@@ -654,8 +654,8 @@
                         // Load case history
                         await loadCaseHistory(cnrNumber);
                         
-                        // Calculate and display statistics
-                        await updateCaseStatistics(cnrNumber, caseData.filing_date);
+                        // Calculate and display statistics (will be handled by loadCaseHistory)
+                        // updateCaseStatistics will be called after loading history data
                         
                         console.log('✅ DEBUG: Page updated with case data');
                         return;
@@ -713,12 +713,18 @@
                                 if (history.history && Array.isArray(history.history) && history.history.length > 0) {
                                     console.log('📄 DEBUG: Using nested history format');
                                     displayCaseHistory(history.history);
+                                    // Update statistics with this history data
+                                    const caseData = parsedData.cases?.find(c => c.cnr_number === cnrNumber);
+                                    updateCaseStatistics(cnrNumber, caseData?.filing_date, history.history);
                                     return;
                                 }
                                 // Check if history is directly an array
                                 else if (Array.isArray(history) && history.length > 0) {
                                     console.log('📄 DEBUG: Using direct array format');
                                     displayCaseHistory(history);
+                                    // Update statistics with this history data
+                                    const caseData = parsedData.cases?.find(c => c.cnr_number === cnrNumber);
+                                    updateCaseStatistics(cnrNumber, caseData?.filing_date, history);
                                     return;
                                 }
                             }
@@ -740,12 +746,18 @@
                         if (history.history && Array.isArray(history.history) && history.history.length > 0) {
                             console.log('📄 DEBUG: Using nested history format from window');
                             displayCaseHistory(history.history);
+                            // Update statistics with this history data
+                            const caseData = window.userDashboardData.cases?.find(c => c.cnr_number === cnrNumber);
+                            updateCaseStatistics(cnrNumber, caseData?.filing_date, history.history);
                             return;
                         }
                         // Check if history is directly an array
                         else if (Array.isArray(history) && history.length > 0) {
                             console.log('📄 DEBUG: Using direct array format from window');
                             displayCaseHistory(history);
+                            // Update statistics with this history data
+                            const caseData = window.userDashboardData.cases?.find(c => c.cnr_number === cnrNumber);
+                            updateCaseStatistics(cnrNumber, caseData?.filing_date, history);
                             return;
                         }
                     }
@@ -767,12 +779,37 @@
                 
                 if (result.success && result.history && result.history.length > 0) {
                     displayCaseHistory(result.history);
+                    
+                    // Update statistics with loaded history data
+                    // Try to get filing date from cached data or current page
+                    let filingDate = null;
+                    const cachedData = localStorage.getItem('userDashboardData');
+                    if (cachedData) {
+                        try {
+                            const parsed = JSON.parse(cachedData);
+                            const caseData = parsed.cases?.find(c => c.cnr_number === cnrNumber);
+                            filingDate = caseData?.filing_date;
+                        } catch (e) {
+                            console.warn('Could not get filing date from cache:', e);
+                        }
+                    }
+                    
+                    // If no cached filing date, try to get from current page
+                    if (!filingDate) {
+                        filingDate = document.getElementById('filingDate')?.textContent;
+                    }
+                    
+                    updateCaseStatistics(cnrNumber, filingDate, result.history);
                 } else {
                     clearCaseHistory();
+                    // Update statistics with no history data
+                    updateCaseStatistics(cnrNumber, null, []);
                 }
             } catch (error) {
                 console.error('Error loading case history:', error);
                 clearCaseHistory();
+                // Update statistics with no history data on error
+                updateCaseStatistics(cnrNumber, null, []);
             }
         }
 
@@ -828,9 +865,11 @@
             }
         }
 
-        // Update case statistics
-        async function updateCaseStatistics(cnrNumber, filingDate) {
+        // Update case statistics using cached data
+        function updateCaseStatistics(cnrNumber, filingDate, historyData = null) {
             try {
+                console.log('📊 DEBUG: updateCaseStatistics called with:', { cnrNumber, filingDate, historyData });
+                
                 // Calculate days since filing
                 let daysSinceFiling = '-';
                 if (filingDate) {
@@ -839,34 +878,73 @@
                     const diffTime = Math.abs(today - filing);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     daysSinceFiling = diffDays.toString();
+                    console.log('📊 DEBUG: Days since filing calculated:', daysSinceFiling);
                 }
-                
-                // Get case history to calculate total hearings and latest status
-                const result = await legalAPI.getCaseHistory(cnrNumber);
                 
                 let totalHearings = '0';
                 let latestStatus = '-';
                 
-                if (result.success && result.history && result.history.length > 0) {
-                    totalHearings = result.history.length.toString();
+                // Use provided history data or try to get from cache
+                if (historyData && Array.isArray(historyData) && historyData.length > 0) {
+                    console.log('📊 DEBUG: Using provided history data:', historyData.length, 'entries');
+                    totalHearings = historyData.length.toString();
                     
                     // Get the latest status (most recent hearing purpose)
-                    const sortedHistory = result.history.sort((a, b) => {
+                    const sortedHistory = [...historyData].sort((a, b) => {
                         return new Date(b.hearing_date) - new Date(a.hearing_date);
                     });
                     
                     if (sortedHistory.length > 0) {
-                        latestStatus = sortedHistory[0].purpose || '-';
+                        latestStatus = sortedHistory[0].purpose || sortedHistory[0].status || '-';
+                        console.log('📊 DEBUG: Latest status found:', latestStatus);
+                    }
+                } else {
+                    // Try to get from cached data
+                    console.log('📊 DEBUG: No history data provided, checking cache...');
+                    const cachedDataFromStorage = localStorage.getItem('userDashboardData');
+                    if (cachedDataFromStorage) {
+                        try {
+                            const parsedData = JSON.parse(cachedDataFromStorage);
+                            if (parsedData.case_histories && parsedData.case_histories[cnrNumber]) {
+                                const history = parsedData.case_histories[cnrNumber];
+                                let historyArray = [];
+                                
+                                // Handle different data structures
+                                if (history.history && Array.isArray(history.history)) {
+                                    historyArray = history.history;
+                                } else if (Array.isArray(history)) {
+                                    historyArray = history;
+                                }
+                                
+                                if (historyArray.length > 0) {
+                                    totalHearings = historyArray.length.toString();
+                                    const sortedHistory = [...historyArray].sort((a, b) => {
+                                        return new Date(b.hearing_date) - new Date(a.hearing_date);
+                                    });
+                                    
+                                    if (sortedHistory.length > 0) {
+                                        latestStatus = sortedHistory[0].purpose || sortedHistory[0].status || '-';
+                                    }
+                                    console.log('📊 DEBUG: Stats from cache - Hearings:', totalHearings, 'Status:', latestStatus);
+                                }
+                            }
+                        } catch (e) {
+                            console.error('📊 ERROR: Failed to parse cached data:', e);
+                        }
                     }
                 }
+                
+                console.log('📊 DEBUG: Final statistics:', { daysSinceFiling, totalHearings, latestStatus });
                 
                 // Update the statistics display
                 document.getElementById('daysSinceFiling').textContent = daysSinceFiling;
                 document.getElementById('totalHearings').textContent = totalHearings;
                 document.getElementById('latestStatus').textContent = latestStatus;
                 
+                console.log('📊 SUCCESS: Case statistics updated');
+                
             } catch (error) {
-                console.error('Error updating case statistics:', error);
+                console.error('📊 ERROR: Error updating case statistics:', error);
                 // Set default values on error
                 document.getElementById('daysSinceFiling').textContent = '-';
                 document.getElementById('totalHearings').textContent = '-';
