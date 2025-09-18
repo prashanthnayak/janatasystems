@@ -465,6 +465,13 @@
             console.log('Updating client:', clientData);
             alert('Client updated successfully!');
             
+            // Clear cached data to force refresh with updated client data
+            localStorage.removeItem('userDashboardData');
+            if (window.userDashboardData) {
+                delete window.userDashboardData;
+            }
+            console.log('👤 Cleared cached data to show updated client immediately');
+            
             // Redirect to clients page
             window.location.href = 'clients.html';
         }
@@ -473,6 +480,14 @@
             const clientName = document.getElementById('fullName').value;
             if (confirm(`Are you sure you want to delete the client "${clientName}"? This action cannot be undone.`)) {
                 alert('Client deleted successfully!');
+                
+                // Clear cached data to force refresh without deleted client
+                localStorage.removeItem('userDashboardData');
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('👤 Cleared cached data to remove deleted client immediately');
+                
                 window.location.href = 'clients.html';
             }
         }

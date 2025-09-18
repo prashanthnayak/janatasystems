@@ -395,13 +395,32 @@
     <script>
         // LegalAPI class definition
         class LegalAPI {
-            constructor(baseUrl = 'http://52.23.206.51:5002/api') {
+            constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
+            }
+            
+            async init() {
+                if (!this.baseUrl) {
+                    // Use dynamic config
+                    if (typeof config !== 'undefined') {
+                        if (!config.initialized) {
+                            await config.init();
+                        }
+                        this.baseUrl = config.getApiUrl('');
+                    } else {
+                        // Fallback to localhost
+                        this.baseUrl = 'http://localhost:5002/api';
+                    }
+                }
+                console.log('🔗 LegalAPI using base URL:', this.baseUrl);
             }
 
             // Get all cases
             async getCases(userId = null, limit = 50, offset = 0) {
                 try {
+                    // Ensure API is initialized
+                    await this.init();
+                    
                     let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
                     if (userId) url += `&user_id=${userId}`;
                     

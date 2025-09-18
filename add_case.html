@@ -256,6 +256,28 @@
             white-space: nowrap;
             padding: 8px 16px;
             font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .fetch-btn.loading {
+            background-color: #95a5a6 !important;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .form-help {
@@ -658,14 +680,25 @@
                 return;
             }
             
-            // Ensure config is initialized
-            if (!config.initialized) {
-                console.log('🔄 Config not initialized, initializing now...');
-                showNotification('🔄 Initializing configuration...', 'info');
-                await config.init();
-            }
+            // Get the fetch button and show loading state
+            const fetchButton = document.querySelector('.fetch-btn');
+            const originalButtonText = fetchButton.innerHTML;
             
-            showNotification('🔄 Fetching case data from eCourts...', 'info');
+            // Start loading state
+            fetchButton.disabled = true;
+            fetchButton.innerHTML = '<span class="spinner"></span> Please Wait...';
+            fetchButton.classList.add('loading');
+            
+            showNotification('🔄 Connecting to eCourts system...', 'info');
+            
+            try {
+                // Ensure config is initialized
+                if (!config.initialized) {
+                    console.log('🔄 Config not initialized, initializing now...');
+                    await config.init();
+                }
+                
+                showNotification('🔄 Fetching case data from eCourts... This may take 30-60 seconds', 'info');
             console.log('🔄 Making API call to trigger scraping...');
             
             try {
@@ -737,17 +770,37 @@
                         }
 
                         
-                        showNotification(`✅ Auto-filled ${filledFields} technical fields from scraped data! (Data stored temporarily)`, 'success');
+                        // Reset button state - SUCCESS
+                        fetchButton.disabled = false;
+                        fetchButton.innerHTML = originalButtonText;
+                        fetchButton.classList.remove('loading');
+                        
+                        showNotification(`✅ SUCCESS! Auto-filled ${filledFields} technical fields from eCourts data! Now please fill in the required details (Case Title and Client Name) and save.`, 'success', 8000);
                         return; // Success, stop polling
                     } else {
-                        showNotification('⚠️ Scraping completed but no meaningful data found. Please try again.', 'warning');
+                        // Reset button state - NO DATA
+                        fetchButton.disabled = false;
+                        fetchButton.innerHTML = originalButtonText;
+                        fetchButton.classList.remove('loading');
+                        
+                        showNotification('⚠️ Data fetch unsuccessful. eCourts data not available for this CNR. Please fill in the details manually and try again later.', 'warning', 8000);
                     }
                 } else {
-                    showNotification(`❌ Scraping failed: ${result.error}`, 'error');
+                    // Reset button state - FAILED
+                    fetchButton.disabled = false;
+                    fetchButton.innerHTML = originalButtonText;
+                    fetchButton.classList.remove('loading');
+                    
+                    showNotification(`❌ Data fetch unsuccessful: ${result.error}. Please try again later or fill in details manually.`, 'error', 8000);
                 }
             } catch (error) {
+                // Reset button state - ERROR
+                fetchButton.disabled = false;
+                fetchButton.innerHTML = originalButtonText;
+                fetchButton.classList.remove('loading');
+                
                 console.error('❌ Error in fetchFromECourts:', error);
-                showNotification(`❌ Error: ${error.message}`, 'error');
+                showNotification(`❌ Data fetch unsuccessful: ${error.message}. Please try again later or fill in details manually.`, 'error', 8000);
             }
         }
 
