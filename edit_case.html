@@ -615,6 +615,14 @@
                     const result = await legalAPI.updateCase(cnrNumber, caseData);
                     if (result.success) {
                         alert('Case updated successfully!');
+                        
+                        // Clear cached data to force refresh with updated data
+                        localStorage.removeItem('userDashboardData');
+                        if (window.userDashboardData) {
+                            delete window.userDashboardData;
+                        }
+                        console.log('✏️ Cleared cached data to force refresh with updated data');
+                        
                         window.location.href = 'cases.html';
                     } else {
                         alert('Error updating case: ' + result.error);
@@ -648,6 +656,14 @@
                     console.log('🗑️ API response:', result);
                     if (result.success) {
                         alert('Case deleted successfully!');
+                        
+                        // Clear cached data to force refresh
+                        localStorage.removeItem('userDashboardData');
+                        if (window.userDashboardData) {
+                            delete window.userDashboardData;
+                        }
+                        console.log('🗑️ Cleared cached data to force refresh');
+                        
                         window.location.href = 'cases.html';
                     } else {
                         alert('Error deleting case: ' + result.error);
