@@ -70,6 +70,7 @@ class DatabaseManager:
                     purpose TEXT,
                     order_details TEXT,
                     next_hearing_date DATE,
+                    status VARCHAR(50),
                     user_id INTEGER REFERENCES users(id),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (cnr_number) REFERENCES cases(cnr_number)
@@ -1252,6 +1253,39 @@ class DatabaseManager:
             
         except Exception as e:
             print(f"❌ Error adding phone column: {e}")
+            return False
+        finally:
+            if 'conn' in locals() and conn:
+                conn.close()
+
+    def add_status_column_to_case_history(self):
+        """Add status column to case_history table if it doesn't exist"""
+        try:
+            conn = self.get_connection()
+            if not conn:
+                return False
+                
+            cursor = conn.cursor()
+            
+            # Check if status column exists
+            cursor.execute("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='case_history' AND column_name='status'
+            """)
+            
+            if not cursor.fetchone():
+                # Add status column
+                cursor.execute("ALTER TABLE case_history ADD COLUMN status VARCHAR(50)")
+                conn.commit()
+                print("✅ Added status column to case_history table")
+            else:
+                print("✅ Status column already exists in case_history table")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error adding status column to case_history: {e}")
             return False
         finally:
             if 'conn' in locals() and conn:
