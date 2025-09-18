@@ -622,6 +622,13 @@
                     // Clear temporary scraped data from sessionStorage
                     sessionStorage.removeItem('temp_scraped_data');
                     
+                    // Clear cached data to force refresh with new case
+                    localStorage.removeItem('userDashboardData');
+                    if (window.userDashboardData) {
+                        delete window.userDashboardData;
+                    }
+                    console.log('💾 Cleared cached data to show new case immediately');
+                    
                     // Reset form
                     event.target.reset();
                     
