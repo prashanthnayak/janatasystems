@@ -695,6 +695,11 @@
                 }
 
                 // Fallback: try to get from profile API
+                // Ensure config is initialized first
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
                 const token = localStorage.getItem('userToken');
                 if (!token) {
                     console.error('No authentication token found');
@@ -787,12 +792,13 @@
             try {
                 const token = localStorage.getItem('userToken');
                 if (token) {
+                    // Wait for config to initialize
+                    if (!config.initialized) {
+                        await config.init();
+                    }
+                    
                     // Call logout API
-                    await 
-        // Wait for config to initialize
-        await config.init();
-        
-        fetch(config.getApiUrl('/auth/logout'), {
+                    await fetch(config.getApiUrl('/auth/logout'), {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -876,6 +882,12 @@
         async function loadDashboardData() {
             try {
                 console.log('🚀 Loading ALL user data (SUPER FAST MODE)...');
+                
+                // Ensure config is initialized first
+                if (!config.initialized) {
+                    console.log('🔄 Initializing config...');
+                    await config.init();
+                }
                 
                 // Get the auth token from localStorage
                 const token = localStorage.getItem('userToken');
@@ -1410,9 +1422,19 @@
         });
 
         // Load data when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            loadDashboardData();
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Initialize config first
+                console.log('🔄 Initializing config on page load...');
+                await config.init();
+                console.log('✅ Config initialized successfully');
+                
+                // Then check auth and load data
+                checkAuth();
+                await loadDashboardData();
+            } catch (error) {
+                console.error('❌ Error during page initialization:', error);
+            }
         });
     </script>
 </body>
