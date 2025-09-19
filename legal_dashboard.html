@@ -962,10 +962,109 @@
         // Initialize API
         const legalAPI = new LegalAPI();
 
-        // Load dashboard data (SUPER FAST MODE!)
-        async function loadDashboardData() {
+        // Update dashboard display with data
+        async function updateDashboardDisplay(dashboardData, showNotification = false) {
+            const cases = dashboardData.cases;
+            
+            // Update stats
+            document.getElementById('totalCasesCount').textContent = cases.length;
+            document.getElementById('activeCasesCount').textContent = cases.filter(c => c.status === 'Active').length;
+            
+            // Calculate today's hearings count
+            if (cases.length > 0 && dashboardData.case_histories) {
+                const today = new Date().toDateString();
+                let todayHearingsCount = 0;
+                
+                // case_histories is an object with CNR keys, not an array
+                Object.values(dashboardData.case_histories).forEach(caseHistory => {
+                    if (caseHistory.history && Array.isArray(caseHistory.history)) {
+                        caseHistory.history.forEach(entry => {
+                            if (entry.hearing_date) {
+                                const entryDate = new Date(entry.hearing_date).toDateString();
+                                if (entryDate === today) {
+                                    todayHearingsCount++;
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                document.getElementById('todayHearingsCount').textContent = todayHearingsCount;
+            }
+            
+            // Store cases globally
+            window.allCases = cases;
+            window.currentCases = cases;
+            
+            // Display cases using the correct functions
+            displayRecentCases(cases.slice(0, 5));
+            
+            // Display upcoming hearings
+            await displayUpcomingHearings(cases.slice(0, 4));
+            
+            // Show success notification only if requested (for API loads, not cache hits)
+            if (showNotification) {
+                showNotification(`✅ Loaded ${cases.length} cases!`, 'success');
+            }
+        }
+
+        // Listen for cache updates from other pages (add/edit/delete operations)
+        function listenForCacheUpdates() {
+            let lastCacheUpdate = localStorage.getItem('cacheUpdated');
+            console.log('📊 Dashboard: Starting cache listener, initial timestamp:', lastCacheUpdate);
+            
+            setInterval(() => {
+                const currentCacheUpdate = localStorage.getItem('cacheUpdated');
+                if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
+                    console.log('📊 Dashboard: Cache update detected, refreshing data...');
+                    console.log('📊 Previous timestamp:', lastCacheUpdate);
+                    console.log('📊 New timestamp:', currentCacheUpdate);
+                    
+                    lastCacheUpdate = currentCacheUpdate;
+                    
+                    // Force refresh dashboard data
+                    loadDashboardData(true); // true = force refresh
+                }
+            }, 1000); // Check every second
+        }
+
+        // Load dashboard data (SMART CACHE MODE!)
+        let isLoading = false; // Prevent duplicate API calls
+        async function loadDashboardData(forceRefresh = false) {
             try {
-                console.log('🚀 Loading ALL user data (SUPER FAST MODE)...');
+                // Prevent duplicate loads
+                if (isLoading && !forceRefresh) {
+                    console.log('🔄 Dashboard already loading, skipping duplicate request');
+                    return;
+                }
+                
+                // Check if we already have valid cached data (unless forcing refresh)
+                if (!forceRefresh && window.userDashboardData && window.userDashboardData.cases && window.userDashboardData.cases.length > 0) {
+                    console.log('💾 CACHE HIT: Using existing dashboard data (no API call needed)');
+                    updateDashboardDisplay(window.userDashboardData);
+                    return;
+                }
+                
+                // Also check localStorage cache
+                if (!forceRefresh) {
+                    const cachedData = localStorage.getItem('userDashboardData');
+                    if (cachedData) {
+                        try {
+                            const parsed = JSON.parse(cachedData);
+                            if (parsed.cases && parsed.cases.length > 0) {
+                                console.log('💾 LOCALSTORAGE HIT: Using cached dashboard data (no API call needed)');
+                                window.userDashboardData = parsed;
+                                updateDashboardDisplay(parsed);
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn('Failed to parse cached data:', e);
+                        }
+                    }
+                }
+                
+                console.log('🚀 Loading ALL user data from API (SUPER FAST MODE)...');
+                isLoading = true;
                 
                 // Ensure config is initialized first
                 if (!config.initialized) {
@@ -978,6 +1077,7 @@
                 if (!token) {
                     console.error('No auth token found');
                     showNotification('❌ No authentication token found', 'error');
+                    isLoading = false;
                     return;
                 }
                 
@@ -992,9 +1092,7 @@
                 const result = await response.json();
                 
                 if (result.success && result.dashboard_data) {
-                    console.log(`✅ SUPER FAST MODE: Loaded ${result.dashboard_data.cases.length} cases, ${result.dashboard_data.clients.length} clients, ${result.dashboard_data.calendar_events.length} events`);
-                    
-                    const cases = result.dashboard_data.cases;
+                    console.log(`✅ API LOADED: ${result.dashboard_data.cases.length} cases, ${result.dashboard_data.clients.length} clients, ${result.dashboard_data.calendar_events.length} events`);
                     
                     // Store all data globally for other pages
                     window.userDashboardData = result.dashboard_data;
@@ -1002,54 +1100,10 @@
                     // ALSO store in localStorage for cross-page access
                     localStorage.setItem('userDashboardData', JSON.stringify(result.dashboard_data));
                     
-                    console.log('💾 DEBUG: Stored data globally:', Object.keys(window.userDashboardData));
-                    console.log('💾 DEBUG: Cases count stored:', window.userDashboardData.cases.length);
-                    console.log('💾 DEBUG: Case histories count:', Object.keys(window.userDashboardData.case_histories).length);
-                    console.log('💾 DEBUG: Data also stored in localStorage for cross-page access');
+                    console.log('💾 Data cached globally and in localStorage');
                     
-                    // Update stats
-                    document.getElementById('totalCasesCount').textContent = cases.length;
-                    document.getElementById('activeCasesCount').textContent = cases.filter(c => c.status === 'Active').length;
-                    
-                    // Calculate today's hearings count
-                    if (cases.length > 0 && result.dashboard_data.case_histories) {
-                        const today = new Date().toDateString();
-                        let todayHearingsCount = 0;
-                        
-                        // case_histories is an object with CNR keys, not an array
-                        Object.values(result.dashboard_data.case_histories).forEach(caseHistory => {
-                            if (caseHistory.history && Array.isArray(caseHistory.history)) {
-                                caseHistory.history.forEach(entry => {
-                                    if (entry.hearing_date) {
-                                        const entryDate = new Date(entry.hearing_date).toDateString();
-                                        if (entryDate === today) {
-                                            todayHearingsCount++;
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                        
-                        document.getElementById('todayHearingsCount').textContent = todayHearingsCount;
-                    }
-                    
-                    // Store cases globally
-                    window.allCases = cases;
-                    window.currentCases = cases;
-                    
-                    // Display cases using the correct functions
-                    displayRecentCases(cases.slice(0, 5));
-                    
-                    // Display upcoming hearings
-                    await displayUpcomingHearings(cases.slice(0, 4));
-                    
-                    // Show success notification
-                    showNotification(`✅ Loaded ${cases.length} cases instantly!`, 'success');
-                    
-                    // Show caching info
-                    setTimeout(() => {
-                        showNotification(`🚀 All data cached! Navigation between pages will be INSTANT!`, 'info');
-                    }, 1000);
+                    // Update the display
+                    updateDashboardDisplay(result.dashboard_data, true); // true = show success notification
                     
                 } else {
                     console.error('❌ Failed to load user data:', result.error);
@@ -1057,9 +1111,15 @@
                     // Fallback to old method
                     await loadDashboardDataSlow();
                 }
+                
+                isLoading = false; // Reset loading flag
+                
             } catch (error) {
                 console.error('❌ Error loading user data (fast mode):', error);
                 console.log('Falling back to slow method...');
+                
+                isLoading = false; // Reset loading flag
+                
                 // Fallback to old method
                 await loadDashboardDataSlow();
             }
@@ -1551,6 +1611,9 @@
                 // Then check auth and load data
                 checkAuth();
                 await loadDashboardData();
+                
+                // Start listening for cache updates from other pages
+                listenForCacheUpdates();
             } catch (error) {
                 console.error('❌ Error during page initialization:', error);
             }
