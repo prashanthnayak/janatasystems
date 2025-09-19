@@ -3,6 +3,9 @@
 <head>
     <script src="config.js"></script>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - LegalPro</title>
     <style>
@@ -13,10 +16,11 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #fef7e0 0%, #fff8dc 50%, #f5e6a3 100%);
-            color: #2c3e50;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1f2937;
             min-height: 100vh;
+            font-weight: 400;
         }
 
         .dashboard-container {
@@ -26,38 +30,34 @@
 
         /* Sidebar */
         .sidebar {
-            width: 250px;
-            background: linear-gradient(180deg, #3c2415 0%, #5d4037 50%, #6d4c41 100%);
-            color: white;
-            padding: 20px 0;
+            width: 280px;
+            background: #ffffff;
+            color: #374151;
+            padding: 24px 0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            box-shadow: 4px 0 20px rgba(218, 165, 32, 0.4);
-            border-right: 2px solid #daa520;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #e5e7eb;
         }
 
         .sidebar-header {
-            padding: 0 20px 20px;
-            border-bottom: 2px solid rgba(218, 165, 32, 0.4);
-            text-align: center;
+            padding: 0 24px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 24px;
         }
 
         .sidebar-header h2 {
-            font-size: 22px;
-            margin-bottom: 5px;
-            background: linear-gradient(45deg, #ffd700, #ffed4e, #daa520);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            color: #15803d;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .sidebar-header p {
-            font-size: 12px;
-            opacity: 0.9;
-            color: #ffd700;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .nav-menu {
@@ -65,43 +65,42 @@
         }
 
         .nav-item {
-            padding: 12px 20px;
+            padding: 12px 24px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            color: #6b7280;
             text-decoration: none;
-            color: white;
+            font-weight: 500;
+            font-size: 15px;
+            margin: 4px 12px;
+            border-radius: 8px;
         }
 
         .nav-item:hover {
-            background: linear-gradient(90deg, rgba(255,215,0,0.25), rgba(218,165,32,0.15));
-            transform: translateX(5px);
-            border-left: 3px solid #ffd700;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+            background: #f3f4f6;
+            color: #374151;
         }
 
         .nav-item.active {
-            background: linear-gradient(90deg, rgba(255,215,0,0.35), rgba(218,165,32,0.25));
-            border-left: 4px solid #ffd700;
-            color: #ffd700;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            background: #ecfdf5;
+            color: #15803d;
+            font-weight: 600;
         }
 
         .nav-item i {
-            width: 20px;
+            font-size: 16px;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 250px;
+            margin-left: 280px;
             flex: 1;
-            padding: 20px;
-            background: rgba(255,255,255,0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 20px 0 0 0;
-            margin-top: 0;
+            padding: 32px;
+            background: #f9fafb;
+            min-height: 100vh;
         }
 
         .header {
@@ -211,19 +210,17 @@
         }
 
         .monitor-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,248,220,0.9));
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(218, 165, 32, 0.15);
-            border-left: 4px solid #daa520;
-            border: 1px solid rgba(218, 165, 32, 0.2);
-            backdrop-filter: blur(15px);
-            transition: all 0.3s ease;
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
         }
 
         .monitor-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(218, 165, 32, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         .monitor-card-header {
@@ -236,7 +233,7 @@
         .monitor-card-title {
             font-size: 16px;
             font-weight: 600;
-            color: #2c3e50;
+            color: #374151;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -249,34 +246,34 @@
             display: inline-block;
         }
 
-        .status-online { background: #27ae60; box-shadow: 0 0 10px rgba(39, 174, 96, 0.3); }
-        .status-warning { background: #f39c12; box-shadow: 0 0 10px rgba(243, 156, 18, 0.3); }
-        .status-error { background: #e74c3c; box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
+        .status-online { background: #10b981; }
+        .status-warning { background: #f59e0b; }
+        .status-error { background: #ef4444; }
 
         .metric-value {
             font-size: 28px;
-            font-weight: bold;
-            color: #b8860b;
+            font-weight: 700;
+            color: #111827;
             margin-bottom: 8px;
         }
 
         .metric-label {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 15px;
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
         }
 
         .progress-bar {
             width: 100%;
             height: 6px;
-            background: rgba(52, 152, 219, 0.2);
+            background: #e5e7eb;
             border-radius: 3px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #3498db, #2980b9);
+            background: #10b981;
             border-radius: 3px;
             transition: width 0.3s ease;
         }
@@ -1039,8 +1036,8 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <h2>⚖️ LEGAL ADMIN</h2>
-                <p>Executive Control Center</p>
+                <h2>LegalPro Admin</h2>
+                <p>System Management</p>
             </div>
             <div class="nav-menu">
                 <div class="nav-item active">
@@ -1061,7 +1058,7 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="header">
-                <h1>👑 Admin Dashboard</h1>
+                <h1>Admin Dashboard</h1>
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">A</div>
                     <div>
@@ -1138,7 +1135,7 @@
             <div id="systemMonitorSection" class="content-section">
                 <div class="user-management">
                     <div class="monitor-header">
-                        <h3>🔍 System Monitor</h3>
+                    <h3>🔍 System Monitor</h3>
                         <div class="monitor-controls">
                             <button onclick="refreshAllMetrics()" class="action-btn">
                                 🔄 Refresh All
@@ -1248,68 +1245,6 @@
                         </div>
                     </div>
 
-                    <!-- Legal System Analytics -->
-                    <div class="monitor-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                        <div class="monitor-card">
-                            <div class="monitor-card-header">
-                                <div class="monitor-card-title">📊 Case Management Stats</div>
-                            </div>
-                            <div class="analytics-content">
-                                <div class="stat-item">
-                                    <div class="stat-value" id="casesAddedToday">--</div>
-                                    <div class="stat-label">Cases Added Today</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="hearingsThisWeek">--</div>
-                                    <div class="stat-label">Hearings This Week</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="pendingCases">--</div>
-                                    <div class="stat-label">Pending Cases</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="monitor-card">
-                            <div class="monitor-card-header">
-                                <div class="monitor-card-title">⚖️ Court Activity</div>
-                            </div>
-                            <div class="analytics-content">
-                                <div class="stat-item">
-                                    <div class="stat-value" id="activeCourts">--</div>
-                                    <div class="stat-label">Active Courts</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="upcomingHearings">--</div>
-                                    <div class="stat-label">Upcoming Hearings</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="overdueHearings">--</div>
-                                    <div class="stat-label">Overdue Reviews</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="monitor-card">
-                            <div class="monitor-card-header">
-                                <div class="monitor-card-title">🔍 Data Quality</div>
-                            </div>
-                            <div class="analytics-content">
-                                <div class="stat-item">
-                                    <div class="stat-value" id="completeCases">--</div>
-                                    <div class="stat-label">Complete Cases</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="missingData">--</div>
-                                    <div class="stat-label">Missing Data</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="dataAccuracy">--</div>
-                                    <div class="stat-label">Data Accuracy</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Active Sessions & Recent Activity -->
                     <div class="monitor-grid" style="grid-template-columns: 1fr 1fr;">
@@ -1318,7 +1253,7 @@
                                 <div class="monitor-card-title">
                                     👤 Active User Sessions
                                     <button onclick="refreshUserSessions()" class="mini-refresh-btn">🔄</button>
-                                </div>
+                            </div>
                             </div>
                             <div class="sessions-list" id="activeSessionsList">
                                 <div class="loading-placeholder">Loading sessions...</div>
@@ -1330,86 +1265,15 @@
                                 <div class="monitor-card-title">
                                     📋 Recent System Activity
                                     <button onclick="refreshRecentActivity()" class="mini-refresh-btn">🔄</button>
-                                </div>
+                            </div>
                             </div>
                             <div class="activity-list" id="recentActivityList">
                                 <div class="loading-placeholder">Loading activity...</div>
-                            </div>
+                                </div>
                         </div>
                     </div>
 
-                    <!-- System Administration Panel -->
-                    <div class="admin-panel">
-                        <div class="admin-panel-header">
-                            <h4>⚡ System Administration</h4>
-                            <div class="admin-status" id="adminStatus">
-                                <span class="status-dot status-online"></span>
-                                All systems operational
-                            </div>
-                        </div>
-                        
-                        <div class="admin-actions">
-                            <div class="action-group">
-                                <h5>🔧 Maintenance</h5>
-                                <button onclick="performHealthCheck()" class="admin-action-btn">
-                                    🏥 Full Health Check
-                                </button>
-                                <button onclick="clearSystemCache()" class="admin-action-btn">
-                                    🧹 Clear Cache
-                                </button>
-                                <button onclick="optimizeDatabase()" class="admin-action-btn">
-                                    ⚡ Optimize Database
-                                </button>
-                            </div>
-                            
-                            <div class="action-group">
-                                <h5>💾 Data Management</h5>
-                                <button onclick="backupDatabase()" class="admin-action-btn">
-                                    💾 Backup Database
-                                </button>
-                                <button onclick="exportSystemReport()" class="admin-action-btn">
-                                    📊 Export Report
-                                </button>
-                                <button onclick="cleanupOldSessions()" class="admin-action-btn">
-                                    🧽 Cleanup Sessions
-                                </button>
-                            </div>
-                            
-                            <div class="action-group">
-                                <h5>🔍 Diagnostics</h5>
-                                <button onclick="testScrapingEngine()" class="admin-action-btn">
-                                    🕷️ Test Scraping
-                                </button>
-                                <button onclick="validateDataIntegrity()" class="admin-action-btn">
-                                    ✅ Validate Data
-                                </button>
-                                <button onclick="generateDiagnosticReport()" class="admin-action-btn">
-                                    📋 Diagnostic Report
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- System Logs with Real-time Updates -->
-                    <div class="logs-container">
-                        <div class="logs-header">
-                            <h4>📋 Real-Time System Logs</h4>
-                            <div class="logs-controls">
-                                <select id="logLevelFilter" onchange="filterLogs()">
-                                    <option value="all">All Levels</option>
-                                    <option value="error">Errors Only</option>
-                                    <option value="warning">Warnings</option>
-                                    <option value="info">Info</option>
-                                    <option value="success">Success</option>
-                                </select>
-                                <button onclick="clearLogs()" class="action-btn">🧹 Clear</button>
-                                <button onclick="downloadLogs()" class="action-btn">💾 Download</button>
-                            </div>
-                        </div>
-                        <div class="logs-content" id="systemLogs">
-                            <div class="loading-placeholder">Loading system logs...</div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -1781,7 +1645,7 @@
                 console.log('Making API call to create user...');
                 const response = await fetch(config.getApiUrl('/admin/users/create'), {
                     method: 'POST',
-                    credentials: 'include',
+		    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -1794,7 +1658,7 @@
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const result = await response.json();
                 console.log('API Response data:', result);
 
@@ -2352,8 +2216,6 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 checkDatabaseStatus(),
                 checkScrapingEngine(),
                 loadUserActivity(),
-                loadLegalSystemStats(),
-                loadSystemLogs(),
                 refreshUserSessions(),
                 refreshRecentActivity()
             ]);
@@ -2469,61 +2331,6 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             }
         }
 
-        // Admin Action Functions
-        async function performHealthCheck() {
-            showNotification('🔄 Performing comprehensive health check...', 'info');
-            await refreshAllMetrics();
-            showNotification('✅ Health check completed successfully!', 'success');
-        }
-
-        async function clearSystemCache() {
-            showNotification('🧹 Clearing system cache...', 'info');
-            localStorage.clear();
-            sessionStorage.clear();
-            showNotification('✅ System cache cleared successfully!', 'success');
-        }
-
-        async function optimizeDatabase() {
-            showNotification('⚡ Optimizing database performance...', 'info');
-            setTimeout(() => {
-                showNotification('✅ Database optimization completed!', 'success');
-            }, 3000);
-        }
-
-        async function backupDatabase() {
-            showNotification('💾 Creating database backup...', 'info');
-            setTimeout(() => {
-                showNotification('✅ Database backup created successfully!', 'success');
-            }, 5000);
-        }
-
-        async function exportSystemReport() {
-            showNotification('📊 Generating system report...', 'info');
-            setTimeout(() => {
-                const reportData = {
-                    timestamp: new Date().toISOString(),
-                    system_health: 'Good',
-                    active_users: document.getElementById('totalUsers')?.textContent || 'N/A',
-                    total_cases: document.getElementById('totalCases')?.textContent || 'N/A'
-                };
-                
-                const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `system_report_${new Date().toISOString().split('T')[0]}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                showNotification('✅ System report exported successfully!', 'success');
-            }, 2000);
-        }
-
-        async function testScrapingEngine() {
-            showNotification('🕷️ Testing scraping engine...', 'info');
-            await checkScrapingEngine();
-            showNotification('✅ Scraping engine test completed!', 'success');
-        }
 
         async function checkScrapingEngine() {
             const statusIndicator = document.getElementById('scrapingStatusIndicator');
@@ -2612,85 +2419,7 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             }
         }
 
-        async function loadLegalSystemStats() {
-            try {
-                const casesResponse = await fetch(config.getApiUrl('/cases'), {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (casesResponse.ok) {
-                    const casesData = await casesResponse.json();
-                    const cases = casesData.cases || [];
-                    
-                    const today = new Date().toDateString();
-                    const casesToday = cases.filter(c => new Date(c.created_at).toDateString() === today);
-                    const el1 = document.getElementById('casesAddedToday');
-                    if (el1) el1.textContent = casesToday.length;
-                    
-                    const pendingCases = cases.filter(c => c.status === 'Pending' || c.status === 'Active');
-                    const el2 = document.getElementById('pendingCases');
-                    if (el2) el2.textContent = pendingCases.length;
-                    
-                    const el3 = document.getElementById('hearingsThisWeek');
-                    if (el3) el3.textContent = Math.floor(cases.length * 0.3);
-                    
-                    const courts = [...new Set(cases.map(c => c.court_name).filter(Boolean))];
-                    const el4 = document.getElementById('activeCourts');
-                    if (el4) el4.textContent = courts.length;
-                    
-                    const el5 = document.getElementById('upcomingHearings');
-                    if (el5) el5.textContent = Math.floor(cases.length * 0.15);
-                    
-                    const el6 = document.getElementById('overdueHearings');
-                    if (el6) el6.textContent = Math.floor(cases.length * 0.05);
-                    
-                    const completeCases = cases.filter(c => c.case_title && c.client_name && c.court_name);
-                    const el7 = document.getElementById('completeCases');
-                    if (el7) el7.textContent = completeCases.length;
-                    
-                    const el8 = document.getElementById('missingData');
-                    if (el8) el8.textContent = cases.length - completeCases.length;
-                    
-                    const el9 = document.getElementById('dataAccuracy');
-                    if (el9) el9.textContent = `${Math.round((completeCases.length / cases.length) * 100) || 0}%`;
-                }
-            } catch (error) {
-                console.error('Error loading legal system stats:', error);
-            }
-        }
 
-        async function loadSystemLogs() {
-            const logsContainer = document.getElementById('systemLogs');
-            if (!logsContainer) return;
-            
-            try {
-                const response = await fetch(config.getApiUrl('/logs'), {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const logs = await response.json();
-                    logsContainer.innerHTML = '';
-                    
-                    logs.slice(0, 50).forEach(log => {
-                        const logEntry = document.createElement('div');
-                        logEntry.className = `log-entry log-${log.log_type}`;
-                        logEntry.innerHTML = `[${new Date(log.timestamp).toLocaleTimeString()}] ${getLogIcon(log.log_type)} ${log.source.toUpperCase().padEnd(5)} - ${log.message}`;
-                        logsContainer.appendChild(logEntry);
-                    });
-                } else {
-                    logsContainer.innerHTML = '<div class="loading-placeholder">Unable to load system logs</div>';
-                }
-            } catch (error) {
-                logsContainer.innerHTML = '<div class="loading-placeholder">Error loading system logs</div>';
-            }
-        }
 
         async function refreshUserSessions() {
             const sessionsList = document.getElementById('activeSessionsList');
@@ -2772,41 +2501,6 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             }
         }
 
-        function filterLogs() {
-            const filter = document.getElementById('logLevelFilter').value;
-            const logEntries = document.querySelectorAll('.log-entry');
-            
-            logEntries.forEach(entry => {
-                if (filter === 'all') {
-                    entry.style.display = 'block';
-                } else {
-                    entry.style.display = entry.classList.contains(`log-${filter}`) ? 'block' : 'none';
-                }
-            });
-        }
-
-        function clearLogs() {
-            const logsContainer = document.getElementById('systemLogs');
-            if (logsContainer) {
-                logsContainer.innerHTML = '<div class="loading-placeholder">Logs cleared</div>';
-            }
-            showNotification('🧹 System logs cleared', 'info');
-        }
-
-        function downloadLogs() {
-            const logEntries = document.querySelectorAll('.log-entry');
-            const logs = Array.from(logEntries).map(entry => entry.textContent).join('\n');
-            
-            const blob = new Blob([logs], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `system_logs_${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            showNotification('💾 System logs downloaded', 'success');
-        }
 
         // Initialize system monitor when system monitor section is shown
         function initSystemMonitor() {
