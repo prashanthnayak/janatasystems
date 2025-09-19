@@ -612,21 +612,31 @@ def get_batch_case_history():
         legal_api.add_log(f"Error getting batch case history: {str(e)}", 'error', 'database')
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/api/user/dashboard-data', methods=['GET'])
-@require_auth
+@app.route('/api/user/dashboard-data', methods=['GET', 'OPTIONS'])
 def get_user_dashboard_data():
     """Get ALL user data in ONE API call - SUPER FAST! 🚀"""
-    try:
-        # Get user from token
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': 'Authorization header required'}), 401
-        
-        token = auth_header.split(' ')[1]
+    # Handle CORS preflight request
+    if request.method == 'OPTIONS':
+        return '', 200
+    
+    # Apply authentication only for non-OPTIONS requests
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'success': False, 'error': 'Authorization header required'}), 401
+    
+    token = auth_header.split(' ')[1]
+    user = get_cached_user(token)
+    
+    # If not in cache, query database and cache the result
+    if not user:
         user = legal_api.db.get_user_by_session(token)
-        
-        if not user:
-            return jsonify({'success': False, 'error': 'Invalid session'}), 401
+        if user:
+            cache_user(token, user)
+    
+    if not user:
+        return jsonify({'success': False, 'error': 'Invalid session'}), 401
+    
+    try:
         
         # Get all cases for the user
         if user['role'] == 'admin':

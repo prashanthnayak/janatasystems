@@ -869,7 +869,7 @@
                         // Try to get fresh dashboard data
                         const token = localStorage.getItem('userToken');
                         if (token && config.initialized) {
-                            const response = await fetch(config.getApiUrl('/dashboard/data'), {
+                            const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
                                 headers: {
                                     'Authorization': `Bearer ${token}`
                                 }
