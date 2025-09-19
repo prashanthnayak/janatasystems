@@ -1313,13 +1313,20 @@
 
         // Today's Hearings functionality - restored
         async function showTodayHearings() {
+            console.log('🔍 DEBUG: showTodayHearings function called!');
             try {
                 // Get cases first
+                console.log('🔍 DEBUG: Getting cases from API...');
                 const casesResult = await legalAPI.getCases();
+                console.log('🔍 DEBUG: Cases result:', casesResult);
+                
                 if (!casesResult.success || !casesResult.cases || casesResult.cases.length === 0) {
+                    console.log('⚠️ DEBUG: No cases found, showing no hearings modal');
                     showNoTodayHearingsModal();
                     return;
                 }
+                
+                console.log('✅ DEBUG: Found', casesResult.cases.length, 'cases');
 
                 // Get case history for all cases and filter for today
                 const today = new Date().toDateString();
@@ -1349,11 +1356,15 @@
                     }
                 }
 
+                console.log('🔍 DEBUG: Total today hearings found:', todayHearings.length);
+                
                 if (todayHearings.length === 0) {
+                    console.log('⚠️ DEBUG: No hearings today, showing no hearings modal');
                     showNoTodayHearingsModal();
                     return;
                 }
 
+                console.log('✅ DEBUG: Showing today hearings modal with', todayHearings.length, 'hearings');
                 showTodayHearingsModal(todayHearings);
             } catch (error) {
                 console.error('Error loading today\'s hearings:', error);
