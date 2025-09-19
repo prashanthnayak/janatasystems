@@ -907,7 +907,7 @@
         // Load calendar events from database (FAST VERSION!)
         async function loadCalendarEvents() {
             try {
-                console.log('📅 DEBUG: loadCalendarEvents function called');
+                // Loading calendar events...
 
                 // FIRST: Check localStorage for cached data (cross-page access)
                 let cachedDataFromStorage = localStorage.getItem('userDashboardData');
@@ -1043,8 +1043,7 @@
                     
                     console.log(`🚀 CACHE MODE: Loaded ${calendarEvents.length} calendar events from cache (INSTANT!)`);
 
-                    // DEBUG: Log the events to see what we have
-                    console.log('📅 DEBUG: Calendar events loaded:', calendarEvents.slice(0, 3)); // Show first 3 events
+                    // Events loaded from cache
 
                     generateCalendar(); // Refresh calendar with new events
                     return;
@@ -1176,7 +1175,7 @@
         }
 
         function generateCalendar() {
-            console.log('📅 DEBUG: generateCalendar called, events count:', calendarEvents.length);
+            // Reduced debug logging for better performance
             // Only month view is active for now
             generateMonthView();
             // if (currentView === 'month') {
@@ -1196,6 +1195,16 @@
             const lastDay = new Date(currentYear, currentMonth + 1, 0);
             const startDate = new Date(firstDay);
             startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            // Pre-group events by date for better performance (instead of filtering 42 times)
+            const eventsByDate = {};
+            calendarEvents.forEach(event => {
+                const dateKey = event.date.toDateString();
+                if (!eventsByDate[dateKey]) {
+                    eventsByDate[dateKey] = [];
+                }
+                eventsByDate[dateKey].push(event);
+            });
 
             for (let i = 0; i < 42; i++) {
                 const day = new Date(startDate);
@@ -1220,25 +1229,12 @@
                 dayNumber.textContent = day.getDate();
                 dayElement.appendChild(dayNumber);
 
-                // Add real events from database
-                const dayEvents = calendarEvents.filter(event =>
-                    event.date.toDateString() === day.toDateString()
-                );
+                // Get events for this day (O(1) lookup instead of O(n) filter)
+                const dayEvents = eventsByDate[day.toDateString()] || [];
 
-                // DEBUG: Log events found for this day
-                if (dayEvents.length > 0) {
-                    console.log(`📅 DEBUG: Found ${dayEvents.length} events for ${day.toDateString()}:`, dayEvents);
-                }
-
-                // Create events container
+                // Create events container (using CSS class for better performance)
                 const eventsContainer = document.createElement('div');
                 eventsContainer.className = 'day-events';
-                eventsContainer.style.cssText = `
-                    flex: 1;
-                    overflow-y: auto;
-                    overflow-x: hidden;
-                    min-height: 0;
-                `;
 
                 dayEvents.forEach(calendarEvent => {
                     const event = document.createElement('div');
