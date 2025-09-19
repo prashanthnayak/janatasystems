@@ -876,11 +876,11 @@
             try {
                 const token = localStorage.getItem('userToken');
                 if (token) {
-                    // Wait for config to initialize
+        // Wait for config to initialize
                     if (!config.initialized) {
-                        await config.init();
+        await config.init();
                     }
-                    
+        
                     // Call logout API
                     await fetch(config.getApiUrl('/auth/logout'), {
                         method: 'POST',
@@ -934,6 +934,9 @@
                     
                     // Get the auth token from localStorage
                     const token = localStorage.getItem('userToken');
+                    console.log('🔍 DEBUG: Token for API call:', token ? 'EXISTS' : 'MISSING');
+                    console.log('🔍 DEBUG: API URL:', url);
+                    
                     if (!token) {
                         console.error('No auth token found');
                         return { success: false, error: 'No authentication token' };
@@ -945,6 +948,19 @@
                             'Content-Type': 'application/json'
                         }
                     });
+                    
+                    console.log('🔍 DEBUG: API Response status:', response.status);
+                    console.log('🔍 DEBUG: API Response ok:', response.ok);
+                    
+                    if (response.status === 401) {
+                        console.error('❌ 401 Unauthorized - Token may be expired');
+                        console.log('🔄 Redirecting to login page...');
+                        localStorage.removeItem('userToken');
+                        localStorage.removeItem('userRole');
+                        window.location.href = 'login.html';
+                        return { success: false, error: 'Unauthorized - redirecting to login' };
+                    }
+                    
                     return await response.json();
                 } catch (error) {
                     console.error('Error getting cases:', error);
@@ -1263,25 +1279,25 @@
                 
                 if (caseHistory?.history && Array.isArray(caseHistory.history)) {
                     caseHistory.history.forEach(entry => {
-                        if (entry.hearing_date) {
-                            const hearingDate = new Date(entry.hearing_date);
+                            if (entry.hearing_date) {
+                                const hearingDate = new Date(entry.hearing_date);
                             hearingDate.setHours(0, 0, 0, 0);
-                            
-                            // Only include future hearings
-                            if (hearingDate >= today) {
-                                upcomingHearings.push({
-                                    date: hearingDate,
+                                
+                                // Only include future hearings
+                                if (hearingDate >= today) {
+                                    upcomingHearings.push({
+                                        date: hearingDate,
                                     originalDate: new Date(entry.hearing_date),
-                                    caseData: caseData,
-                                    purpose: entry.purpose,
+                                        caseData: caseData,
+                                        purpose: entry.purpose,
                                     orderDetails: entry.order_details,
                                     judge: entry.judge,
                                     cnr: caseData.cnr_number,
                                     caseTitle: caseData.case_title || 'Unknown Case'
-                                });
+                                    });
+                                }
                             }
-                        }
-                    });
+                        });
                 }
             }
             
@@ -1379,7 +1395,7 @@
                 }
 
                 console.log('🔍 DEBUG: Total today hearings found:', todayHearings.length);
-                
+
                 if (todayHearings.length === 0) {
                     console.log('⚠️ DEBUG: No hearings today, showing no hearings modal');
                     showNoTodayHearingsModal();
@@ -1641,7 +1657,7 @@
                 console.log('✅ Config initialized successfully');
                 
                 // Then check auth and load data
-                checkAuth();
+            checkAuth();
                 await loadDashboardData();
                 
                 // Start listening for cache updates from other pages
