@@ -770,12 +770,29 @@
     <script>
         // LegalAPI class definition
         class LegalAPI {
-            constructor(baseUrl = 'http://52.23.206.51:5002/api') {
+            constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
+                this.initialized = false;
+            }
+
+            async init() {
+                if (!this.initialized) {
+                    if (!config.initialized) {
+                        await config.init();
+                    }
+                    this.baseUrl = config.getApiUrl('');
+                    this.initialized = true;
+                    console.log('🔧 Calendar LegalAPI initialized with baseUrl:', this.baseUrl);
+                }
             }
 
             async getCases(limit = 50, offset = 0) {
                 try {
+                    // Ensure API is initialized
+                    if (!this.initialized) {
+                        await this.init();
+                    }
+                    
                     // Get the auth token from localStorage
                     const token = localStorage.getItem('userToken');
                     if (!token) {
@@ -822,6 +839,11 @@
 
             async getBatchCaseHistory() {
                 try {
+                    // Ensure API is initialized
+                    if (!this.initialized) {
+                        await this.init();
+                    }
+                    
                     // Get the auth token from localStorage
                     const token = localStorage.getItem('userToken');
                     if (!token) {
@@ -840,6 +862,34 @@
                 } catch (error) {
                     console.error('Error fetching batch case history:', error);
                     return { success: false, all_histories: {} };
+                }
+            }
+
+            async getUserDashboardData() {
+                try {
+                    // Ensure API is initialized
+                    if (!this.initialized) {
+                        await this.init();
+                    }
+                    
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('No auth token found');
+                        return { success: false, error: 'No authentication token' };
+                    }
+                    
+                    const response = await fetch(`${this.baseUrl}/user/dashboard-data`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching user dashboard data:', error);
+                    return { success: false, error: error.message };
                 }
             }
         }
