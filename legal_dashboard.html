@@ -1250,14 +1250,14 @@
                                 upcomingHearings.push({
                                     date: hearingDate,
                                     originalDate: new Date(entry.hearing_date),
-                                        caseData: caseData,
-                                        purpose: entry.purpose,
-                                        orderDetails: entry.order_details,
-                                        judge: entry.judge,
-                                        cnr: caseData.cnr_number,
-                                        caseTitle: caseData.case_title || 'Unknown Case'
-                                    });
-                                }
+                                    caseData: caseData,
+                                    purpose: entry.purpose,
+                                    orderDetails: entry.order_details,
+                                    judge: entry.judge,
+                                    cnr: caseData.cnr_number,
+                                    caseTitle: caseData.case_title || 'Unknown Case'
+                                });
+                            }
                             }
                         });
                     }
