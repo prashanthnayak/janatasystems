@@ -956,9 +956,9 @@
                     }
                 }
                 
-                // SECOND: Check if we have cached data from dashboard (same page)
+                // SECOND: Check if we have cached data from dashboard (same page) - PRIORITIZE THIS!
                 if (window.userDashboardData && window.userDashboardData.cases && window.userDashboardData.case_histories) {
-                    console.log('🚀 FAST MODE: Using cached data from dashboard!');
+                    console.log('🚀 SUPER FAST MODE: Using cached data from dashboard!');
                     
                     calendarEvents = [];
                     const cases = window.userDashboardData.cases;
@@ -1026,12 +1026,14 @@
                     console.log('Dashboard API not available, falling back to batch API');
                 }
 
-                // FOURTH: Use the FAST batch API as fallback
-                console.log('📅 FAST MODE: Loading calendar events from batch API...');
+                // FOURTH: Use the FAST batch API as fallback (only if no cached data available)
+                console.log('📅 API FALLBACK: Loading calendar events from batch API...');
+                console.warn('⚠️ Calendar performance warning: No cached data found, using API calls');
                 
                 const batchResponse = await legalAPI.getBatchCaseHistory();
                 if (!batchResponse.success) {
                     console.error('Failed to load batch case history, falling back to slow method');
+                    console.error('⚠️ Calendar performance critical: Using slowest method with individual API calls');
                     await loadCalendarEventsSlow(); // Fallback to old method
                     return;
                 }
