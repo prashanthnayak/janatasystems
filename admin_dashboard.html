@@ -306,13 +306,12 @@
         }
 
         .logs-container {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,248,220,0.9));
-            border-radius: 15px;
-            padding: 25px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            border-left: 4px solid #15803d;
             border: 1px solid #e5e7eb;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .logs-header {
@@ -416,7 +415,7 @@
             align-items: center;
             padding: 12px 15px;
             margin-bottom: 8px;
-            background: rgba(255,255,255,0.7);
+            background: #ffffff;
             border-radius: 8px;
             border-left: 4px solid #3498db;
             transition: all 0.2s ease;
@@ -520,7 +519,7 @@
         }
 
         .admin-action-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: #f9fafb;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
@@ -598,7 +597,7 @@
 
         .chart-container {
             height: 200px;
-            background: rgba(255,255,255,0.3);
+            background: #f9fafb;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -1323,7 +1322,7 @@
             </div>
             <div class="modal-footer">
                 <div style="display: flex; gap: 15px; justify-content: flex-end;">
-                    <button type="button" class="btn-secondary" onclick="closeAddUserModal()" style="padding: 12px 24px; border-radius: 8px; border: 2px solid #95a5a6; background: transparent; color: #2c3e50; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">Cancel</button>
+                    <button type="button" class="btn-secondary" onclick="closeAddUserModal()" style="padding: 12px 24px; border-radius: 8px; border: 1px solid #d1d5db; background: transparent; color: #374151; cursor: pointer; font-weight: 600; transition: all 0.2s ease;">Cancel</button>
                     <button type="submit" form="addUserForm" class="add-user-btn" style="margin: 0;">✅ Create User</button>
                 </div>
             </div>
@@ -2194,12 +2193,12 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 clearInterval(autoRefreshInterval);
                 isAutoRefresh = false;
                 btn.textContent = '⏱️ Auto Refresh: OFF';
-                btn.style.background = 'linear-gradient(45deg, #95a5a6, #7f8c8d)';
+                btn.style.background = '#6b7280';
             } else {
                 autoRefreshInterval = setInterval(refreshAllMetrics, 30000); // 30 seconds
                 isAutoRefresh = true;
                 btn.textContent = '⏱️ Auto Refresh: ON';
-                btn.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+                btn.style.background = '#15803d';
             }
         }
 
