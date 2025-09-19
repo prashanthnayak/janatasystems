@@ -1542,6 +1542,9 @@
 
         // Create modal helper function
         function createModal(title, content, color = '#3498db') {
+            console.log('🔍 DEBUG: createModal called with title:', title);
+            console.log('🔍 DEBUG: Modal content length:', content.length);
+            
             // Create modal
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -1580,6 +1583,10 @@
             modal.appendChild(modalContent);
             modal.className = 'modal-overlay';
             document.body.appendChild(modal);
+            
+            console.log('✅ DEBUG: Modal added to DOM with class:', modal.className);
+            console.log('✅ DEBUG: Modal element:', modal);
+            console.log('✅ DEBUG: Total modals in DOM:', document.querySelectorAll('.modal-overlay').length);
 
             // Close modal when clicking outside
             modal.addEventListener('click', function(e) {
@@ -1587,6 +1594,12 @@
                     modal.remove();
                 }
             });
+        }
+
+        // Test function - you can call this from browser console: testModal()
+        function testModal() {
+            console.log('🧪 Testing modal creation...');
+            createModal('Test Modal', '<p>This is a test modal. If you can see this, the modal system is working!</p><button onclick="this.closest(\'.modal-overlay\').remove()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Close</button>');
         }
 
         // Add interactivity
