@@ -1093,9 +1093,9 @@
                             <button onclick="toggleAutoRefresh()" class="action-btn" id="autoRefreshBtn">
                                 ⏱️ Auto Refresh: OFF
                             </button>
+                            </div>
                         </div>
-                    </div>
-                    
+
                     <!-- Real-Time System Health -->
                     <div class="monitor-grid">
                         <div class="monitor-card">
@@ -1381,23 +1381,21 @@
 
         async function loadDashboardData() {
             try {
+                // Wait for config to initialize first
+                await config.init();
+                
                 const token = localStorage.getItem('userToken');
                 
                 // Load users
                 await loadUsers();
                 
                 // Load cases
-                //const casesResponse = await fetch(config.getApiUrl('/cases'));
-		// Load cases
-		const casesResponse = await 
-        // Wait for config to initialize
-        await config.init();
-        
-        fetch(config.getApiUrl('/cases'), {
+                const casesResponse = await fetch(config.getApiUrl('/cases'), {
     			headers: {
         			'Authorization': `Bearer ${token}`
     			}
 		});
+                
                 if (casesResponse.ok) {
                     const casesResult = await casesResponse.json();
                     if (casesResult.success) {
@@ -1436,8 +1434,12 @@
             `).join('');
         }
 
-        function logout() {
+        async function logout() {
             console.log('Logout function called');
+            
+            // Wait for config to initialize first
+            await config.init();
+            
             const token = localStorage.getItem('userToken');
             console.log('Token for logout:', token ? 'Token exists' : 'No token found');
             
@@ -1534,6 +1536,9 @@
             submitBtn.disabled = true;
 
             try {
+                // Wait for config to initialize first
+                await config.init();
+                
                 // Get auth token
                 const token = localStorage.getItem('userToken');
                 if (!token) {
@@ -1588,6 +1593,9 @@
 
         async function loadUsers() {
             try {
+                // Wait for config to initialize first
+                await config.init();
+                
                 // Get auth token
                 const token = localStorage.getItem('userToken');
                 if (!token) {
@@ -1960,7 +1968,7 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             document.getElementById('editUserForm').reset();
         }
 
-        function deleteUser(userId, username) {
+        async function deleteUser(userId, username) {
             if (confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
                 // Show loading state
                 const deleteBtn = event.target;
@@ -1968,15 +1976,20 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 deleteBtn.textContent = '🗑️ Deleting...';
                 deleteBtn.disabled = true;
 
+                try {
+                    // Wait for config to initialize first
+                    await config.init();
+
                 // Make API call to delete user
-                fetch(`${config.getApiUrl('/admin/users/${userId}')}`, {
+                    const response = await fetch(`${config.getApiUrl('/admin/users/${userId}')}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('userToken')}`
                     }
-                })
-                .then(response => response.json())
-                .then(result => {
+                    });
+                    
+                    const result = await response.json();
+                    
                     if (result.success) {
                         alert(`✅ ${result.message}`);
                         // Refresh users list
@@ -1984,16 +1997,14 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                     } else {
                         alert(`❌ Error deleting user: ${result.error}`);
                     }
-                })
-                .catch(error => {
+                } catch (error) {
                     console.error('Error deleting user:', error);
                     alert('❌ Network error. Please try again.');
-                })
-                .finally(() => {
+                } finally {
                     // Reset button
                     deleteBtn.textContent = originalText;
                     deleteBtn.disabled = false;
-                });
+                }
             }
         }
 
@@ -2044,6 +2055,9 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             submitBtn.disabled = true;
 
             try {
+                // Wait for config to initialize first
+                await config.init();
+                
                 // Get auth token
                 const token = localStorage.getItem('userToken');
                 if (!token) {
@@ -2131,6 +2145,9 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             if (!statusIndicator) return;
 
             try {
+                // Wait for config to initialize first
+                await config.init();
+                
                 statusIndicator.className = 'status-indicator';
                 statusIndicator.textContent = '⏳';
                 statusText.textContent = 'Checking...';
@@ -2177,6 +2194,9 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             if (!statusIndicator) return;
 
             try {
+                // Wait for config to initialize first
+                await config.init();
+                
                 statusIndicator.className = 'status-indicator';
                 statusIndicator.textContent = '⏳';
                 statusText.textContent = 'Checking...';
@@ -2240,6 +2260,9 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
             if (!statusIndicator) return;
 
             try {
+                // Wait for config to initialize first
+                await config.init();
+                
                 statusIndicator.className = 'status-indicator';
                 statusIndicator.textContent = '⏳';
                 statusText.textContent = 'Checking...';
