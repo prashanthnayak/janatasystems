@@ -1,1 +1,0 @@
-export APP_HOST="52.23.206.51"
