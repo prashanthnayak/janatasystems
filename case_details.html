@@ -420,11 +420,26 @@
         </div>
     </div>
 
+    <!-- Common utilities -->
+    <script src="common.js"></script>
+    
     <script>
         // LegalAPI class definition
         class LegalAPI {
-            constructor(baseUrl = 'http://52.23.206.51:5002/api') {
+            constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
+                this.initialized = false;
+            }
+
+            async init() {
+                if (!this.initialized) {
+                    if (!config.initialized) {
+                        await config.init();
+                    }
+                    this.baseUrl = config.getApiUrl('');
+                    this.initialized = true;
+                    console.log('🔧 LegalAPI initialized with baseUrl:', this.baseUrl);
+                }
             }
 
             // Get case by CNR number

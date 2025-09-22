@@ -347,6 +347,9 @@
         </div>
     </div>
 
+    <!-- Common utilities -->
+    <script src="common.js"></script>
+    
     <!-- Database Integration Script -->
     <script>
         // LegalAPI class definition
@@ -438,53 +441,6 @@
         const casesPerPage = 5;
 
         // Notification function
-        function showNotification(message, type = 'info') {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.textContent = message;
-            
-            // Style the notification
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 5px;
-                color: white;
-                font-weight: bold;
-                z-index: 1000;
-                max-width: 300px;
-                word-wrap: break-word;
-            `;
-            
-            // Set background color based on type
-            switch(type) {
-                case 'success':
-                    notification.style.backgroundColor = '#28a745';
-                    break;
-                case 'error':
-                    notification.style.backgroundColor = '#dc3545';
-                    break;
-                case 'warning':
-                    notification.style.backgroundColor = '#ffc107';
-                    notification.style.color = '#212529';
-                    break;
-                default:
-                    notification.style.backgroundColor = '#17a2b8';
-            }
-            
-            // Add to page
-            document.body.appendChild(notification);
-            
-            // Remove after 5 seconds
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 5000);
-        }
-
         // Load cases from database on page load
         async function loadCasesFromDatabase() {
             try {
@@ -517,7 +473,7 @@
                             
                             currentCases = [...allCases];
                             displayCases();
-                            showNotification(`✅ Loaded ${allCases.length} cases from localStorage cache (INSTANT!)`, 'success');
+                            // showNotification(`✅ Loaded ${allCases.length} cases from localStorage cache (INSTANT!)`, 'success');
                             return;
                         }
                     } catch (parseError) {
@@ -549,7 +505,7 @@
                     
                     currentCases = [...allCases];
                     displayCases();
-                    showNotification(`✅ Loaded ${allCases.length} cases from cache (INSTANT!)`, 'success');
+                    //showNotification(`✅ Loaded ${allCases.length} cases from cache (INSTANT!)`, 'success');
                     return;
                 }
                 
@@ -560,7 +516,7 @@
                 // Debug: Check if legalAPI is defined
                 if (typeof legalAPI === 'undefined') {
                     console.error('legalAPI is not defined!');
-                    showNotification('❌ legalAPI is not defined', 'error');
+                    //showNotification('❌ legalAPI is not defined', 'error');
                     loadSampleData();
                     return;
                 }
@@ -600,7 +556,7 @@
             allCases = [];
             currentCases = [];
             displayCases();
-            showNotification('⚠️ No cases found. Add your first case to get started.', 'info');
+            showNotification('No cases found. Add your first case to get started.', 'info');
         }
 
         // Search functionality

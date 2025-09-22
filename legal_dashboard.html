@@ -638,91 +638,11 @@
         </div>
     </div>
 
+    <!-- Common utilities -->
+    <script src="common.js"></script>
+    
     <script>
         // Notification system
-        function showNotification(message, type = 'info', duration = 5000, position = 'top-right') {
-            const notification = document.createElement('div');
-            notification.setAttribute('role', 'alert'); // ARIA role for accessibility
-            notification.setAttribute('aria-live', 'polite'); // Announces to screen readers
-
-            // Base styles - Modern, polished design
-            notification.style.cssText = `
-                position: fixed;
-                padding: 16px 20px;
-                border-radius: 8px;
-                color: white;
-                font-weight: 600;
-                font-size: 14px;
-                z-index: 1000;
-                opacity: 0;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                backdrop-filter: blur(10px);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                max-width: 320px;
-                line-height: 1.4;
-                letter-spacing: 0.025em;
-            `;
-
-            // Positioning
-            if (position === 'top-right') {
-                notification.style.top = '20px';
-                notification.style.right = '20px';
-                notification.style.transform = 'translateX(100%)'; // For slide-in
-            } else if (position === 'top-left') {
-                notification.style.top = '20px';
-                notification.style.left = '20px';
-                notification.style.transform = 'translateX(-100%)';
-            } // Add more positions as needed
-
-            // Colors based on type - Modern, vibrant color scheme
-            switch (type) {
-                case 'success': 
-                    notification.style.backgroundColor = '#10B981'; 
-                    notification.style.color = '#FFFFFF';
-                    notification.style.borderLeft = '4px solid #059669';
-                    break;
-                case 'error': 
-                    notification.style.backgroundColor = '#EF4444'; 
-                    notification.style.color = '#FFFFFF';
-                    notification.style.borderLeft = '4px solid #DC2626';
-                    break;
-                case 'warning': 
-                    notification.style.backgroundColor = '#F59E0B'; 
-                    notification.style.color = '#FFFFFF';
-                    notification.style.borderLeft = '4px solid #D97706';
-                    break;
-                default: 
-                    notification.style.backgroundColor = '#3B82F6'; 
-                    notification.style.color = '#FFFFFF';
-                    notification.style.borderLeft = '4px solid #2563EB';
-                    break;
-            }
-            
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            // Slide in animation
-            setTimeout(() => {
-                notification.style.opacity = '1';
-                notification.style.transform = 'translateX(0)';
-            }, 10); // Small delay for smooth transition
-
-            // Auto-remove with fade out
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = position.includes('right') ? 'translateX(100%)' : 'translateX(-100%)';
-                setTimeout(() => notification.remove(), 300); // Wait for fade out
-            }, duration);
-
-            // Handle stacking: Adjust top position if multiple exist
-            const existingNotifications = document.querySelectorAll(`[role="alert"]`);
-            if (existingNotifications.length > 1) {
-                const lastNotification = existingNotifications[existingNotifications.length - 2];
-                const lastBottom = lastNotification.getBoundingClientRect().bottom;
-                notification.style.top = `${lastBottom + 10}px`; // Stack below with gap
-            }
-        }
-
         // Authentication and User Profile Functions
         function checkAuth() {
             console.log('🔐 checkAuth called');
