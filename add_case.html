@@ -536,13 +536,30 @@
         
         // LegalAPI class definition
         class LegalAPI {
-            constructor(baseUrl = 'http://52.23.206.51:5002/api') {
+            constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
+                this.initialized = false;
+            }
+
+            async init() {
+                if (!this.initialized) {
+                    if (!config.initialized) {
+                        await config.init();
+                    }
+                    this.baseUrl = config.getApiUrl('');
+                    this.initialized = true;
+                    console.log('🔧 LegalAPI initialized with baseUrl:', this.baseUrl);
+                }
             }
 
             // Add new case with CNR number
             async addCase(caseData) {
                 try {
+                    // Ensure API is initialized
+                    if (!this.initialized) {
+                        await this.init();
+                    }
+                    
                     const response = await fetch(`${this.baseUrl}/cases`, {
                         method: 'POST',
                         headers: {
@@ -560,6 +577,11 @@
             // Get case by CNR number
             async getCase(cnrNumber) {
                 try {
+                    // Ensure API is initialized
+                    if (!this.initialized) {
+                        await this.init();
+                    }
+                    
                     const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`);
                     return await response.json();
                 } catch (error) {
@@ -571,6 +593,11 @@
             // Trigger scraping from eCourts
             async triggerScraping(cnrNumber) {
                 try {
+                    // Ensure API is initialized
+                    if (!this.initialized) {
+                        await this.init();
+                    }
+                    
                     const response = await fetch(`${this.baseUrl}/scraping/trigger/${cnrNumber}`, {
                         method: 'POST',
                         headers: {
@@ -596,13 +623,13 @@
             const cnrNumber = formData.get('cnr_number').trim();
             
             if (!cnrNumber) {
-                showNotification('❌ CNR Number is required', 'error');
+                showNotification('CNR Number is required', 'error');
                 return;
             }
             
             // Check if CNR already exists before saving
             console.log('🔍 Checking if CNR already exists before saving...');
-            showNotification('🔍 Checking if case already exists...', 'info');
+            //showNotification('🔍 Checking if case already exists...', 'info');
             
             try {
                 // Ensure config is initialized
@@ -612,7 +639,7 @@
                 
                 const token = localStorage.getItem('userToken');
                 if (!token) {
-                    showNotification('❌ Please login first', 'error');
+                    showNotification('Please login first', 'error');
                     return;
                 }
                 
@@ -630,18 +657,18 @@
                     const existingCase = await checkResponse.json();
                     if (existingCase.success && existingCase.case) {
                         const caseTitle = existingCase.case.case_title || 'Untitled Case';
-                        showNotification(`❌ CNR ${cnrNumber} already exists!`, 'error', 8000);
+                        showNotification(`CNR ${cnrNumber} already exists!`, 'error', 8000);
                         alert(`⚠️ CANNOT SAVE - CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\nCase Title: ${caseTitle}\n\nThis case is already in your database. Please check the case management page or use a different CNR number.`);
                         return;
                     }
                 } else if (checkResponse.status === 403) {
                     // Access denied - case exists but belongs to another user
-                    showNotification(`❌ CNR ${cnrNumber} already exists in the system`, 'error', 8000);
+                    showNotification(`CNR ${cnrNumber} already exists in the system`, 'error', 8000);
                     alert(`⚠️ CANNOT SAVE - CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\n\nThis case already exists in the system but may belong to another user. Please use a different CNR number.`);
                     return;
                 } else if (checkResponse.status === 404) {
                     // Case doesn't exist, proceed with save
-                    console.log('✅ CNR not found in database, proceeding with save...');
+                    console.log('CNR not found in database, proceeding with save...');
                 } else {
                     console.log('⚠️ Unexpected response status during save check:', checkResponse.status);
                     // Continue with save - better to allow save than block legitimate requests
@@ -670,7 +697,7 @@
                 // Step 3: Save to database (combines user data with scraped data)
                 const token = localStorage.getItem('userToken');
                 if (!token) {
-                    showNotification('❌ Please login first', 'error');
+                    showNotification('Please login first', 'error');
                     window.location.href = 'login.html';
                     return;
                 }
@@ -690,7 +717,7 @@
                 const result = await response.json();
                 
                     if (result.success) {
-                    showNotification(`✅ Case saved successfully! ${result.message}`, 'success');
+                    showNotification(`Case saved successfully! ${result.message}`, 'success');
                     alert(`🎉 SUCCESS! Case saved to database!\n\n${result.message}\n\nRedirecting to cases list in 2 seconds...`);
                     
                     // Clear temporary scraped data from sessionStorage
@@ -714,12 +741,12 @@
                             window.location.href = 'cases.html';
                         }, 2000);
                     } else {
-                    showNotification(`❌ Failed to save case: ${result.error}`, 'error');
-                    alert(`❌ FAILED! Could not save case to database:\n\n${result.error}`);
+                    showNotification(` Failed to save case: ${result.error}`, 'error');
+                    alert(`FAILED! Could not save case to database:\n\n${result.error}`);
                 }
             } catch (error) {
-                showNotification(`❌ Error saving case: ${error.message}`, 'error');
-                alert(`💥 ERROR! Something went wrong:\n\n${error.message}`);
+                showNotification(`Error saving case: ${error.message}`, 'error');
+                alert(`ERROR! Something went wrong:\n\n${error.message}`);
             }
         }
 
@@ -999,8 +1026,12 @@
 
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('🔄 DOM Content Loaded - Initializing page...');
+            
+            // Initialize config and API
+            await config.init();
+            await legalAPI.init();
             
             // Test if fetchFromECourts function is accessible
             console.log('🔍 Testing fetchFromECourts function accessibility...');
