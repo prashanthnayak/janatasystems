@@ -353,6 +353,16 @@
                             <small class="form-help">Enter the name of the client (mandatory field)</small>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Client Phone Number <span class="required">*</span></label>
+                            <input type="tel" class="form-input" name="clientPhone" id="clientPhone" required placeholder="Enter 10-digit phone number" maxlength="10">
+                            <small class="form-help">Enter 10-digit phone number (mandatory field)</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Client Email ID</label>
+                            <input type="email" class="form-input" name="clientEmail" id="clientEmail" placeholder="Enter email address (optional)">
+                            <small class="form-help">Enter email address (optional field)</small>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Registration Number</label>
                             <input type="text" class="form-input" name="caseNumber" id="caseNumber" placeholder="Registration number" readonly>
                             <small class="form-help">Registration number cannot be changed</small>
@@ -531,6 +541,8 @@
                         document.getElementById('cnr_number').value = caseData.cnr_number || '';
                         document.getElementById('caseTitle').value = caseData.case_title || '';
                         document.getElementById('clientName').value = caseData.client_name || '';
+                        document.getElementById('clientPhone').value = caseData.client_phone || '';
+                        document.getElementById('clientEmail').value = caseData.client_email || '';
                         document.getElementById('caseNumber').value = caseData.registration_number || '';
                         document.getElementById('caseType').value = caseData.case_type || '';
                         document.getElementById('court').value = caseData.court_name || '';
@@ -602,8 +614,20 @@
             }
 
             // Validate required fields
-            const requiredFields = ['caseTitle', 'clientName'];
+            const requiredFields = ['caseTitle', 'clientName', 'clientPhone'];
             const missingFields = requiredFields.filter(field => !caseData[field]);
+            
+            // Validate phone number (10 digits only)
+            if (caseData.clientPhone && !/^\d{10}$/.test(caseData.clientPhone)) {
+                alert('Phone number must be exactly 10 digits');
+                return;
+            }
+            
+            // Validate email (optional but must be valid if provided)
+            if (caseData.clientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(caseData.clientEmail)) {
+                alert('Please enter a valid email address');
+                return;
+            }
 
             if (missingFields.length > 0) {
                 alert('Please fill in all required fields: ' + missingFields.join(', '));
