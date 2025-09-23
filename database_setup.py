@@ -475,7 +475,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             print(f"🗄️ Database: Executing SELECT query for CNR: {cnr_number}")
             cursor.execute("""
-                SELECT cnr_number, case_title, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, created_at, updated_at, client_name, user_id
+                SELECT cnr_number, case_title, client_name, client_phone, client_email, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, created_at, updated_at, user_id
                 FROM cases 
                 WHERE cnr_number = %s
             """, (cnr_number,))
@@ -485,19 +485,21 @@ class DatabaseManager:
                 case_data = {
                     'cnr_number': row[0],
                     'case_title': row[1],
-                    'petitioner': row[2],
-                    'respondent': row[3],
-                    'case_type': row[4],
-                    'court_name': row[5],
-                    'judge_name': row[6],
-                    'status': row[7],
-                    'filing_date': row[8],
-                    'case_description': row[9],
-                    'registration_number': row[10],
-                    'created_at': row[11],
-                    'updated_at': row[12],
-                    'client_name': row[13],
-                    'user_id': row[14]
+                    'client_name': row[2],
+                    'client_phone': row[3],
+                    'client_email': row[4],
+                    'petitioner': row[5],
+                    'respondent': row[6],
+                    'case_type': row[7],
+                    'court_name': row[8],
+                    'judge_name': row[9],
+                    'status': row[10],
+                    'filing_date': row[11],
+                    'case_description': row[12],
+                    'registration_number': row[13],
+                    'created_at': row[14],
+                    'updated_at': row[15],
+                    'user_id': row[16]
                 }
                 print(f"✅ Database: Case found for CNR {cnr_number}: {case_data}")
                 return case_data
@@ -521,7 +523,7 @@ class DatabaseManager:
         try:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT cnr_number, case_title, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, created_at, updated_at, client_name, user_id
+                SELECT cnr_number, case_title, client_name, client_phone, client_email, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, created_at, updated_at, user_id
                 FROM cases 
                 ORDER BY created_at DESC
             """)
@@ -532,19 +534,21 @@ class DatabaseManager:
                 case_data = {
                     'cnr_number': row[0],
                     'case_title': row[1],
-                    'petitioner': row[2],
-                    'respondent': row[3],
-                    'case_type': row[4],
-                    'court_name': row[5],
-                    'judge_name': row[6],
-                    'status': row[7],
-                    'filing_date': row[8],
-                    'case_description': row[9],
-                    'registration_number': row[10],
-                    'created_at': row[11],
-                    'updated_at': row[12],
-                    'client_name': row[13],
-                    'user_id': row[14]
+                    'client_name': row[2],
+                    'client_phone': row[3],
+                    'client_email': row[4],
+                    'petitioner': row[5],
+                    'respondent': row[6],
+                    'case_type': row[7],
+                    'court_name': row[8],
+                    'judge_name': row[9],
+                    'status': row[10],
+                    'filing_date': row[11],
+                    'case_description': row[12],
+                    'registration_number': row[13],
+                    'created_at': row[14],
+                    'updated_at': row[15],
+                    'user_id': row[16]
                 }
                 cases.append(case_data)
             
@@ -565,7 +569,7 @@ class DatabaseManager:
         try:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT cnr_number, case_title, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, created_at, updated_at, client_name, user_id
+                SELECT cnr_number, case_title, client_name, client_phone, client_email, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, created_at, updated_at, user_id
                 FROM cases 
                 WHERE user_id = %s
                 ORDER BY created_at DESC
@@ -577,19 +581,21 @@ class DatabaseManager:
                 case_data = {
                     'cnr_number': row[0],
                     'case_title': row[1],
-                    'petitioner': row[2],
-                    'respondent': row[3],
-                    'case_type': row[4],
-                    'court_name': row[5],
-                    'judge_name': row[6],
-                    'status': row[7],
-                    'filing_date': row[8],
-                    'case_description': row[9],
-                    'registration_number': row[10],
-                    'created_at': row[11],
-                    'updated_at': row[12],
-                    'client_name': row[13],
-                    'user_id': row[14]
+                    'client_name': row[2],
+                    'client_phone': row[3],
+                    'client_email': row[4],
+                    'petitioner': row[5],
+                    'respondent': row[6],
+                    'case_type': row[7],
+                    'court_name': row[8],
+                    'judge_name': row[9],
+                    'status': row[10],
+                    'filing_date': row[11],
+                    'case_description': row[12],
+                    'registration_number': row[13],
+                    'created_at': row[14],
+                    'updated_at': row[15],
+                    'user_id': row[16]
                 }
                 cases.append(case_data)
             
