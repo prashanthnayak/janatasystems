@@ -669,7 +669,7 @@ def get_user_dashboard_data():
                     if entry.get('hearing_date'):
                         calendar_events.append({
                             'date': entry['hearing_date'].isoformat() if hasattr(entry['hearing_date'], 'isoformat') else str(entry['hearing_date']),
-                            'title': f"{case.get('case_type', 'Case')} - {entry.get('purpose', 'Hearing')}",
+                            'title': f"{case.get('case_title', 'Unknown Case')} - {entry.get('purpose', 'Hearing')}",
                             'description': entry.get('order_details', 'No details available'),
                             'caseTitle': case.get('case_title', 'Unknown Case'),
                             'cnrNumber': cnr_number,
