@@ -915,6 +915,10 @@
                 // FIRST: Check localStorage for cached data (cross-page access)
                 let cachedDataFromStorage = localStorage.getItem('userDashboardData');
                 
+                // Cache is now enabled for normal operation
+                // cachedDataFromStorage = null;
+                // console.log('🔍 DEBUG: Cache disabled for debugging');
+                
                 // If no cached data, try to refresh it from API
                 if (!cachedDataFromStorage) {
                     console.log('📅 No cached data found, trying to refresh from API...');
@@ -931,6 +935,8 @@
                             if (response.ok) {
                                 const result = await response.json();
                                 if (result.success) {
+                                    console.log('🔍 DEBUG: Dashboard API response:', result.dashboard_data);
+                                    console.log('🔍 DEBUG: Calendar events from API:', result.dashboard_data.calendar_events?.slice(0, 3));
                                     localStorage.setItem('userDashboardData', JSON.stringify(result.dashboard_data));
                                     cachedDataFromStorage = JSON.stringify(result.dashboard_data);
                                     console.log('📅 Successfully refreshed dashboard data from API');
@@ -951,6 +957,9 @@
                         if (parsedData.calendar_events) {
                             console.log('🚀 SUPER FAST MODE: Using pre-built calendar events from API!');
                             console.log('🔍 DEBUG: Pre-built events from API:', parsedData.calendar_events.slice(0, 3));
+                            console.log('🔍 DEBUG: First event title:', parsedData.calendar_events[0]?.title);
+                            console.log('🔍 DEBUG: First event caseTitle:', parsedData.calendar_events[0]?.caseTitle);
+                            console.log('🔍 DEBUG: First event caseType:', parsedData.calendar_events[0]?.caseType);
                             
                             calendarEvents = parsedData.calendar_events.map(event => ({
                                 date: new Date(event.date),
@@ -964,6 +973,8 @@
                             
                             console.log(`🚀 SUPER FAST MODE: Loaded ${calendarEvents.length} calendar events from API (INSTANT!)`);
                             console.log('🔍 DEBUG: Final calendar events:', calendarEvents.slice(0, 3));
+                            console.log('🔍 DEBUG: First final event title:', calendarEvents[0]?.title);
+                            console.log('🔍 DEBUG: First final event caseTitle:', calendarEvents[0]?.caseTitle);
                             generateCalendar(); // Refresh calendar with new events
                             return;
                         }
@@ -1257,6 +1268,11 @@
                 dayEvents.forEach(calendarEvent => {
                     const event = document.createElement('div');
                     event.className = 'event hearing'; // Default to hearing style
+                    
+                    // Debug: Log the event title being displayed
+                    console.log('🔍 DEBUG: Displaying event title:', calendarEvent.title);
+                    console.log('🔍 DEBUG: Event caseTitle:', calendarEvent.caseTitle);
+                    
                     event.textContent = calendarEvent.title.length > 12 ? 
                         calendarEvent.title.substring(0, 12) + '...' : 
                         calendarEvent.title;
