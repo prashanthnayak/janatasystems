@@ -1116,31 +1116,17 @@
             }
         }
 
-        // View client cases - shows modal if multiple cases, direct navigation if single case
+        // View client cases - always shows modal for case selection
         function viewClientCases(clientName, cnrs) {
-            console.log('🔍 DEBUG: viewClientCases called with:', { clientName, cnrs });
-            
-            if (cnrs.length === 1) {
-                // Single case - go directly
-                console.log('🔍 DEBUG: Single case, navigating directly to:', cnrs[0]);
-                sessionStorage.setItem('viewCaseCNR', cnrs[0]);
-                window.location.href = 'case_details.html';
-            } else {
-                // Multiple cases - show modal
-                console.log('🔍 DEBUG: Multiple cases, showing modal for:', cnrs.length, 'cases');
-                showCaseSelectionModal(clientName, cnrs);
-            }
+            // Always show modal for case selection
+            showCaseSelectionModal(clientName, cnrs);
         }
 
         // Show case selection modal
         function showCaseSelectionModal(clientName, cnrs) {
-            console.log('🔍 DEBUG: showCaseSelectionModal called with:', { clientName, cnrs });
-            
             const modal = document.getElementById('caseModal');
             const modalTitle = document.getElementById('modalTitle');
             const modalBody = document.getElementById('modalBody');
-            
-            console.log('🔍 DEBUG: Modal elements found:', { modal, modalTitle, modalBody });
             
             if (!modal) {
                 console.error('❌ ERROR: Modal element not found!');
@@ -1199,9 +1185,7 @@
                 modalBody.innerHTML = casesHTML;
             }
             
-            console.log('🔍 DEBUG: Setting modal display to block');
             modal.style.display = 'block';
-            console.log('🔍 DEBUG: Modal display set, current style:', modal.style.display);
         }
 
         // View specific case
