@@ -950,6 +950,7 @@
                         // Check if we have pre-built calendar events from the API (FASTEST!)
                         if (parsedData.calendar_events) {
                             console.log('🚀 SUPER FAST MODE: Using pre-built calendar events from API!');
+                            console.log('🔍 DEBUG: Pre-built events from API:', parsedData.calendar_events.slice(0, 3));
                             
                             calendarEvents = parsedData.calendar_events.map(event => ({
                                 date: new Date(event.date),
@@ -962,6 +963,7 @@
                             }));
                             
                             console.log(`🚀 SUPER FAST MODE: Loaded ${calendarEvents.length} calendar events from API (INSTANT!)`);
+                            console.log('🔍 DEBUG: Final calendar events:', calendarEvents.slice(0, 3));
                             generateCalendar(); // Refresh calendar with new events
                             return;
                         }
