@@ -444,6 +444,16 @@
                             <small class="form-help">Enter the name of the client (mandatory field)</small>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Client Phone Number <span class="required">*</span></label>
+                            <input type="tel" class="form-input" name="clientPhone" required placeholder="Enter 10-digit phone number" maxlength="10">
+                            <small class="form-help">Enter 10-digit phone number (mandatory field)</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Client Email ID</label>
+                            <input type="email" class="form-input" name="clientEmail" placeholder="Enter email address (optional)">
+                            <small class="form-help">Enter email address (optional field)</small>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Registration Number</label>
                             <input type="text" class="form-input" name="registration_number" placeholder="Will be auto-filled from eCourts" readonly>
                         </div>
@@ -624,9 +634,28 @@
             
             const formData = new FormData(event.target);
             const cnrNumber = formData.get('cnr_number').trim();
+            const clientPhone = formData.get('clientPhone').trim();
+            const clientEmail = formData.get('clientEmail').trim();
             
             if (!cnrNumber) {
                 showNotification('CNR Number is required', 'error');
+                return;
+            }
+            
+            // Validate phone number (10 digits only)
+            if (!clientPhone) {
+                showNotification('Client phone number is required', 'error');
+                return;
+            }
+            
+            if (!/^\d{10}$/.test(clientPhone)) {
+                showNotification('Phone number must be exactly 10 digits', 'error');
+                return;
+            }
+            
+            // Validate email (optional but must be valid if provided)
+            if (clientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
+                showNotification('Please enter a valid email address', 'error');
                 return;
             }
             
@@ -690,6 +719,8 @@
                 const userData = {
                     case_title: formData.get('caseTitle'),
                     client_name: formData.get('clientName'),
+                    client_phone: formData.get('clientPhone'),
+                    client_email: formData.get('clientEmail'),
                     case_type: formData.get('case_type'),
                     court_name: formData.get('court_name'),
                 filing_date: formData.get('filingDate'),

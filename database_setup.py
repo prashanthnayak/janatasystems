@@ -44,6 +44,8 @@ class DatabaseManager:
                     cnr_number VARCHAR(16) PRIMARY KEY,
                     case_title VARCHAR(255),
                     client_name VARCHAR(255),
+                    client_phone VARCHAR(10),
+                    client_email VARCHAR(255),
                     petitioner VARCHAR(255),
                     respondent VARCHAR(255),
                     case_type VARCHAR(50),
@@ -248,7 +250,7 @@ class DatabaseManager:
             if conn:
                 conn.close()
 
-    def insert_case(self, cnr_number, case_title, client_name=None, petitioner=None, respondent=None, case_type=None, court_name=None, judge_name=None, status=None, filing_date=None, case_description=None, registration_number=None, user_id=None):
+    def insert_case(self, cnr_number, case_title, client_name=None, client_phone=None, client_email=None, petitioner=None, respondent=None, case_type=None, court_name=None, judge_name=None, status=None, filing_date=None, case_description=None, registration_number=None, user_id=None):
         """Insert or update case in database"""
         conn = self.get_connection()
         if not conn:
@@ -260,12 +262,14 @@ class DatabaseManager:
             
             # Use UPSERT (INSERT ... ON CONFLICT) to handle duplicate CNR
             cursor.execute("""
-                INSERT INTO cases (cnr_number, case_title, client_name, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, user_id, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                INSERT INTO cases (cnr_number, case_title, client_name, client_phone, client_email, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, user_id, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                 ON CONFLICT (cnr_number) 
                 DO UPDATE SET 
                     case_title = EXCLUDED.case_title,
                     client_name = EXCLUDED.client_name,
+                    client_phone = EXCLUDED.client_phone,
+                    client_email = EXCLUDED.client_email,
                     petitioner = EXCLUDED.petitioner,
                     respondent = EXCLUDED.respondent,
                     case_type = EXCLUDED.case_type,
@@ -277,7 +281,7 @@ class DatabaseManager:
                     registration_number = EXCLUDED.registration_number,
                     user_id = EXCLUDED.user_id,
                     updated_at = CURRENT_TIMESTAMP
-            """, (cnr_number, case_title, client_name, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, user_id))
+            """, (cnr_number, case_title, client_name, client_phone, client_email, petitioner, respondent, case_type, court_name, judge_name, status, filing_date, case_description, registration_number, user_id))
             
             conn.commit()
             print(f"✅ Database: Case inserted/updated successfully for CNR: {cnr_number}")

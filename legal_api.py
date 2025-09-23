@@ -109,6 +109,8 @@ class LegalAPI:
             # Extract case details
             case_title = case_data.get('case_title', 'N/A')
             client_name = case_data.get('client_name', 'N/A')
+            client_phone = case_data.get('client_phone', '')
+            client_email = case_data.get('client_email', '')
             petitioner = case_data.get('petitioner', 'N/A')
             respondent = case_data.get('respondent', 'N/A')
             case_type = case_data.get('case_type', 'N/A')
@@ -125,6 +127,8 @@ class LegalAPI:
                 cnr_number,
                 case_title=case_title,
                 client_name=client_name,
+                client_phone=client_phone,
+                client_email=client_email,
                 petitioner=petitioner,
                 respondent=respondent,
                 case_type=case_type,
@@ -228,6 +232,8 @@ class LegalAPI:
                 'cnr_number': cnr_number,
                 'case_title': user_data.get('case_title', 'N/A'),
                 'client_name': user_data.get('client_name', 'N/A'),
+                'client_phone': user_data.get('client_phone', ''),
+                'client_email': user_data.get('client_email', ''),
                 'petitioner': user_data.get('petitioner') or scraped_data.get('petitioner', 'N/A'),
                 'respondent': user_data.get('respondent') or scraped_data.get('respondent', 'N/A'),
                 'case_type': user_data.get('case_type') or scraped_data.get('case_type', 'N/A'),
