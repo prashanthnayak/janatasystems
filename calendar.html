@@ -984,7 +984,7 @@
                                         if (entry.hearing_date) {
                                             calendarEvents.push({
                                                 date: new Date(entry.hearing_date),
-                                                title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                                title: `${caseData.case_title || 'Unknown Case'} - ${entry.purpose || 'Hearing'}`,
                                                 description: entry.order_details || 'No details available',
                                                 caseTitle: caseData.case_title || 'Unknown Case',
                                                 cnrNumber: cnrNumber,
@@ -1028,7 +1028,7 @@
                                 if (entry.hearing_date) {
                                     calendarEvents.push({
                                         date: new Date(entry.hearing_date),
-                                        title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                        title: `${caseData.case_title || 'Unknown Case'} - ${entry.purpose || 'Hearing'}`,
                                         description: entry.order_details || 'No details available',
                                         caseTitle: caseData.case_title || 'Unknown Case',
                                         cnrNumber: cnrNumber,
@@ -1105,7 +1105,7 @@
                             if (entry.hearing_date) {
                                 calendarEvents.push({
                                     date: new Date(entry.hearing_date),
-                                    title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                    title: `${caseData.case_title || 'Unknown Case'} - ${entry.purpose || 'Hearing'}`,
                                     description: entry.order_details || 'No details available',
                                     caseTitle: caseData.case_title || 'Unknown Case',
                                     cnrNumber: cnrNumber,
@@ -1156,7 +1156,7 @@
                             if (entry.hearing_date) {
                                 calendarEvents.push({
                                     date: new Date(entry.hearing_date),
-                                    title: `${caseData.case_type || 'Case'} - ${entry.purpose || 'Hearing'}`,
+                                    title: `${caseData.case_title || 'Unknown Case'} - ${entry.purpose || 'Hearing'}`,
                                     description: entry.order_details || 'No details available',
                                     caseTitle: caseData.case_title || 'Unknown Case',
                                     cnrNumber: caseData.cnr_number,
