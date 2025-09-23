@@ -415,28 +415,26 @@
         class LegalAPI {
             constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
+                this.initialized = false;
             }
-            
+
             async init() {
-                if (!this.baseUrl) {
-                    // Use dynamic config
-                    if (typeof config !== 'undefined') {
-                        if (!config.initialized) {
-                            await config.init();
-                        }
-                        this.baseUrl = config.getApiUrl('');
-                    } else {
-                        // Fallback to localhost
-                        this.baseUrl = 'http://localhost:5002/api';
+                if (!this.initialized) {
+                    if (!config.initialized) {
+                        await config.init();
                     }
+                    this.baseUrl = config.getApiUrl('');
+                    this.initialized = true;
+                    console.log('🔧 Edit Case LegalAPI initialized with baseUrl:', this.baseUrl);
                 }
-                console.log('🔗 LegalAPI using base URL:', this.baseUrl);
             }
 
             // Get case by CNR number
             async getCase(cnrNumber) {
                 try {
-                    await this.init();
+                    if (!this.initialized) {
+                        await this.init();
+                    }
                     
                     const token = localStorage.getItem('userToken');
                     const headers = {
@@ -460,7 +458,9 @@
             // Update case
             async updateCase(cnrNumber, caseData) {
                 try {
-                    await this.init();
+                    if (!this.initialized) {
+                        await this.init();
+                    }
                     
                     const token = localStorage.getItem('userToken');
                     const headers = {
