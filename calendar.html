@@ -1103,9 +1103,18 @@
                         // Add each history entry as a calendar event
                         history.forEach(entry => {
                             if (entry.hearing_date) {
+                                const eventTitle = `${caseData.case_title || 'Unknown Case'} - ${entry.purpose || 'Hearing'}`;
+                                console.log('🔍 DEBUG: Creating calendar event:', {
+                                    cnr: cnrNumber,
+                                    caseTitle: caseData.case_title,
+                                    caseType: caseData.case_type,
+                                    purpose: entry.purpose,
+                                    finalTitle: eventTitle
+                                });
+                                
                                 calendarEvents.push({
                                     date: new Date(entry.hearing_date),
-                                    title: `${caseData.case_title || 'Unknown Case'} - ${entry.purpose || 'Hearing'}`,
+                                    title: eventTitle,
                                     description: entry.order_details || 'No details available',
                                     caseTitle: caseData.case_title || 'Unknown Case',
                                     cnrNumber: cnrNumber,
