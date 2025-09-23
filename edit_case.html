@@ -537,6 +537,12 @@
                     if (result.success && result.case) {
                         const caseData = result.case;
                         
+                        console.log('🔍 DEBUG: Case data received:', caseData);
+                        console.log('🔍 DEBUG: Phone and email values:', {
+                            client_phone: caseData.client_phone,
+                            client_email: caseData.client_email
+                        });
+                        
                         // Populate form fields with real data
                         document.getElementById('cnr_number').value = caseData.cnr_number || '';
                         document.getElementById('caseTitle').value = caseData.case_title || '';
@@ -546,6 +552,11 @@
                         document.getElementById('caseNumber').value = caseData.registration_number || '';
                         document.getElementById('caseType').value = caseData.case_type || '';
                         document.getElementById('court').value = caseData.court_name || '';
+                        
+                        console.log('🔍 DEBUG: Form fields populated:', {
+                            clientPhone: document.getElementById('clientPhone').value,
+                            clientEmail: document.getElementById('clientEmail').value
+                        });
                         // Convert date format for HTML date input (yyyy-MM-dd)
                         if (caseData.filing_date) {
                             try {

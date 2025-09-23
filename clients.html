@@ -637,6 +637,7 @@
                                         clientPhone: clientPhone,
                                         clientEmail: clientEmail
                                     });
+                                    console.log('🔍 DEBUG: Raw case data:', caseData);
                                     
                                     // Use phone number as primary key, fallback to name if no phone
                                     const clientKey = clientPhone || clientName;
@@ -657,6 +658,8 @@
                                             roles: ['Primary Client'] // Array of all roles
                                         };
                                         console.log('🆕 DEBUG: Creating new client:', newClient);
+                                        console.log('🆕 DEBUG: Client phone value:', newClient.phone);
+                                        console.log('🆕 DEBUG: Client email value:', newClient.email);
                                         clientsMap.set(clientKey, newClient);
                                     } else {
                                         // Add to existing client's arrays
@@ -784,6 +787,7 @@
                                 phone: currentClients[0].phone,
                                 email: currentClients[0].email
                             } : 'No clients found');
+                            console.log('👥 DEBUG: Full first client object:', currentClients[0]);
                             
                             // If no real clients found, show message
                             if (allClients.length === 0) {
@@ -1032,6 +1036,15 @@
             const startIndex = (currentPage - 1) * clientsPerPage;
             const endIndex = startIndex + clientsPerPage;
             const clientsToShow = currentClients.slice(startIndex, endIndex);
+            
+            console.log('🖥️ DEBUG: Displaying clients:', clientsToShow);
+            if (clientsToShow.length > 0) {
+                console.log('🖥️ DEBUG: First client data:', {
+                    name: clientsToShow[0].name,
+                    phone: clientsToShow[0].phone,
+                    email: clientsToShow[0].email
+                });
+            }
 
             const clientsGrid = document.getElementById('clientsGrid');
             clientsGrid.innerHTML = '';
