@@ -961,7 +961,7 @@
                     // Force refresh dashboard data
                     loadDashboardData(true); // true = force refresh
                 }
-            }, 1000); // Check every second
+            }, 5000); // Check every 5 seconds - REDUCED FREQUENCY FOR PERFORMANCE
         }
 
         // Load dashboard data (SMART CACHE MODE!)
@@ -1044,8 +1044,8 @@
                 } else {
                     console.error('❌ Failed to load user data:', result.error);
                     console.log('Falling back to slow method...');
-                    // Fallback to old method
-                    await loadDashboardDataSlow();
+                    // await loadDashboardDataSlow(); // Fallback to old method - COMMENTED OUT FOR PERFORMANCE
+                    console.error('❌ No data available - dashboard will show empty');
                 }
                 
                 isLoading = false; // Reset loading flag
@@ -1056,12 +1056,13 @@
                 
                 isLoading = false; // Reset loading flag
                 
-                // Fallback to old method
-                await loadDashboardDataSlow();
+                // await loadDashboardDataSlow(); // Fallback to old method - COMMENTED OUT FOR PERFORMANCE
+                console.error('❌ No data available - dashboard will show empty');
             }
         }
 
-        // Fallback slow method (kept for compatibility)
+        // Fallback slow method (kept for compatibility) - COMMENTED OUT FOR PERFORMANCE
+        /*
         async function loadDashboardDataSlow() {
             try {
                 console.log('🔄 Loading dashboard data (SLOW FALLBACK)...');
@@ -1101,6 +1102,7 @@
                 console.error('Error loading dashboard data:', error);
             }
         }
+        */
 
         // Display recent cases
         function displayRecentCases(cases) {
