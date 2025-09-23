@@ -1086,7 +1086,8 @@
                 if (!batchResponse.success) {
                     console.error('Failed to load batch case history, falling back to slow method');
                     console.error('⚠️ Calendar performance critical: Using slowest method with individual API calls');
-                    await loadCalendarEventsSlow(); // Fallback to old method
+                    // await loadCalendarEventsSlow(); // Fallback to old method - COMMENTED OUT FOR PERFORMANCE
+                    console.error('❌ No data available - calendar will show empty');
                     return;
                 }
 
@@ -1126,11 +1127,13 @@
             } catch (error) {
                 console.error('Error loading calendar events (fast mode):', error);
                 console.log('Falling back to slow method...');
-                await loadCalendarEventsSlow(); // Fallback to old method
+                // await loadCalendarEventsSlow(); // Fallback to old method - COMMENTED OUT FOR PERFORMANCE
+                console.error('❌ No data available - calendar will show empty');
             }
         }
 
-        // Fallback slow method (kept for compatibility)
+        // Fallback slow method (kept for compatibility) - COMMENTED OUT FOR PERFORMANCE
+        /*
         async function loadCalendarEventsSlow() {
             try {
                 console.log('📅 Loading calendar events from database (SLOW FALLBACK)...');
@@ -1176,6 +1179,7 @@
                 console.error('Error loading calendar events (slow mode):', error);
             }
         }
+        */
 
         function generateCalendar() {
             // Reduced debug logging for better performance
@@ -1544,7 +1548,7 @@
                         console.error('📅 Error refreshing calendar:', error);
                     });
                 }
-            }, 1000); // Check every second
+            }, 5000); // Check every 5 seconds - REDUCED FREQUENCY FOR PERFORMANCE
         }
 
         // Initialize calendar and load data
