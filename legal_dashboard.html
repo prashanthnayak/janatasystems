@@ -981,10 +981,16 @@
                     return;
                 }
                 
-                // Also check localStorage cache
+                // Also check localStorage cache with versioning
                 if (!forceRefresh) {
                     const cachedData = localStorage.getItem('userDashboardData');
-                    if (cachedData) {
+                    const cacheVersion = localStorage.getItem('cacheVersion') || '0';
+                    
+                    // Check if cache is valid (within last 5 minutes)
+                    const cacheAge = Date.now() - parseInt(cacheVersion);
+                    const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
+                    
+                    if (cachedData && cacheAge < maxCacheAge) {
                         try {
                             const parsed = JSON.parse(cachedData);
                             if (parsed.cases && parsed.cases.length > 0) {
@@ -996,6 +1002,10 @@
                         } catch (e) {
                             console.warn('Failed to parse cached data:', e);
                         }
+                    } else if (cachedData && cacheAge > maxCacheAge) {
+                        console.log('🔄 Cache expired, clearing old data');
+                        localStorage.removeItem('userDashboardData');
+                        localStorage.removeItem('cacheVersion');
                     }
                 }
                 
@@ -1035,6 +1045,7 @@
                     
                     // ALSO store in localStorage for cross-page access
                     localStorage.setItem('userDashboardData', JSON.stringify(result.dashboard_data));
+                    localStorage.setItem('cacheVersion', Date.now().toString());
                     
                     console.log('💾 Data cached globally and in localStorage');
                     

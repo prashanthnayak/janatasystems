@@ -444,9 +444,15 @@
             try {
                 console.log('🔍 DEBUG: Starting loadCasesFromDatabase...');
                 
-                // FIRST: Check localStorage for cached data (cross-page access)
+                // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
                 const cachedDataFromStorage = localStorage.getItem('userDashboardData');
-                if (cachedDataFromStorage) {
+                const cacheVersion = localStorage.getItem('cacheVersion') || '0';
+                
+                // Check if cache is valid (within last 5 minutes)
+                const cacheAge = Date.now() - parseInt(cacheVersion);
+                const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
+                
+                if (cachedDataFromStorage && cacheAge < maxCacheAge) {
                     try {
                         const parsedData = JSON.parse(cachedDataFromStorage);
                         console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
@@ -477,6 +483,10 @@
                     } catch (parseError) {
                         console.error('❌ Error parsing localStorage data:', parseError);
                     }
+                } else if (cachedDataFromStorage && cacheAge > maxCacheAge) {
+                    console.log('🔄 Cache expired, clearing old data');
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
                 }
                 
                 // SECOND: Check if we have cached data from dashboard (same page)

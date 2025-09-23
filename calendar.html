@@ -913,8 +913,21 @@
             try {
                 // Loading calendar events...
 
-                // FIRST: Check localStorage for cached data (cross-page access)
+                // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
                 let cachedDataFromStorage = localStorage.getItem('userDashboardData');
+                const cacheVersion = localStorage.getItem('cacheVersion') || '0';
+                const currentVersion = Date.now().toString();
+                
+                // Check if cache is valid (within last 5 minutes)
+                const cacheAge = Date.now() - parseInt(cacheVersion);
+                const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
+                
+                if (cachedDataFromStorage && cacheAge > maxCacheAge) {
+                    console.log('🔄 Cache expired, clearing old data');
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
+                    cachedDataFromStorage = null;
+                }
                 
                 // Cache is now enabled for normal operation
                 // cachedDataFromStorage = null;
@@ -939,7 +952,9 @@
                                     console.log('🔍 DEBUG: Dashboard API response:', result.dashboard_data);
                                     console.log('🔍 DEBUG: Calendar events from API:', result.dashboard_data.calendar_events?.slice(0, 3));
                                     localStorage.setItem('userDashboardData', JSON.stringify(result.dashboard_data));
+                                    localStorage.setItem('cacheVersion', Date.now().toString());
                                     cachedDataFromStorage = JSON.stringify(result.dashboard_data);
+                                    console.log('💾 Dashboard data refreshed and cached with version:', Date.now());
                                     console.log('📅 Successfully refreshed dashboard data from API');
                                 }
                             }
@@ -1561,6 +1576,10 @@
                     console.log('📅 Previous timestamp:', lastCacheUpdate);
                     console.log('📅 New timestamp:', currentCacheUpdate);
                     console.log('📅 Refreshing calendar...');
+                    
+                    // Clear old cache and force fresh data
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
                     
                     lastCacheUpdate = currentCacheUpdate;
                     

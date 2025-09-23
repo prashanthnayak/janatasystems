@@ -751,7 +751,8 @@ def get_user_dashboard_data():
                     'total_events': len(calendar_events),
                     'active_cases': len([c for c in cases if c.get('status') == 'Active'])
                 }
-            }
+            },
+            'cache_version': int(time.time() * 1000)  # Add timestamp for cache versioning
         })
         
     except Exception as e:

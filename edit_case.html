@@ -656,6 +656,7 @@
                         
                         // Clear cached data to force refresh with updated data
                         localStorage.removeItem('userDashboardData');
+                        localStorage.removeItem('cacheVersion');
                         if (window.userDashboardData) {
                             delete window.userDashboardData;
                         }
@@ -700,6 +701,7 @@
                         
                         // Clear cached data to force refresh
                         localStorage.removeItem('userDashboardData');
+                        localStorage.removeItem('cacheVersion');
                         if (window.userDashboardData) {
                             delete window.userDashboardData;
                         }
