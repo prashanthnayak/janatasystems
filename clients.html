@@ -1024,11 +1024,11 @@
                     <div class="client-details">
                         <div class="detail-row">
                             <span class="detail-label">Phone:</span>
-                            <span class="detail-value">${client.phone || 'Not provided'}</span>
+                            <span class="detail-value">${client.phone || 'NP'}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Email:</span>
-                            <span class="detail-value">${client.email || 'Not provided'}</span>
+                            <span class="detail-value">${client.email || 'NP'}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Location:</span>
@@ -1056,7 +1056,6 @@
                     </div>
                     <div class="client-actions">
                         <button class="btn btn-primary" onclick="viewClientCases('${client.name}', ${JSON.stringify(client.cnrs).replace(/"/g, '&quot;')})">View Cases</button>
-                        <button class="btn btn-warning" onclick="editClient('${client.name}')">Edit</button>
                     </div>
                 `;
                 clientsGrid.appendChild(clientCard);
@@ -1209,10 +1208,6 @@
             }
         }
 
-        // Edit client (placeholder)
-        function editClient(clientName) {
-            alert(`Edit functionality for ${clientName} - To be implemented`);
-        }
 
         // Add event listeners
         document.getElementById('searchInput').addEventListener('input', searchClients);
