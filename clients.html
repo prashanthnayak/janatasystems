@@ -631,11 +631,18 @@
                                     const clientPhone = caseData.client_phone || '';
                                     const clientEmail = caseData.client_email || '';
                                     
+                                    console.log('🔍 DEBUG: Processing case:', {
+                                        cnr: caseData.cnr_number,
+                                        clientName: clientName,
+                                        clientPhone: clientPhone,
+                                        clientEmail: clientEmail
+                                    });
+                                    
                                     // Use phone number as primary key, fallback to name if no phone
                                     const clientKey = clientPhone || clientName;
                                     
                                     if (!clientsMap.has(clientKey)) {
-                                        clientsMap.set(clientKey, {
+                                        const newClient = {
                                             name: clientName,
                                             type: 'Individual', // Default type
                                             email: clientEmail,
@@ -648,7 +655,9 @@
                                             cnrs: [caseData.cnr_number], // Array of all CNRs
                                             caseTypes: [caseData.case_type], // Array of all case types
                                             roles: ['Primary Client'] // Array of all roles
-                                        });
+                                        };
+                                        console.log('🆕 DEBUG: Creating new client:', newClient);
+                                        clientsMap.set(clientKey, newClient);
                                     } else {
                                         // Add to existing client's arrays
                                         const client = clientsMap.get(clientKey);
@@ -769,6 +778,12 @@
 
                             allClients = Array.from(clientsMap.values());
                             currentClients = [...allClients];
+                            console.log('👥 DEBUG: Final clients array:', currentClients);
+                            console.log('👥 DEBUG: Sample client phone/email:', currentClients[0] ? {
+                                name: currentClients[0].name,
+                                phone: currentClients[0].phone,
+                                email: currentClients[0].email
+                            } : 'No clients found');
                             
                             // If no real clients found, show message
                             if (allClients.length === 0) {
@@ -795,12 +810,22 @@
                         // Add client_name as primary client
                         if (caseData.client_name && caseData.client_name.trim() && caseData.client_name !== 'Unknown') {
                             const clientName = caseData.client_name;
+                            const clientPhone = caseData.client_phone || '';
+                            const clientEmail = caseData.client_email || '';
+                            
+                            console.log('🔍 DEBUG: Processing case (fallback):', {
+                                cnr: caseData.cnr_number,
+                                clientName: clientName,
+                                clientPhone: clientPhone,
+                                clientEmail: clientEmail
+                            });
+                            
                             if (!clientsMap.has(clientName)) {
-                                clientsMap.set(clientName, {
+                                const newClient = {
                                     name: clientName,
                                     type: 'Individual', // Default type
-                                    email: '', // Blank - to be filled manually
-                                    phone: '', // Blank - to be filled manually
+                                    email: clientEmail,
+                                    phone: clientPhone,
                                     location: caseData.court_name || 'Unknown Court',
                                     status: 'Active',
                                     activeCases: 0,
@@ -808,7 +833,9 @@
                                     role: 'Primary Client',
                                     cnr: caseData.cnr_number,
                                     caseType: caseData.case_type
-                                });
+                                };
+                                console.log('🆕 DEBUG: Creating new client (fallback):', newClient);
+                                clientsMap.set(clientName, newClient);
                             }
                             clientsMap.get(clientName).activeCases++;
                         }
