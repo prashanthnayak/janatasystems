@@ -16,6 +16,8 @@ import sys
 import hashlib
 import secrets
 from functools import wraps
+import gzip
+import base64
 
 # Add the current directory to Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -461,7 +463,28 @@ def get_cases():
         else:
             cases = legal_api.db.get_cases_for_user(user['id'])
         
-        return jsonify({'success': True, 'cases': cases})
+        # Prepare response data
+        response_data = {
+            'success': True, 
+            'cases': cases,
+            'cache_version': int(time.time() * 1000)
+        }
+        
+        # Generate ETag for conditional requests
+        etag = generate_etag(response_data)
+        
+        # Check if client has current version (ETag)
+        if_none_match = request.headers.get('If-None-Match')
+        if if_none_match == etag:
+            print(f"📦 ETag match for cases, returning 304 Not Modified")
+            return '', 304  # Not Modified
+        
+        response = jsonify(response_data)
+        response.headers['ETag'] = etag
+        response.headers['Cache-Control'] = 'max-age=300, must-revalidate'  # 5 minutes
+        response.headers['Last-Modified'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
+        
+        return response
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
@@ -618,6 +641,28 @@ def get_batch_case_history():
         legal_api.add_log(f"Error getting batch case history: {str(e)}", 'error', 'database')
         return jsonify({'success': False, 'error': str(e)})
 
+def generate_etag(data):
+    """Generate ETag from data content"""
+    try:
+        # Create a deterministic string from the data
+        data_str = json.dumps(data, sort_keys=True, default=str)
+        # Generate hash
+        hash_obj = hashlib.md5(data_str.encode('utf-8'))
+        return f'"{hash_obj.hexdigest()}"'
+    except Exception as e:
+        print(f"Error generating ETag: {e}")
+        return f'"{int(time.time())}"'
+
+def compress_data(data):
+    """Compress data for storage"""
+    try:
+        data_str = json.dumps(data)
+        compressed = gzip.compress(data_str.encode('utf-8'))
+        return base64.b64encode(compressed).decode('utf-8')
+    except Exception as e:
+        print(f"Error compressing data: {e}")
+        return json.dumps(data)
+
 @app.route('/api/user/dashboard-data', methods=['GET', 'OPTIONS'])
 def get_user_dashboard_data():
     """Get ALL user data in ONE API call - SUPER FAST! 🚀"""
@@ -731,7 +776,8 @@ def get_user_dashboard_data():
         
         legal_api.add_log(f"Retrieved complete dashboard data for user {user['username']}: {len(cases)} cases, {len(clients)} clients, {len(calendar_events)} events", 'success', 'database')
         
-        return jsonify({
+        # Prepare response data
+        response_data = {
             'success': True,
             'user': {
                 'id': user['id'],
@@ -752,11 +798,178 @@ def get_user_dashboard_data():
                     'active_cases': len([c for c in cases if c.get('status') == 'Active'])
                 }
             },
-            'cache_version': int(time.time() * 1000)  # Add timestamp for cache versioning
-        })
+            'cache_version': int(time.time() * 1000),
+            'compressed': False
+        }
+        
+        # Generate ETag for conditional requests
+        etag = generate_etag(response_data)
+        
+        # Check if client has current version (ETag)
+        if_none_match = request.headers.get('If-None-Match')
+        if if_none_match == etag:
+            print(f"📦 ETag match for user {user['username']}, returning 304 Not Modified")
+            return '', 304  # Not Modified
+        
+        # Check if client accepts compression
+        accept_encoding = request.headers.get('Accept-Encoding', '')
+        if 'gzip' in accept_encoding:
+            try:
+                compressed_data = compress_data(response_data['dashboard_data'])
+                response_data['dashboard_data'] = compressed_data
+                response_data['compressed'] = True
+                print(f"🗜️ Compressed dashboard data for user {user['username']}")
+            except Exception as e:
+                print(f"❌ Compression failed: {e}")
+        
+        response = jsonify(response_data)
+        response.headers['ETag'] = etag
+        response.headers['Cache-Control'] = 'max-age=300, must-revalidate'  # 5 minutes
+        response.headers['Last-Modified'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
+        
+        return response
         
     except Exception as e:
         legal_api.add_log(f"Error getting user dashboard data: {str(e)}", 'error', 'database')
+        return jsonify({'success': False, 'error': str(e)})
+
+# Granular API endpoints for better caching
+@app.route('/api/clients', methods=['GET'])
+def get_clients():
+    """Get clients data only"""
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'success': False, 'error': 'Authorization header required'}), 401
+        
+        token = auth_header.split(' ')[1]
+        user = legal_api.db.get_user_by_session(token)
+        
+        if not user:
+            return jsonify({'success': False, 'error': 'Invalid session'}), 401
+        
+        # Get cases and extract clients
+        if user['role'] == 'admin':
+            cases = legal_api.db.get_all_cases()
+        else:
+            cases = legal_api.db.get_cases_for_user(user['id'])
+        
+        # Extract unique clients from cases
+        clients = []
+        clients_map = {}
+        
+        for case in cases:
+            # Add client_name as primary client
+            if case.get('client_name') and case['client_name'].strip() and case['client_name'] != 'Unknown':
+                client_name = case['client_name']
+                if client_name not in clients_map:
+                    clients_map[client_name] = {
+                        'name': client_name,
+                        'type': 'Individual',
+                        'email': case.get('client_email', ''),
+                        'phone': case.get('client_phone', ''),
+                        'location': case.get('court_name', 'Unknown Court'),
+                        'status': 'Active',
+                        'activeCases': 0,
+                        'totalBilled': 'N/A',
+                        'role': 'Primary Client',
+                        'cnr': case['cnr_number'],
+                        'caseType': case['case_type']
+                    }
+                clients_map[client_name]['activeCases'] += 1
+        
+        clients = list(clients_map.values())
+        
+        response_data = {
+            'success': True,
+            'clients': clients,
+            'cache_version': int(time.time() * 1000)
+        }
+        
+        # Generate ETag for conditional requests
+        etag = generate_etag(response_data)
+        
+        # Check if client has current version (ETag)
+        if_none_match = request.headers.get('If-None-Match')
+        if if_none_match == etag:
+            return '', 304  # Not Modified
+        
+        response = jsonify(response_data)
+        response.headers['ETag'] = etag
+        response.headers['Cache-Control'] = 'max-age=300, must-revalidate'
+        response.headers['Last-Modified'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
+        
+        return response
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/calendar-events', methods=['GET'])
+def get_calendar_events():
+    """Get calendar events data only"""
+    try:
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'success': False, 'error': 'Authorization header required'}), 401
+        
+        token = auth_header.split(' ')[1]
+        user = legal_api.db.get_user_by_session(token)
+        
+        if not user:
+            return jsonify({'success': False, 'error': 'Invalid session'}), 401
+        
+        # Get cases and generate calendar events
+        if user['role'] == 'admin':
+            cases = legal_api.db.get_all_cases()
+        else:
+            cases = legal_api.db.get_cases_for_user(user['id'])
+        
+        calendar_events = []
+        
+        for case in cases:
+            cnr_number = case['cnr_number']
+            history = legal_api.db.get_case_history(cnr_number)
+            if history:
+                # Create calendar events from history
+                for entry in history:
+                    if entry.get('hearing_date'):
+                        event_title = f"{case.get('case_title', 'Unknown Case')} - {entry.get('purpose', 'Hearing')}"
+                        print(f"🔍 DEBUG: Creating calendar event for {cnr_number}:")
+                        print(f"   case_title: '{case.get('case_title', 'Unknown Case')}'")
+                        print(f"   case_type: '{case.get('case_type', 'Unknown')}'")
+                        print(f"   purpose: '{entry.get('purpose', 'Hearing')}'")
+                        print(f"   final_title: '{event_title}'")
+                        
+                        calendar_events.append({
+                            'date': entry['hearing_date'].isoformat() if hasattr(entry['hearing_date'], 'isoformat') else str(entry['hearing_date']),
+                            'title': event_title,
+                            'description': entry.get('order_details', 'No details available'),
+                            'caseTitle': case.get('case_title', 'Unknown Case'),
+                            'cnrNumber': cnr_number,
+                            'type': 'hearing',
+                            'time': '09:00 AM'  # Default time
+                        })
+        
+        response_data = {
+            'success': True,
+            'calendar_events': calendar_events,
+            'cache_version': int(time.time() * 1000)
+        }
+        
+        # Generate ETag for conditional requests
+        etag = generate_etag(response_data)
+        
+        # Check if client has current version (ETag)
+        if_none_match = request.headers.get('If-None-Match')
+        if if_none_match == etag:
+            return '', 304  # Not Modified
+        
+        response = jsonify(response_data)
+        response.headers['ETag'] = etag
+        response.headers['Cache-Control'] = 'max-age=300, must-revalidate'
+        response.headers['Last-Modified'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
+        
+        return response
+    except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/case_history/<cnr_number>', methods=['GET'])
