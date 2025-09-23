@@ -428,9 +428,17 @@ def extract_case_details(driver):
                 
                 # Only set if we find very specific patterns
                 if 'matrimonial' in all_text.lower() and 'case' in all_text.lower():
-                    case_data['case_type'] = 'M.C. - MATRIMONIAL CASES'
+                    # Use case title instead of hardcoded case type
+                    if case_data['case_title'] != 'Unknown':
+                        case_data['case_type'] = case_data['case_title']
+                    else:
+                        case_data['case_type'] = 'M.C. - MATRIMONIAL CASES'
                 elif 'criminal' in all_text.lower() and 'case' in all_text.lower():
-                    case_data['case_type'] = 'Criminal'
+                    # Use case title instead of hardcoded case type
+                    if case_data['case_title'] != 'Unknown':
+                        case_data['case_type'] = case_data['case_title']
+                    else:
+                        case_data['case_type'] = 'Criminal'
                 # Keep 'Civil' as default if no specific pattern found
             
         except Exception as e:

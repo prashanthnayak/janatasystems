@@ -667,9 +667,16 @@ def get_user_dashboard_data():
                 # Create calendar events from history
                 for entry in history:
                     if entry.get('hearing_date'):
+                        event_title = f"{case.get('case_title', 'Unknown Case')} - {entry.get('purpose', 'Hearing')}"
+                        print(f"🔍 DEBUG: Creating calendar event for {cnr_number}:")
+                        print(f"   case_title: '{case.get('case_title', 'Unknown Case')}'")
+                        print(f"   case_type: '{case.get('case_type', 'Unknown')}'")
+                        print(f"   purpose: '{entry.get('purpose', 'Hearing')}'")
+                        print(f"   final_title: '{event_title}'")
+                        
                         calendar_events.append({
                             'date': entry['hearing_date'].isoformat() if hasattr(entry['hearing_date'], 'isoformat') else str(entry['hearing_date']),
-                            'title': f"{case.get('case_title', 'Unknown Case')} - {entry.get('purpose', 'Hearing')}",
+                            'title': event_title,
                             'description': entry.get('order_details', 'No details available'),
                             'caseTitle': case.get('case_title', 'Unknown Case'),
                             'cnrNumber': cnr_number,
