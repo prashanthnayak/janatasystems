@@ -523,14 +523,21 @@
                 
                 // Debug: Check if legalAPI is defined
                 if (typeof legalAPI === 'undefined') {
-                    console.error('legalAPI is not defined!');
-                    //showNotification('❌ legalAPI is not defined', 'error');
+                    console.error('❌ legalAPI is not defined!');
+                    console.log('🔄 Falling back to sample data...');
                     loadSampleData();
                     return;
                 }
                 
+                console.log('✅ legalAPI is defined, proceeding with API call...');
+                
                 const result = await legalAPI.getCases();
+                console.log('📊 API call result:', result);
+                
                 if (result.success) {
+                    console.log('✅ API call successful, processing cases...');
+                    console.log('📊 Raw cases data:', result.cases);
+                    
                     allCases = result.cases.map(caseData => ({
                         id: caseData.id,
                         name: caseData.case_title || 'Untitled Case',
@@ -544,10 +551,14 @@
                         registration_number: caseData.registration_number
                     }));
                     
+                    console.log('📊 Processed cases:', allCases.length);
+                    console.log('📊 First processed case:', allCases[0]);
+                    
                     currentCases = [...allCases];
                     displayCases();
                     showNotification(`✅ Loaded ${allCases.length} cases from API`, 'success');
                 } else {
+                    console.error('❌ API call failed:', result.error);
                     showNotification(`❌ Error loading cases: ${result.error}`, 'error');
                     // Fallback to sample data
                     loadSampleData();
@@ -722,8 +733,13 @@
                 const timeSinceUpdate = Date.now() - parseInt(cacheUpdateTime);
                 if (timeSinceUpdate < 5000) { // Within last 5 seconds
                     console.log('🔄 Cases page: Detected recent cache update, reloading data...');
+                    console.log('   Time since update:', timeSinceUpdate, 'ms');
                     handleCacheUpdate();
+                } else {
+                    console.log('ℹ️ Cases page: Cache update too old, ignoring');
                 }
+            } else {
+                console.log('ℹ️ Cases page: No cache update timestamp found');
             }
         }
         
@@ -765,6 +781,7 @@
         }
         
         function handleCacheUpdate() {
+            console.log('🔄 Cases page: Handling cache update...');
             // Clear old cache and force fresh data
             localStorage.removeItem('userDashboardData');
             localStorage.removeItem('cacheVersion');
