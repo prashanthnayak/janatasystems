@@ -758,8 +758,6 @@
                     sessionStorage.removeItem('temp_scraped_data');
                     
                     // Clear cached data to force refresh with new case
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
                     if (window.userDashboardData) {
                         delete window.userDashboardData;
                     }

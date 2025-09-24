@@ -709,9 +709,6 @@
             const refreshParam = urlParams.get('refresh');
             if (refreshParam) {
                 console.log('🔄 Cases page: Refresh parameter detected, forcing data reload...');
-                // Clear cache and force reload
-                localStorage.removeItem('userDashboardData');
-                localStorage.removeItem('cacheVersion');
                 // Remove the refresh parameter from URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
@@ -734,7 +731,8 @@
                 if (timeSinceUpdate < 5000) { // Within last 5 seconds
                     console.log('🔄 Cases page: Detected recent cache update, reloading data...');
                     console.log('   Time since update:', timeSinceUpdate, 'ms');
-                    handleCacheUpdate();
+                    // Just reload, don't clear cache
+                    loadCasesFromDatabase();
                 } else {
                     console.log('ℹ️ Cases page: Cache update too old, ignoring');
                 }
@@ -782,11 +780,7 @@
         
         function handleCacheUpdate() {
             console.log('🔄 Cases page: Handling cache update...');
-            // Clear old cache and force fresh data
-            localStorage.removeItem('userDashboardData');
-            localStorage.removeItem('cacheVersion');
-            
-            // Reload cases data
+            // Just reload data, don't clear cache aggressively
             console.log('🔄 Cases page: Reloading cases data...');
             loadCasesFromDatabase();
         }
