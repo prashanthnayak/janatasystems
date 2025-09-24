@@ -1099,11 +1099,16 @@
                     return;
                 }
                 
+                // SIMPLE FIX: Check for forceRefresh flag
+                const forceRefreshFlag = localStorage.getItem('forceRefresh');
+                if (forceRefreshFlag === 'true') {
+                    console.log('🔄 FORCE REFRESH FLAG DETECTED - fetching fresh data');
+                    localStorage.removeItem('forceRefresh'); // Clear the flag
+                }
+                
                 // Also check localStorage cache with versioning
                 // Use CacheManager for consistent cache handling
-                // BUT: If there's a recent cache update, always fetch fresh data
-                const hasRecentUpdate = localStorage.getItem('cacheUpdated');
-                if (!forceRefresh && !hasRecentUpdate && window.cacheManager && window.cacheManager.isCacheValid()) {
+                if (!forceRefresh && !forceRefreshFlag && window.cacheManager && window.cacheManager.isCacheValid()) {
                     const cachedData = window.cacheManager.getCachedData();
                     if (cachedData && cachedData.cases && cachedData.cases.length > 0) {
                         console.log('💾 CACHEMANAGER HIT: Using cached dashboard data (no API call needed)');
@@ -1111,10 +1116,6 @@
                         updateDashboardDisplay(cachedData);
                         return;
                     }
-                }
-                
-                if (hasRecentUpdate) {
-                    console.log('🔄 CACHE UPDATE DETECTED: Fetching fresh data from API');
                 }
                 
                 console.log('🔄 CacheManager: Cache invalid or not available, fetching from API...');

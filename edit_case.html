@@ -706,17 +706,9 @@
                     if (result.success) {
                         CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
                         
-                        // FORCE CLEAR ALL CACHE - Delete operations should always clear cache
-                        console.log('🗑️ FORCE CLEARING ALL CACHE after successful delete');
-                        window.cacheManager.clearCache();
-                        
-                        // Notify other pages of the cache update
-                        console.log('🗑️ Notifying cache update for delete operation');
-                        window.cacheManager.notifyCacheUpdate('delete', { 
-                            cnrNumber: cnrNumber,
-                            caseName: caseName 
-                        });
-                        console.log('🗑️ Cache update notification sent');
+                        // SIMPLE FIX: Set a flag that forces dashboard to refresh
+                        localStorage.setItem('forceRefresh', 'true');
+                        console.log('🗑️ Set forceRefresh flag - dashboard will refresh');
                         
                         console.log('🗑️ Smart cache update completed');
                         
