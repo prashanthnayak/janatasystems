@@ -773,6 +773,12 @@
                     localStorage.setItem('cacheUpdated', cacheUpdateTime);
                     console.log('🔄 Add Case: Set cacheUpdated flag to:', cacheUpdateTime);
                     
+                    // Clear the cacheUpdated flag after 5 seconds to allow all pages to detect it
+                    setTimeout(() => {
+                        localStorage.removeItem('cacheUpdated');
+                        console.log('🔄 Add Case: Cleared cacheUpdated flag after 5 seconds');
+                    }, 5000);
+                    
                     // Also dispatch a custom event for same-tab updates
                     window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
                     

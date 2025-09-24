@@ -1255,11 +1255,11 @@
                     // Clear cache and reload data immediately (like calendar)
                     localStorage.removeItem('userDashboardData');
                     localStorage.removeItem('cacheVersion');
-                    localStorage.removeItem('cacheUpdated'); // Clear the update flag too
+                    // Don't clear cacheUpdated immediately - let other pages detect it too
                     if (window.userDashboardData) {
                         delete window.userDashboardData;
                     }
-                    console.log('👥 Clients: Cleared ALL cache and reloading data...');
+                    console.log('👥 Clients: Cleared cache and reloading data...');
                     
                     lastCacheUpdate = currentCacheUpdate;
                     loadClientsFromCases(); // Reload clients data

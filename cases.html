@@ -860,11 +860,11 @@
             // Clear ALL cache aggressively
             localStorage.removeItem('userDashboardData');
             localStorage.removeItem('cacheVersion');
-            localStorage.removeItem('cacheUpdated'); // Clear the update flag too
+            // Don't clear cacheUpdated immediately - let other pages detect it too
             if (window.userDashboardData) {
                 delete window.userDashboardData;
             }
-            console.log('🔄 Cases page: Cleared ALL cache and reloading data...');
+            console.log('🔄 Cases page: Cleared cache and reloading data...');
             loadCasesFromDatabase();
         }
     </script>

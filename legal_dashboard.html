@@ -951,7 +951,11 @@
             
             // Show success notification only if requested (for API loads, not cache hits)
             if (showNotification) {
-                showNotification(`✅ Loaded ${cases.length} cases!`, 'success');
+                if (typeof showNotification === 'function') {
+                    showNotification(`✅ Loaded ${cases.length} cases!`, 'success');
+                } else {
+                    console.log('✅ Loaded', cases.length, 'cases!');
+                }
             }
         }
 
@@ -970,11 +974,11 @@
                     // Clear cache and reload data immediately (like calendar)
                     localStorage.removeItem('userDashboardData');
                     localStorage.removeItem('cacheVersion');
-                    localStorage.removeItem('cacheUpdated'); // Clear the update flag too
+                    // Don't clear cacheUpdated immediately - let other pages detect it too
                     if (window.userDashboardData) {
                         delete window.userDashboardData;
                     }
-                    console.log('📊 Dashboard: Cleared ALL cache and reloading data...');
+                    console.log('📊 Dashboard: Cleared cache and reloading data...');
                     
                     lastCacheUpdate = currentCacheUpdate;
                     

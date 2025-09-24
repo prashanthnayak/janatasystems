@@ -1583,7 +1583,7 @@
                     // Clear old cache and force fresh data
                     localStorage.removeItem('userDashboardData');
                     localStorage.removeItem('cacheVersion');
-                    localStorage.removeItem('cacheUpdated'); // Clear the update flag too
+                    // Don't clear cacheUpdated immediately - let other pages detect it too
                     
                     lastCacheUpdate = currentCacheUpdate;
                     
