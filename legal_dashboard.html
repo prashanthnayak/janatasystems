@@ -3,6 +3,7 @@
 <head>
     <script src="config.js"></script>
     <script src="common.js"></script>
+    <script src="cache-manager.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Legal Management Dashboard</title>
@@ -1004,14 +1005,20 @@
                     console.log('📊 Previous timestamp:', lastCacheUpdate);
                     console.log('📊 New timestamp:', currentCacheUpdate);
                     
-                    // Clear cache and reload data immediately (like calendar)
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
-                    // Don't clear cacheUpdated immediately - let other pages detect it too
-                    if (window.userDashboardData) {
-                        delete window.userDashboardData;
+                    // Use CacheManager for consistent cache handling
+                    if (window.cacheManager) {
+                        window.cacheManager.clearCache();
+                        console.log('📊 Dashboard: Cleared cache using CacheManager');
+                    } else {
+                        // Fallback to manual cache clearing
+                        localStorage.removeItem('userDashboardData');
+                        localStorage.removeItem('cacheVersion');
+                        localStorage.removeItem('cacheUpdated');
+                        if (window.userDashboardData) {
+                            delete window.userDashboardData;
+                        }
+                        console.log('📊 Dashboard: Cleared cache manually (CacheManager not available)');
                     }
-                    console.log('📊 Dashboard: Cleared cache and reloading data...');
                     
                     lastCacheUpdate = currentCacheUpdate;
                     
@@ -1026,13 +1033,20 @@
         // Clear all cache function
         function clearAllCache() {
             console.log('🧹 Dashboard: Clearing ALL cache...');
-            localStorage.removeItem('userDashboardData');
-            localStorage.removeItem('cacheVersion');
-            localStorage.removeItem('cacheUpdated');
-            if (window.userDashboardData) {
-                delete window.userDashboardData;
+            // Use CacheManager for consistent cache handling
+            if (window.cacheManager) {
+                window.cacheManager.clearCache();
+                console.log('🧹 Dashboard: Cleared cache using CacheManager');
+            } else {
+                // Fallback to manual cache clearing
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('cacheUpdated');
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('🧹 Dashboard: Cleared cache manually (CacheManager not available)');
             }
-            console.log('🧹 Dashboard: Cache cleared, reloading data...');
             alert('Cache cleared! Reloading dashboard...');
             loadDashboardData(true); // Force refresh
         }
@@ -1056,36 +1070,18 @@
                 }
                 
                 // Also check localStorage cache with versioning
-                if (!forceRefresh) {
-                    const cachedData = localStorage.getItem('userDashboardData');
-                    const cacheVersion = localStorage.getItem('cacheVersion') || '0';
-                    
-                    // Check if there's a recent cache update flag (within last 10 seconds)
-                    const cacheUpdateTime = localStorage.getItem('cacheUpdated');
-                    const hasRecentUpdate = cacheUpdateTime && (Date.now() - parseInt(cacheUpdateTime)) < 10000;
-                    
-                    // Check if cache is valid (within last 5 minutes) AND no recent updates
-                    const cacheAge = Date.now() - parseInt(cacheVersion);
-                    const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
-                    
-                    if (cachedData && cacheAge < maxCacheAge && !hasRecentUpdate) {
-                        try {
-                            const parsed = JSON.parse(cachedData);
-                            if (parsed.cases && parsed.cases.length > 0) {
-                                console.log('💾 LOCALSTORAGE HIT: Using cached dashboard data (no API call needed)');
-                                window.userDashboardData = parsed;
-                                updateDashboardDisplay(parsed);
-                                return;
-                            }
-                        } catch (e) {
-                            console.warn('Failed to parse cached data:', e);
-                        }
-                    } else if (cachedData && (cacheAge > maxCacheAge || hasRecentUpdate)) {
-                        console.log('🔄 Cache expired or recent update detected, clearing old data');
-                        localStorage.removeItem('userDashboardData');
-                        localStorage.removeItem('cacheVersion');
+                // Use CacheManager for consistent cache handling
+                if (!forceRefresh && window.cacheManager && window.cacheManager.isCacheValid()) {
+                    const cachedData = window.cacheManager.getCachedData();
+                    if (cachedData && cachedData.cases && cachedData.cases.length > 0) {
+                        console.log('💾 CACHEMANAGER HIT: Using cached dashboard data (no API call needed)');
+                        window.userDashboardData = cachedData;
+                        updateDashboardDisplay(cachedData);
+                        return;
                     }
                 }
+                
+                console.log('🔄 CacheManager: Cache invalid or not available, fetching from API...');
                 
                 console.log('🚀 Loading ALL user data from API (SUPER FAST MODE)...');
                 isLoading = true;
