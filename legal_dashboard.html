@@ -1089,6 +1089,14 @@
                     return;
                 }
                 
+                // Check if cache was recently cleared (for delete operations)
+                const cacheCleared = localStorage.getItem('cacheCleared');
+                if (cacheCleared === 'true') {
+                    console.log('🔄 CACHE WAS CLEARED - fetching fresh data');
+                    localStorage.removeItem('cacheCleared');
+                    forceRefresh = true;
+                }
+                
                 // SIMPLIFIED: Check if we have valid cached data
                 if (!forceRefresh && window.userDashboardData && 
                     window.userDashboardData.cases && 

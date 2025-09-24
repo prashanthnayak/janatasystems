@@ -705,6 +705,7 @@
                         localStorage.removeItem('userDashboardData');
                         localStorage.removeItem('cacheVersion');
                         localStorage.removeItem('cacheUpdated');
+                        localStorage.setItem('cacheCleared', 'true'); // Flag for dashboard
                         if (window.userDashboardData) {
                             delete window.userDashboardData;
                         }
