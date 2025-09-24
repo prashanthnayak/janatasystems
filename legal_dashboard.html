@@ -1089,23 +1089,10 @@
                     return;
                 }
                 
-                // Check if cache was recently cleared (for delete operations)
-                const cacheCleared = localStorage.getItem('cacheCleared');
-                if (cacheCleared === 'true') {
-                    console.log('🔄 CACHE WAS CLEARED - fetching fresh data');
-                    localStorage.removeItem('cacheCleared');
-                    forceRefresh = true;
-                }
-                
-                // SIMPLIFIED: Check if we have valid cached data
-                if (!forceRefresh && window.userDashboardData && 
-                    window.userDashboardData.cases && 
-                    Array.isArray(window.userDashboardData.cases) && 
-                    window.userDashboardData.cases.length > 0) {
-                    console.log('💾 CACHE HIT: Using existing dashboard data (no API call needed)');
-                    updateDashboardDisplay(window.userDashboardData);
-                    return;
-                }
+                // BULLETPROOF FIX: Always fetch fresh data from API
+                // No more cache issues - always get latest data
+                console.log('🔄 BULLETPROOF MODE: Always fetching fresh data from API');
+                forceRefresh = true;
                 
                 console.log('🔄 CacheManager: Cache invalid or not available, fetching from API...');
                 
