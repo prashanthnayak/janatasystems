@@ -817,6 +817,8 @@ class DatabaseManager:
     
     def delete_case(self, cnr_number):
         """Delete case and all related data"""
+        print(f"🗑️ DATABASE: Starting delete process for CNR: {cnr_number}")
+        
         conn = self.get_connection()
         if not conn:
             print(f"❌ Database: Failed to get connection for CNR: {cnr_number}")
@@ -825,14 +827,33 @@ class DatabaseManager:
         try:
             cursor = conn.cursor()
             
+            # First, check if case exists
+            cursor.execute("SELECT cnr_number, case_title FROM cases WHERE cnr_number = %s", (cnr_number,))
+            existing_case = cursor.fetchone()
+            print(f"🗑️ DATABASE: Case exists check: {existing_case}")
+            
+            if not existing_case:
+                print(f"🗑️ DATABASE: Case {cnr_number} not found in database")
+                return False
+            
             # Delete case history first (due to foreign key constraint)
-            cursor.execute("DELETE FROM case_history WHERE cnr_number = %s", (cnr_number,))
+            print(f"🗑️ DATABASE: Deleting case history for CNR: {cnr_number}")
+            history_result = cursor.execute("DELETE FROM case_history WHERE cnr_number = %s", (cnr_number,))
+            print(f"🗑️ DATABASE: Case history delete result: {history_result}")
             
             # Delete the case
-            cursor.execute("DELETE FROM cases WHERE cnr_number = %s", (cnr_number,))
+            print(f"🗑️ DATABASE: Deleting case for CNR: {cnr_number}")
+            case_result = cursor.execute("DELETE FROM cases WHERE cnr_number = %s", (cnr_number,))
+            print(f"🗑️ DATABASE: Case delete result: {case_result}")
             
             conn.commit()
             print(f"✅ Database: Case and related data deleted for CNR: {cnr_number}")
+            
+            # Verify deletion
+            cursor.execute("SELECT cnr_number FROM cases WHERE cnr_number = %s", (cnr_number,))
+            verify_result = cursor.fetchone()
+            print(f"🗑️ DATABASE: Verification - case still exists: {verify_result}")
+            
             return True
                 
         except Exception as e:

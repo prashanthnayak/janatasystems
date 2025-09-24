@@ -476,7 +476,7 @@
                 const hasRecentUpdate = cacheUpdateTime && (Date.now() - parseInt(cacheUpdateTime)) < 10000;
                 
                 // TEMPORARY: Always skip cache to force fresh data (for debugging stale data issue)
-                const skipCache = true;
+                const skipCache = false;
                 console.log('🔍 DEBUG: Skip cache flag:', skipCache);
                 
                 if (cachedDataFromStorage && cacheAge < maxCacheAge && !hasRecentUpdate && !skipCache) {

@@ -610,21 +610,34 @@ def handle_case(cnr_number):
     elif request.method == 'DELETE':
         """Delete specific case by CNR"""
         try:
+            print(f"🗑️ DELETE REQUEST: Attempting to delete case {cnr_number}")
+            print(f"🗑️ DELETE REQUEST: User: {user['username']} (ID: {user['id']}, Role: {user['role']})")
+            
             # Check if user can delete this case (admin or owner)
             case = legal_api.db.get_case(cnr_number)
+            print(f"🗑️ DELETE REQUEST: Case found: {case}")
+            
             if not case:
+                print(f"🗑️ DELETE REQUEST: Case not found for CNR: {cnr_number}")
                 return jsonify({'success': False, 'error': 'Case not found'}), 404
             
             if user['role'] != 'admin' and case.get('user_id') != user['id']:
+                print(f"🗑️ DELETE REQUEST: Access denied - user {user['id']} cannot delete case owned by {case.get('user_id')}")
                 return jsonify({'success': False, 'error': 'Access denied'}), 403
             
+            print(f"🗑️ DELETE REQUEST: Calling database delete for CNR: {cnr_number}")
             success = legal_api.db.delete_case(cnr_number)
+            print(f"🗑️ DELETE REQUEST: Database delete result: {success}")
+            
             if success:
                 legal_api.add_log(f"Case deleted successfully: {cnr_number}", 'info', 'database')
+                print(f"🗑️ DELETE REQUEST: Case {cnr_number} deleted successfully")
                 return jsonify({'success': True, 'message': f'Case {cnr_number} deleted successfully'})
             else:
+                print(f"🗑️ DELETE REQUEST: Failed to delete case {cnr_number}")
                 return jsonify({'success': False, 'error': 'Failed to delete case'})
         except Exception as e:
+            print(f"🗑️ DELETE REQUEST: Exception during delete: {str(e)}")
             legal_api.add_log(f"Error deleting case {cnr_number}: {str(e)}", 'error', 'database')
             return jsonify({'success': False, 'error': str(e)})
 
