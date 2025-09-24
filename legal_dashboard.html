@@ -1089,6 +1089,14 @@
                     return;
                 }
                 
+                // SIMPLE FIX: Check for forceRefresh flag FIRST
+                const forceRefreshFlag = localStorage.getItem('forceRefresh');
+                if (forceRefreshFlag === 'true') {
+                    console.log('🔄 FORCE REFRESH FLAG DETECTED - fetching fresh data');
+                    localStorage.removeItem('forceRefresh'); // Clear the flag
+                    forceRefresh = true; // Force refresh
+                }
+                
                 // Check if we already have valid cached data (unless forcing refresh)
                 if (!forceRefresh && window.userDashboardData && 
                     window.userDashboardData.cases && 
@@ -1099,12 +1107,7 @@
                     return;
                 }
                 
-                // SIMPLE FIX: Check for forceRefresh flag
-                const forceRefreshFlag = localStorage.getItem('forceRefresh');
-                if (forceRefreshFlag === 'true') {
-                    console.log('🔄 FORCE REFRESH FLAG DETECTED - fetching fresh data');
-                    localStorage.removeItem('forceRefresh'); // Clear the flag
-                }
+                // Remove the duplicate check
                 
                 // Also check localStorage cache with versioning
                 // Use CacheManager for consistent cache handling
