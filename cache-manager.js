@@ -174,6 +174,7 @@ class CacheManager {
         localStorage.setItem(this.CACHE_UPDATED_KEY, cacheUpdateTime);
         
         console.log(`🔄 CacheManager: Notifying cache update - ${operation}:`, cacheUpdateTime);
+        console.log(`🔄 CacheManager: Details:`, details);
         
         // Dispatch custom event for same-tab updates
         window.dispatchEvent(new CustomEvent('cacheUpdated', { 
@@ -183,6 +184,8 @@ class CacheManager {
                 ...details
             } 
         }));
+        
+        console.log(`🔄 CacheManager: Custom event dispatched for ${operation}`);
         
         // Clear the flag after 5 seconds to allow all pages to detect it
         setTimeout(() => {

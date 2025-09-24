@@ -714,10 +714,12 @@
                         }
                         
                         // Notify other pages of the cache update
+                        console.log('🗑️ Notifying cache update for delete operation');
                         window.cacheManager.notifyCacheUpdate('delete', { 
                             cnrNumber: cnrNumber,
                             caseName: caseName 
                         });
+                        console.log('🗑️ Cache update notification sent');
                         
                         console.log('🗑️ Smart cache update completed');
                         

@@ -1031,6 +1031,8 @@
             window.addEventListener('cacheUpdated', (event) => {
                 console.log('📊 Dashboard: Cache updated detected via custom event!');
                 console.log('📊 Event details:', event.detail);
+                console.log('📊 Event operation:', event.detail.operation);
+                console.log('📊 Event timestamp:', event.detail.timestamp);
                 
                 // Use CacheManager for consistent cache handling
                 if (window.cacheManager) {
@@ -1048,6 +1050,7 @@
                 }
                 
                 // Force refresh dashboard data
+                console.log('📊 Dashboard: Forcing refresh of dashboard data...');
                 loadDashboardData(true); // true = force refresh
             });
         }
