@@ -4,7 +4,7 @@ API for Legal Management Software
 Handles CNR input from users and database operations
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 import json
 import os
