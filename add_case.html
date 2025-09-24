@@ -757,18 +757,27 @@
                     sessionStorage.removeItem('temp_scraped_data');
                     
                     // Use smart cache management
-                    const cacheUpdated = window.cacheManager.addCaseToCache(result.case);
-                    if (!cacheUpdated) {
-                        // Fallback to clearing cache if smart update failed
+                    if (result.case) {
+                        const cacheUpdated = window.cacheManager.addCaseToCache(result.case);
+                        if (!cacheUpdated) {
+                            // Fallback to clearing cache if smart update failed
+                            window.cacheManager.clearCache();
+                        }
+                    } else {
+                        console.error('❌ No case data in result, clearing cache');
                         window.cacheManager.clearCache();
                     }
                     
                     // Notify other pages of the cache update
-                    window.cacheManager.notifyCacheUpdate('add', { 
-                        case: result.case,
-                        cnrNumber: result.case.cnr_number,
-                        caseTitle: result.case.case_title 
-                    });
+                    if (result.case) {
+                        window.cacheManager.notifyCacheUpdate('add', { 
+                            case: result.case,
+                            cnrNumber: result.case.cnr_number,
+                            caseTitle: result.case.case_title 
+                        });
+                    } else {
+                        window.cacheManager.notifyCacheUpdate('add', {});
+                    }
                     
                     console.log('💾 Smart cache update completed');
                     

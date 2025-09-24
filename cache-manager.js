@@ -44,6 +44,11 @@ class CacheManager {
     addCaseToCache(newCase) {
         console.log('➕ CacheManager: Adding new case to cache');
         
+        if (!newCase) {
+            console.error('❌ CacheManager: Cannot add null/undefined case to cache');
+            return false;
+        }
+        
         const cachedData = this.getCachedData();
         if (cachedData && cachedData.cases) {
             // Add new case to existing cache
@@ -69,10 +74,15 @@ class CacheManager {
     updateCaseInCache(cnrNumber, updatedCase) {
         console.log('✏️ CacheManager: Updating case in cache:', cnrNumber);
         
+        if (!cnrNumber || !updatedCase) {
+            console.error('❌ CacheManager: Cannot update case - missing cnrNumber or updatedCase');
+            return false;
+        }
+        
         const cachedData = this.getCachedData();
         if (cachedData && cachedData.cases) {
             // Find and update the case
-            const caseIndex = cachedData.cases.findIndex(c => c.cnr_number === cnrNumber);
+            const caseIndex = cachedData.cases.findIndex(c => c && c.cnr_number === cnrNumber);
             if (caseIndex !== -1) {
                 cachedData.cases[caseIndex] = { ...cachedData.cases[caseIndex], ...updatedCase };
                 
@@ -97,11 +107,16 @@ class CacheManager {
     removeCaseFromCache(cnrNumber) {
         console.log('🗑️ CacheManager: Removing case from cache:', cnrNumber);
         
+        if (!cnrNumber) {
+            console.error('❌ CacheManager: Cannot remove case - missing cnrNumber');
+            return false;
+        }
+        
         const cachedData = this.getCachedData();
         if (cachedData && cachedData.cases) {
             // Remove the case from cache
             const initialLength = cachedData.cases.length;
-            cachedData.cases = cachedData.cases.filter(c => c.cnr_number !== cnrNumber);
+            cachedData.cases = cachedData.cases.filter(c => c && c.cnr_number !== cnrNumber);
             
             if (cachedData.cases.length < initialLength) {
                 // Update cache timestamp
