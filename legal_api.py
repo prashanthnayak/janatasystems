@@ -868,16 +868,20 @@ def get_user_dashboard_data():
             print(f"📦 ETag match for user {user['username']}, returning 304 Not Modified")
             return '', 304  # Not Modified
         
-        # Check if client accepts compression
-        accept_encoding = request.headers.get('Accept-Encoding', '')
-        if 'gzip' in accept_encoding:
-            try:
-                compressed_data = compress_data(response_data['dashboard_data'])
-                response_data['dashboard_data'] = compressed_data
-                response_data['compressed'] = True
-                print(f"🗜️ Compressed dashboard data for user {user['username']}")
-            except Exception as e:
-                print(f"❌ Compression failed: {e}")
+        # Check if client accepts compression (DISABLED for now)
+        # accept_encoding = request.headers.get('Accept-Encoding', '')
+        # if 'gzip' in accept_encoding:
+        #     try:
+        #         compressed_data = compress_data(response_data['dashboard_data'])
+        #         response_data['dashboard_data'] = compressed_data
+        #         response_data['compressed'] = True
+        #         print(f"🗜️ Compressed dashboard data for user {user['username']}")
+        #     except Exception as e:
+        #         print(f"❌ Compression failed: {e}")
+        
+        # For now, always send uncompressed data
+        response_data['compressed'] = False
+        print(f"📦 Sending uncompressed dashboard data for user {user['username']}")
         
         response = jsonify(response_data)
         response.headers['ETag'] = etag

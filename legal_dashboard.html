@@ -1129,6 +1129,9 @@
                         return;
                     }
                     console.log('✅ DEBUG: Data decompressed successfully');
+                } else if (!result.compressed) {
+                    console.log('📦 DEBUG: Data is uncompressed, using directly');
+                    // Data is already in the correct format
                 }
                 
                 if (dashboardData) {
