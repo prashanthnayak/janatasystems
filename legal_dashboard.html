@@ -547,6 +547,9 @@
             <div class="header">
                 <h1>Dashboard</h1>
                 <div class="user-info">
+                    <button onclick="clearAllCache()" class="btn btn-secondary" title="Clear all cached data">
+                        <i class="fas fa-sync-alt"></i> Clear Cache
+                    </button>
                     <span id="welcomeMessage">Welcome, Loading...</span>
                     <div class="user-avatar" id="userAvatar">--</div>
                     <button onclick="logout()" class="logout-btn" title="Logout">Logout</button>
@@ -966,6 +969,20 @@
 
         // Load dashboard data (SMART CACHE MODE!)
         let isLoading = false; // Prevent duplicate API calls
+        // Clear all cache function
+        function clearAllCache() {
+            console.log('🧹 Dashboard: Clearing ALL cache...');
+            localStorage.removeItem('userDashboardData');
+            localStorage.removeItem('cacheVersion');
+            localStorage.removeItem('cacheUpdated');
+            if (window.userDashboardData) {
+                delete window.userDashboardData;
+            }
+            console.log('🧹 Dashboard: Cache cleared, reloading data...');
+            alert('Cache cleared! Reloading dashboard...');
+            loadDashboardData(true); // Force refresh
+        }
+
         async function loadDashboardData(forceRefresh = false) {
             try {
                 // Prevent duplicate loads
@@ -975,7 +992,10 @@
                 }
                 
                 // Check if we already have valid cached data (unless forcing refresh)
-                if (!forceRefresh && window.userDashboardData && window.userDashboardData.cases && window.userDashboardData.cases.length > 0) {
+                if (!forceRefresh && window.userDashboardData && 
+                    window.userDashboardData.cases && 
+                    Array.isArray(window.userDashboardData.cases) && 
+                    window.userDashboardData.cases.length > 0) {
                     console.log('💾 CACHE HIT: Using existing dashboard data (no API call needed)');
                     updateDashboardDisplay(window.userDashboardData);
                     return;

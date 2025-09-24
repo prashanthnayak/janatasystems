@@ -298,6 +298,9 @@
             <div class="header">
                 <h1>Cases Management</h1>
                 <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="clearAllCache()" title="Clear all cached data">
+                        <i class="fas fa-sync-alt"></i> Clear Cache
+                    </button>
                     <button class="btn btn-primary" onclick="window.location.href='add_case.html'">+ Add Case</button>
                 </div>
             </div>
@@ -439,6 +442,20 @@
         const casesPerPage = 5;
 
         // Notification function
+        // Clear all cache function
+        function clearAllCache() {
+            console.log('🧹 Clearing ALL cache...');
+            localStorage.removeItem('userDashboardData');
+            localStorage.removeItem('cacheVersion');
+            localStorage.removeItem('cacheUpdated');
+            if (window.userDashboardData) {
+                delete window.userDashboardData;
+            }
+            console.log('🧹 Cache cleared, reloading data...');
+            alert('Cache cleared! Reloading data...');
+            loadCasesFromDatabase();
+        }
+
         // Load cases from database on page load
         async function loadCasesFromDatabase() {
             try {
@@ -454,7 +471,15 @@
                 const cacheAge = Date.now() - parseInt(cacheVersion);
                 const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
                 
-                if (cachedDataFromStorage && cacheAge < maxCacheAge) {
+                // Check if there's a recent cache update flag (within last 10 seconds)
+                const cacheUpdateTime = localStorage.getItem('cacheUpdated');
+                const hasRecentUpdate = cacheUpdateTime && (Date.now() - parseInt(cacheUpdateTime)) < 10000;
+                
+                // TEMPORARY: Always skip cache to force fresh data (for debugging stale data issue)
+                const skipCache = true;
+                console.log('🔍 DEBUG: Skip cache flag:', skipCache);
+                
+                if (cachedDataFromStorage && cacheAge < maxCacheAge && !hasRecentUpdate && !skipCache) {
                     try {
                         const parsedData = JSON.parse(cachedDataFromStorage);
                         console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
@@ -485,8 +510,8 @@
                     } catch (parseError) {
                         console.error('❌ Error parsing localStorage data:', parseError);
                     }
-                } else if (cachedDataFromStorage && cacheAge > maxCacheAge) {
-                    console.log('🔄 Cache expired, clearing old data');
+                } else if (cachedDataFromStorage && (cacheAge > maxCacheAge || hasRecentUpdate)) {
+                    console.log('🔄 Cache expired or recent update detected, clearing old data');
                     localStorage.removeItem('userDashboardData');
                     localStorage.removeItem('cacheVersion');
                 }
@@ -546,6 +571,18 @@
             console.log(`👤 User: ${result.debug_info.username} (ID: ${result.debug_info.user_id}, Role: ${result.debug_info.role})`);
             console.log(`📊 Total cases in DB: ${result.debug_info.total_cases_in_db}`);
             console.log(`📊 Cases for this user: ${result.debug_info.user_cases_count}`);
+            
+            // If API shows 0 cases but we have cached data, clear the cache
+            if (result.debug_info.user_cases_count === 0 && localStorage.getItem('userDashboardData')) {
+                console.log('🚨 MISMATCH: API shows 0 cases but cache has data - clearing cache!');
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('cacheUpdated');
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('🧹 Cleared stale cache due to API mismatch');
+            }
         }
                 
                 if (result.success) {
