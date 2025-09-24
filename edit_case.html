@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <script src="config.js"></script>
+    <script src="common.js"></script>
+    <script src="cache-manager.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Case - LegalPro</title>
@@ -654,27 +656,20 @@
                     if (result.success) {
                         alert('Case updated successfully!');
                         
-                        // Clear cached data to force refresh with updated data
-                        localStorage.removeItem('userDashboardData');
-                        localStorage.removeItem('cacheVersion');
-                        if (window.userDashboardData) {
-                            delete window.userDashboardData;
+                        // Use smart cache management for update
+                        const cacheUpdated = window.cacheManager.updateCaseInCache(cnrNumber, caseData);
+                        if (!cacheUpdated) {
+                            // Fallback to clearing cache if smart update failed
+                            window.cacheManager.clearCache();
                         }
-                        console.log('✏️ Cleared cached data to force refresh with updated data');
                         
-                        // Notify other pages that cache has been updated
-                        const cacheUpdateTime = Date.now().toString();
-                        localStorage.setItem('cacheUpdated', cacheUpdateTime);
-                        console.log('🔄 Edit Case: Set cacheUpdated flag to:', cacheUpdateTime);
+                        // Notify other pages of the cache update
+                        window.cacheManager.notifyCacheUpdate('update', { 
+                            cnrNumber: cnrNumber,
+                            caseTitle: caseData.case_title 
+                        });
                         
-                        // Clear the cacheUpdated flag after 5 seconds to allow all pages to detect it
-                        setTimeout(() => {
-                            localStorage.removeItem('cacheUpdated');
-                            console.log('🔄 Edit Case: Cleared cacheUpdated flag after 5 seconds');
-                        }, 5000);
-                        
-                        // Also dispatch a custom event for same-tab updates
-                        window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
+                        console.log('✏️ Smart cache update completed');
                         
                         // Redirect with small delay to ensure cache flag is set
                         setTimeout(() => {
@@ -713,28 +708,20 @@
                     if (result.success) {
                         CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
                         
-                        // Clear ALL cached data aggressively
-                        localStorage.removeItem('userDashboardData');
-                        localStorage.removeItem('cacheVersion');
-                        localStorage.removeItem('userDashboardData');
-                        if (window.userDashboardData) {
-                            delete window.userDashboardData;
+                        // Use smart cache management for delete
+                        const cacheUpdated = window.cacheManager.removeCaseFromCache(cnrNumber);
+                        if (!cacheUpdated) {
+                            // Fallback to clearing cache if smart update failed
+                            window.cacheManager.clearCache();
                         }
-                        console.log('🗑️ Cleared ALL cached data to force refresh');
                         
-                        // Notify other pages that cache has been updated
-                        const cacheUpdateTime = Date.now().toString();
-                        localStorage.setItem('cacheUpdated', cacheUpdateTime);
-                        console.log('🔄 Edit Case: Set cacheUpdated flag to:', cacheUpdateTime);
+                        // Notify other pages of the cache update
+                        window.cacheManager.notifyCacheUpdate('delete', { 
+                            cnrNumber: cnrNumber,
+                            caseName: caseName 
+                        });
                         
-                        // Clear the cacheUpdated flag after 5 seconds to allow all pages to detect it
-                        setTimeout(() => {
-                            localStorage.removeItem('cacheUpdated');
-                            console.log('🔄 Edit Case: Cleared cacheUpdated flag after 5 seconds');
-                        }, 5000);
-                        
-                        // Also dispatch a custom event for same-tab updates
-                        window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
+                        console.log('🗑️ Smart cache update completed');
                         
                         // Redirect immediately to cases page with refresh parameter
                         window.location.href = 'cases.html?refresh=' + Date.now();

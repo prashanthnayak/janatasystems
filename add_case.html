@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <script src="config.js"></script>
+    <script src="common.js"></script>
+    <script src="cache-manager.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Case - LegalPro</title>
@@ -757,30 +759,20 @@
                     // Clear temporary scraped data from sessionStorage
                     sessionStorage.removeItem('temp_scraped_data');
                     
-                    // Clear cached data to force refresh with new case
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
-                    if (window.userDashboardData) {
-                        delete window.userDashboardData;
+                    // Use smart cache management
+                    const cacheUpdated = window.cacheManager.addCaseToCache(result.case);
+                    if (!cacheUpdated) {
+                        // Fallback to clearing cache if smart update failed
+                        window.cacheManager.clearCache();
                     }
-                    console.log('💾 Cleared cached data to show new case immediately');
                     
-                    // Reset form
-                    event.target.reset();
+                    // Notify other pages of the cache update
+                    window.cacheManager.notifyCacheUpdate('add', { 
+                        cnrNumber: result.case.cnr_number,
+                        caseTitle: result.case.case_title 
+                    });
                     
-                    // Notify other pages that cache has been updated
-                    const cacheUpdateTime = Date.now().toString();
-                    localStorage.setItem('cacheUpdated', cacheUpdateTime);
-                    console.log('🔄 Add Case: Set cacheUpdated flag to:', cacheUpdateTime);
-                    
-                    // Clear the cacheUpdated flag after 5 seconds to allow all pages to detect it
-                    setTimeout(() => {
-                        localStorage.removeItem('cacheUpdated');
-                        console.log('🔄 Add Case: Cleared cacheUpdated flag after 5 seconds');
-                    }, 5000);
-                    
-                    // Also dispatch a custom event for same-tab updates
-                    window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
+                    console.log('💾 Smart cache update completed');
                     
                     // Redirect to cases list with refresh parameter (with small delay to ensure cache flag is set)
                     setTimeout(() => {
