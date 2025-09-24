@@ -34,16 +34,43 @@ import requests
 db = DatabaseManager()
 
 # ----------------------- CONFIG ---------------------------------
-CNR_NUMBER = "KAUP050003552024"          # <-- change as required
+CNR_NUMBER = None                        # Will be set dynamically by scrape_case_details()
 HEADLESS = True                          # Set to True for EC2/headless servers
 CSV_FOLDER = Path("~/Desktop/shantharam").expanduser()
 CAPTCHA_FOLDER = Path("~/Desktop/captcha_images").expanduser()
 OCR_MODEL_NAME = "anuashok/ocr-captcha-v3"
 PAGE_URL = "https://services.ecourts.gov.in/ecourtindia_v6/"
+
+# Extraction constants
+DEFAULT_VALUES = {
+    'case_title': 'Unknown',
+    'petitioner': 'Unknown',
+    'respondent': 'Unknown',
+    'case_type': 'Civil',
+    'court_name': 'Unknown Court',
+    'judge_name': 'Unknown Judge',
+    'status': 'Active',
+    'registration_number': 'Unknown'
+}
+
+EXTRACTION_CONSTANTS = {
+    'MIN_TEXT_LENGTH': 10,
+    'MIN_CELLS_FOR_EXTRACTION': 4,
+    'MIN_CELLS_FOR_HISTORY': 4
+}
+
+COURT_PATTERNS = {
+    'High Court': 'High Court',
+    'Supreme Court': 'Supreme Court',
+    'District Court': 'District Court',
+    'Family Court': 'Family Court',
+    'Sessions Court': 'Sessions Court',
+    'Magistrate Court': 'Magistrate Court'
+}
 # ----------------------------------------------------------------
 
 # Cache settings
-USE_CACHE_IF_FAIL = False  # Disabled cache to force real website loading
+USE_CACHE_IF_FAIL = True   # Enable cache fallback for better reliability
 CACHE_FILE = Path("ecourts_homepage.html")
 
 
@@ -99,13 +126,13 @@ def create_driver(headless: bool = True) -> webdriver.Chrome:
         send_log_to_api("Chrome driver created successfully", 'success', 'scraper')
         
         # Test if driver is working
-        try:
-            send_log_to_api("Testing Chrome driver with simple page load...", 'info', 'scraper')
-            driver.get("data:text/html,<html><body><h1>Test</h1></body></html>")
-            send_log_to_api("Chrome driver test successful", 'success', 'scraper')
-        except Exception as e:
-            send_log_to_api(f"Chrome driver test failed: {str(e)}", 'error', 'scraper')
-            raise e
+        # try:
+        #     send_log_to_api("Testing Chrome driver with simple page load...", 'info', 'scraper')
+        #     driver.get("data:text/html,<html><body><h1>Test</h1></body></html>")
+        #     send_log_to_api("Chrome driver test successful", 'success', 'scraper')
+        # except Exception as e:
+        #     send_log_to_api(f"Chrome driver test failed: {str(e)}", 'error', 'scraper')
+        #     raise e
         
         return driver
         
@@ -145,9 +172,17 @@ def scrape_case_details(cnr_number):
     Returns a dictionary with case information (NO DATABASE INSERTION)
     This function is called by the API and does NOT insert into database
     """
+    # Validate CNR number
+    if not cnr_number or not isinstance(cnr_number, str) or len(cnr_number.strip()) == 0:
+        return {
+            'success': False,
+            'error': 'CNR number is required and must be a non-empty string',
+            'extracted_real_data': False
+        }
+    
     # Update the global CNR_NUMBER
     global CNR_NUMBER
-    CNR_NUMBER = cnr_number
+    CNR_NUMBER = cnr_number.strip()
     
     start_time = time.perf_counter()
     CSV_FOLDER.mkdir(parents=True, exist_ok=True)
@@ -307,76 +342,161 @@ def scrape_case_details(cnr_number):
         driver.quit()
 
 
+def sanitize_text(text):
+    """Sanitize and clean extracted text"""
+    if not text or text == 'Unknown':
+        return DEFAULT_VALUES.get('case_title', 'Unknown')
+    
+    # Remove extra whitespace and normalize
+    text = ' '.join(text.split())
+    
+    # Remove common unwanted characters
+    unwanted_chars = ['\n', '\r', '\t', '\xa0']
+    for char in unwanted_chars:
+        text = text.replace(char, ' ')
+    
+    # Remove extra spaces again
+    text = ' '.join(text.split())
+    
+    return text.strip() if text.strip() else 'Unknown'
+
+def validate_date(date_str):
+    """Validate and format date string"""
+    if not date_str or date_str == 'Unknown':
+        return None
+    
+    try:
+        # Try common date formats
+        date_formats = ['%d-%m-%Y', '%Y-%m-%d', '%d/%m/%Y', '%Y/%m/%d']
+        for fmt in date_formats:
+            try:
+                parsed_date = datetime.strptime(date_str, fmt)
+                return parsed_date.strftime('%Y-%m-%d')
+            except ValueError:
+                continue
+        
+        # If no format matches, return as-is
+        return date_str
+    except Exception:
+        return None
+
+def extract_court_name(judge_text):
+    """Extract court name from judge text with improved logic"""
+    if not judge_text or judge_text == 'Unknown':
+        return DEFAULT_VALUES['court_name']
+    
+    # Split by common separators
+    separators = [' - ', ' vs ', ' | ', ' / ']
+    for sep in separators:
+        if sep in judge_text:
+            parts = judge_text.split(sep)
+            if len(parts) >= 2:
+                potential_court = parts[1].strip()
+                if len(potential_court) > 5:  # Reasonable court name length
+                    return potential_court
+    
+    # Look for court patterns
+    for pattern, court_name in COURT_PATTERNS.items():
+        if pattern in judge_text:
+            return court_name
+    
+    # Check for state-specific courts
+    if 'Karnataka' in judge_text:
+        return 'High Court of Karnataka'
+    elif 'Supreme' in judge_text:
+        return 'Supreme Court of India'
+    
+    return DEFAULT_VALUES['court_name']
+
+def extract_case_type_from_text(all_text, case_title):
+    """Extract case type from text content with improved logic"""
+    if not all_text:
+        return DEFAULT_VALUES['case_type']
+    
+    text_lower = all_text.lower()
+    
+    # Use case title if available and meaningful
+    if case_title and case_title != 'Unknown' and len(case_title) > 5:
+        return case_title
+    
+    # Look for specific case type patterns
+    if 'matrimonial' in text_lower and 'case' in text_lower:
+        return 'Matrimonial Case'
+    elif 'criminal' in text_lower and 'case' in text_lower:
+        return 'Criminal Case'
+    elif 'civil' in text_lower and 'case' in text_lower:
+        return 'Civil Case'
+    elif 'family' in text_lower and 'case' in text_lower:
+        return 'Family Case'
+    elif 'property' in text_lower and 'case' in text_lower:
+        return 'Property Case'
+    elif 'divorce' in text_lower:
+        return 'Divorce Case'
+    elif 'maintenance' in text_lower:
+        return 'Maintenance Case'
+    
+    return DEFAULT_VALUES['case_type']
+
+def validate_extracted_data(case_data):
+    """Validate and clean extracted case data"""
+    validated_data = {}
+    
+    # Sanitize text fields
+    text_fields = ['case_title', 'petitioner', 'respondent', 'judge_name', 'court_name', 'case_type', 'status', 'registration_number']
+    for field in text_fields:
+        validated_data[field] = sanitize_text(case_data.get(field, DEFAULT_VALUES[field]))
+    
+    # Validate date
+    validated_data['filing_date'] = validate_date(case_data.get('filing_date'))
+    
+    return validated_data
+
 def extract_case_details(driver):
-    """Extract case details from the results page"""
-    case_data = {
-        'case_title': 'Unknown',
-        'petitioner': 'Unknown',
-        'respondent': 'Unknown',
-        'case_type': 'Civil',
-        'court_name': 'Unknown Court',
-        'judge_name': 'Unknown Judge',
-        'status': 'Active',
-        'filing_date': None,
-        'registration_number': 'Unknown'
-    }
+    """Extract case details from the results page with improved validation and logging"""
+    send_log_to_api("Starting case details extraction", 'info', 'scraper')
+    
+    # Initialize with default values
+    case_data = DEFAULT_VALUES.copy()
+    case_data['filing_date'] = None
     
     try:
         # Get the page source for debugging
         page_source = driver.page_source
         
-        # First, try to extract court name from case history table
+        # Approach 1: Extract from case history table
         try:
+            send_log_to_api("Attempting history table extraction", 'info', 'scraper')
             history_table = driver.find_element(By.CLASS_NAME, "history_table")
             rows = history_table.find_elements(By.TAG_NAME, "tr")
             
             for row in rows[1:]:  # Skip header row
                 cells = row.find_elements(By.TAG_NAME, "td")
-                if len(cells) >= 4:
+                if len(cells) >= EXTRACTION_CONSTANTS['MIN_CELLS_FOR_HISTORY']:
                     judge_text = cells[0].text.strip()
                     business_date = cells[1].text.strip()
                     hearing_date = cells[2].text.strip()
                     
-                    # Extract court name and judge from judge column
+                    # Extract court name and judge using improved function
                     if judge_text and judge_text != '':
-                        # Extract court name from judge text
-                        # Judge text usually contains: "Judge Name - Court Name"
-                        if ' - ' in judge_text:
-                            parts = judge_text.split(' - ')
-                            if len(parts) >= 2:
-                                case_data['judge_name'] = parts[0].strip()
-                                case_data['court_name'] = parts[1].strip()
-                        elif 'High Court' in judge_text or 'Supreme Court' in judge_text:
-                            case_data['judge_name'] = judge_text
-                            if 'Karnataka' in judge_text:
-                                case_data['court_name'] = 'High Court of Karnataka'
-                            elif 'Supreme' in judge_text:
-                                case_data['court_name'] = 'Supreme Court of India'
+                        case_data['judge_name'] = sanitize_text(judge_text.split(' - ')[0] if ' - ' in judge_text else judge_text)
+                        case_data['court_name'] = extract_court_name(judge_text)
                     
-                    # Extract filing date from business date or hearing date
+                    # Extract filing date with validation
                     if business_date and business_date != '' and case_data['filing_date'] is None:
-                        try:
-                            # Try to parse the business date as filing date
-                            case_data['filing_date'] = business_date
-                        except:
-                            pass
+                        case_data['filing_date'] = validate_date(business_date)
                     elif hearing_date and hearing_date != '' and case_data['filing_date'] is None:
-                        try:
-                            # Try to parse the hearing date as filing date
-                            case_data['filing_date'] = hearing_date
-                        except:
-                            pass
+                        case_data['filing_date'] = validate_date(hearing_date)
                     
                     # Break after first row since we have the main info
                     break
+            
+            send_log_to_api(f"History table extraction completed: court={case_data['court_name']}, judge={case_data['judge_name']}", 'info', 'scraper')
         except Exception as e:
-            print(f"Error extracting from history table: {e}")
+            send_log_to_api(f"Error extracting from history table: {e}", 'warning', 'scraper')
         
-        # Try multiple approaches to extract other case details
-        
-        # Approach 1: Look for table rows with case information
+        # Approach 2: Look for table rows with case information
         try:
-            # Look for any table that might contain case details
+            send_log_to_api("Attempting table row extraction", 'info', 'scraper')
             tables = driver.find_elements(By.TAG_NAME, "table")
             for table in tables:
                 rows = table.find_elements(By.TAG_NAME, "tr")
@@ -387,74 +507,70 @@ def extract_case_details(driver):
                         cell_value = cells[1].text.strip()
                         
                         if 'case title' in cell_text and cell_value:
-                            case_data['case_title'] = cell_value
+                            case_data['case_title'] = sanitize_text(cell_value)
                         elif 'petitioner' in cell_text and cell_value:
-                            case_data['petitioner'] = cell_value
+                            case_data['petitioner'] = sanitize_text(cell_value)
                         elif 'respondent' in cell_text and cell_value:
-                            case_data['respondent'] = cell_value
+                            case_data['respondent'] = sanitize_text(cell_value)
                         elif 'case type' in cell_text and cell_value:
-                            case_data['case_type'] = cell_value
-                        elif 'court' in cell_text and cell_value and case_data['court_name'] == 'Unknown Court':
-                            case_data['court_name'] = cell_value
-                        elif 'judge' in cell_text and cell_value and case_data['judge_name'] == 'Unknown Judge':
-                            case_data['judge_name'] = cell_value
+                            case_data['case_type'] = sanitize_text(cell_value)
+                        elif 'court' in cell_text and cell_value and case_data['court_name'] == DEFAULT_VALUES['court_name']:
+                            case_data['court_name'] = sanitize_text(cell_value)
+                        elif 'judge' in cell_text and cell_value and case_data['judge_name'] == DEFAULT_VALUES['judge_name']:
+                            case_data['judge_name'] = sanitize_text(cell_value)
                         elif 'filing date' in cell_text and cell_value:
-                            case_data['filing_date'] = cell_value
+                            case_data['filing_date'] = validate_date(cell_value)
                         elif 'registration' in cell_text and cell_value:
-                            case_data['registration_number'] = cell_value
+                            case_data['registration_number'] = sanitize_text(cell_value)
+            
+            send_log_to_api(f"Table extraction completed: title={case_data['case_title']}, petitioner={case_data['petitioner']}", 'info', 'scraper')
         except Exception as e:
-            print(f"Error in table extraction: {e}")
+            send_log_to_api(f"Error in table extraction: {e}", 'warning', 'scraper')
         
-        # Approach 2: Look for specific text patterns
+        # Approach 3: Look for case title in headings
         try:
-            # Look for case title in headings or strong text
+            send_log_to_api("Attempting heading extraction", 'info', 'scraper')
             headings = driver.find_elements(By.TAG_NAME, "h1")
             headings.extend(driver.find_elements(By.TAG_NAME, "h2"))
             headings.extend(driver.find_elements(By.TAG_NAME, "h3"))
             
             for heading in headings:
                 text = heading.text.strip()
-                if text and len(text) > 10 and 'case' in text.lower():
-                    case_data['case_title'] = text
+                if text and len(text) > EXTRACTION_CONSTANTS['MIN_TEXT_LENGTH'] and 'case' in text.lower():
+                    case_data['case_title'] = sanitize_text(text)
                     break
-        except Exception as e:
-            print(f"Error in heading extraction: {e}")
-        
-        # Approach 3: Look for specific text patterns (conservative approach)
-        try:
-            # Only extract if we haven't found anything better
-            if case_data['case_type'] == 'Civil' and case_data['court_name'] == 'Unknown Court':
-                all_text = driver.find_element(By.TAG_NAME, "body").text
-                
-                # Only set if we find very specific patterns
-                if 'matrimonial' in all_text.lower() and 'case' in all_text.lower():
-                    # Use case title instead of hardcoded case type
-                    if case_data['case_title'] != 'Unknown':
-                        case_data['case_type'] = case_data['case_title']
-                    else:
-                        case_data['case_type'] = 'M.C. - MATRIMONIAL CASES'
-                elif 'criminal' in all_text.lower() and 'case' in all_text.lower():
-                    # Use case title instead of hardcoded case type
-                    if case_data['case_title'] != 'Unknown':
-                        case_data['case_type'] = case_data['case_title']
-                    else:
-                        case_data['case_type'] = 'Criminal'
-                # Keep 'Civil' as default if no specific pattern found
             
+            send_log_to_api(f"Heading extraction completed: title={case_data['case_title']}", 'info', 'scraper')
         except Exception as e:
-            print(f"Error in text pattern extraction: {e}")
+            send_log_to_api(f"Error in heading extraction: {e}", 'warning', 'scraper')
         
-        # If we still don't have a proper case title, try to create one from available data
-        if case_data['case_title'] == 'Unknown':
-            if case_data['petitioner'] != 'Unknown':
-                case_data['case_title'] = f"{case_data['petitioner']} vs {case_data['respondent'] if case_data['respondent'] != 'Unknown' else 'State'}"
+        # Approach 4: Extract case type from text content with improved logic
+        try:
+            send_log_to_api("Attempting case type extraction from text", 'info', 'scraper')
+            all_text = driver.find_element(By.TAG_NAME, "body").text
+            case_data['case_type'] = extract_case_type_from_text(all_text, case_data['case_title'])
+            send_log_to_api(f"Case type extraction completed: type={case_data['case_type']}", 'info', 'scraper')
+        except Exception as e:
+            send_log_to_api(f"Error in case type extraction: {e}", 'warning', 'scraper')
+        
+        # Approach 5: Generate fallback case title if needed
+        if case_data['case_title'] == DEFAULT_VALUES['case_title']:
+            if case_data['petitioner'] != DEFAULT_VALUES['petitioner']:
+                case_data['case_title'] = f"{case_data['petitioner']} vs {case_data['respondent'] if case_data['respondent'] != DEFAULT_VALUES['respondent'] else 'State'}"
             else:
                 case_data['case_title'] = f"Case - {CNR_NUMBER}"
         
-        print(f"Extracted case details: {case_data}")
+        # Validate and clean all extracted data
+        send_log_to_api("Validating extracted data", 'info', 'scraper')
+        case_data = validate_extracted_data(case_data)
+        
+        send_log_to_api(f"Case details extraction completed successfully: {case_data}", 'success', 'scraper')
         
     except Exception as e:
-        print(f"Error extracting case details: {e}")
+        send_log_to_api(f"Critical error in case details extraction: {e}", 'error', 'scraper')
+        # Return default data on critical error
+        case_data = DEFAULT_VALUES.copy()
+        case_data['filing_date'] = None
     
     return case_data
 
