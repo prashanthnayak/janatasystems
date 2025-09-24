@@ -670,7 +670,7 @@
                         // Also dispatch a custom event for same-tab updates
                         window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
                         
-                        window.location.href = 'cases.html';
+                        window.location.href = 'cases.html?refresh=' + Date.now();
                     } else {
                         alert('Error updating case: ' + result.error);
                     }
@@ -720,7 +720,7 @@
                         // Also dispatch a custom event for same-tab updates
                         window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
                         
-                        window.location.href = 'cases.html';
+                        window.location.href = 'cases.html?refresh=' + Date.now();
                     } else {
                         alert('Error deleting case: ' + result.error);
                     }

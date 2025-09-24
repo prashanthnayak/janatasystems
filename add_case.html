@@ -776,10 +776,10 @@
                     // Reset form
                     event.target.reset();
                     
-                    // Optionally redirect to cases list
+                    // Redirect to cases list with refresh parameter
                         setTimeout(() => {
-                            window.location.href = 'cases.html';
-                        }, 2000);
+                            window.location.href = 'cases.html?refresh=' + Date.now();
+                        }, 1000); // Reduced from 2000ms to 1000ms
                     } else {
                     showNotification(` Failed to save case: ${result.error}`, 'error');
                     Alert.error(`FAILED! Could not save case to database:\n\n${result.error}`);

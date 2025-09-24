@@ -693,12 +693,39 @@
             document.getElementById('searchInput').addEventListener('input', searchCases);
             document.getElementById('typeFilter').addEventListener('change', searchCases);
 
+            // Check if we have a refresh parameter (from redirect after save/update)
+            const urlParams = new URLSearchParams(window.location.search);
+            const refreshParam = urlParams.get('refresh');
+            if (refreshParam) {
+                console.log('🔄 Cases page: Refresh parameter detected, forcing data reload...');
+                // Clear cache and force reload
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                // Remove the refresh parameter from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             // Load cases from database
             loadCasesFromDatabase();
             
             // Listen for cache updates from other pages
             listenForCacheUpdates();
+            
+            // Check if cache was updated while this page was loading
+            checkForRecentCacheUpdate();
         });
+        
+        // Check if cache was updated recently (within last 5 seconds)
+        function checkForRecentCacheUpdate() {
+            const cacheUpdateTime = localStorage.getItem('cacheUpdated');
+            if (cacheUpdateTime) {
+                const timeSinceUpdate = Date.now() - parseInt(cacheUpdateTime);
+                if (timeSinceUpdate < 5000) { // Within last 5 seconds
+                    console.log('🔄 Cases page: Detected recent cache update, reloading data...');
+                    handleCacheUpdate();
+                }
+            }
+        }
         
         // Listen for cache updates from other pages
         function listenForCacheUpdates() {
