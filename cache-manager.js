@@ -177,6 +177,14 @@ class CacheManager {
     }
 
     /**
+     * Set cached data (used by pages that load fresh data)
+     */
+    setCachedData(data) {
+        console.log('💾 CacheManager: Setting cached data');
+        this.saveCache(data);
+    }
+
+    /**
      * Handle cache update notification
      */
     handleCacheUpdate(operation, details = {}) {
@@ -184,16 +192,25 @@ class CacheManager {
         
         switch (operation) {
             case 'add':
-                // For add operations, we might want to refresh to get the latest data
-                this.clearCache();
+                if (details.case) {
+                    this.addCaseToCache(details.case);
+                } else {
+                    this.clearCache();
+                }
                 break;
             case 'update':
-                // For update operations, we might want to refresh to get the latest data
-                this.clearCache();
+                if (details.cnrNumber && details.caseData) {
+                    this.updateCaseInCache(details.cnrNumber, details.caseData);
+                } else {
+                    this.clearCache();
+                }
                 break;
             case 'delete':
-                // For delete operations, we might want to refresh to get the latest data
-                this.clearCache();
+                if (details.cnrNumber) {
+                    this.removeCaseFromCache(details.cnrNumber);
+                } else {
+                    this.clearCache();
+                }
                 break;
             default:
                 // Unknown operation, clear cache to be safe

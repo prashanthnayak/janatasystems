@@ -765,6 +765,7 @@
                     
                     // Notify other pages of the cache update
                     window.cacheManager.notifyCacheUpdate('add', { 
+                        case: result.case,
                         cnrNumber: result.case.cnr_number,
                         caseTitle: result.case.case_title 
                     });
