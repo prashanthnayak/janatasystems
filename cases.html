@@ -852,8 +852,13 @@
         
         function handleCacheUpdate() {
             console.log('🔄 Cases page: Handling cache update...');
-            // Just reload data, don't clear cache aggressively
-            console.log('🔄 Cases page: Reloading cases data...');
+            // Clear cache and reload data immediately (like calendar)
+            localStorage.removeItem('userDashboardData');
+            localStorage.removeItem('cacheVersion');
+            if (window.userDashboardData) {
+                delete window.userDashboardData;
+            }
+            console.log('🔄 Cases page: Cleared cache and reloading data...');
             loadCasesFromDatabase();
         }
     </script>

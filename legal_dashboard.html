@@ -959,6 +959,14 @@
                     console.log('📊 Previous timestamp:', lastCacheUpdate);
                     console.log('📊 New timestamp:', currentCacheUpdate);
                     
+                    // Clear cache and reload data immediately (like calendar)
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
+                    if (window.userDashboardData) {
+                        delete window.userDashboardData;
+                    }
+                    console.log('📊 Dashboard: Cleared cache and reloading data...');
+                    
                     lastCacheUpdate = currentCacheUpdate;
                     
                     // Force refresh dashboard data

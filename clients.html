@@ -1251,6 +1251,15 @@
                 const currentCacheUpdate = localStorage.getItem('cacheUpdated');
                 if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
                     console.log('👥 Cache updated by another page, refreshing clients...');
+                    
+                    // Clear cache and reload data immediately (like calendar)
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
+                    if (window.userDashboardData) {
+                        delete window.userDashboardData;
+                    }
+                    console.log('👥 Clients: Cleared cache and reloading data...');
+                    
                     lastCacheUpdate = currentCacheUpdate;
                     loadClientsFromCases(); // Reload clients data
                 }
