@@ -706,12 +706,9 @@
                     if (result.success) {
                         CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
                         
-                        // Use smart cache management for delete
-                        const cacheUpdated = window.cacheManager.removeCaseFromCache(cnrNumber);
-                        if (!cacheUpdated) {
-                            // Fallback to clearing cache if smart update failed
-                            window.cacheManager.clearCache();
-                        }
+                        // FORCE CLEAR ALL CACHE - Delete operations should always clear cache
+                        console.log('🗑️ FORCE CLEARING ALL CACHE after successful delete');
+                        window.cacheManager.clearCache();
                         
                         // Notify other pages of the cache update
                         console.log('🗑️ Notifying cache update for delete operation');
