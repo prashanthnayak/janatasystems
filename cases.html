@@ -475,11 +475,7 @@
                 const cacheUpdateTime = localStorage.getItem('cacheUpdated');
                 const hasRecentUpdate = cacheUpdateTime && (Date.now() - parseInt(cacheUpdateTime)) < 10000;
                 
-                // TEMPORARY: Always skip cache to force fresh data (for debugging stale data issue)
-                const skipCache = false;
-                console.log('🔍 DEBUG: Skip cache flag:', skipCache);
-                
-                if (cachedDataFromStorage && cacheAge < maxCacheAge && !hasRecentUpdate && !skipCache) {
+                if (cachedDataFromStorage && cacheAge < maxCacheAge && !hasRecentUpdate) {
                     try {
                         const parsedData = JSON.parse(cachedDataFromStorage);
                         console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
