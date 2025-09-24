@@ -1026,6 +1026,30 @@
                     loadDashboardData(true); // true = force refresh
                 }
             }, 5000); // Check every 5 seconds - REDUCED FREQUENCY FOR PERFORMANCE
+            
+            // Also listen for custom events (for same-tab updates)
+            window.addEventListener('cacheUpdated', (event) => {
+                console.log('📊 Dashboard: Cache updated detected via custom event!');
+                console.log('📊 Event details:', event.detail);
+                
+                // Use CacheManager for consistent cache handling
+                if (window.cacheManager) {
+                    window.cacheManager.clearCache();
+                    console.log('📊 Dashboard: Cleared cache using CacheManager');
+                } else {
+                    // Fallback to manual cache clearing
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
+                    localStorage.removeItem('cacheUpdated');
+                    if (window.userDashboardData) {
+                        delete window.userDashboardData;
+                    }
+                    console.log('📊 Dashboard: Cleared cache manually (CacheManager not available)');
+                }
+                
+                // Force refresh dashboard data
+                loadDashboardData(true); // true = force refresh
+            });
         }
 
         // Load dashboard data (SMART CACHE MODE!)
