@@ -480,17 +480,30 @@ def get_cases():
             print("🔍 DEBUG: No user found for token")
             return jsonify({'success': False, 'error': 'Invalid session'}), 401
         
+        # Debug: Check total cases in database
+        all_cases_count = len(legal_api.db.get_all_cases())
+        print(f"🔍 DEBUG: Total cases in database: {all_cases_count}")
+        
         # Admin users see all cases, regular users see only their own
         if user['role'] == 'admin':
             cases = legal_api.db.get_all_cases()
+            print(f"🔍 DEBUG: Admin user - returning all {len(cases)} cases")
         else:
             cases = legal_api.db.get_cases_for_user(user['id'])
+            print(f"🔍 DEBUG: Regular user {user['username']} (ID: {user['id']}) - returning {len(cases)} cases")
         
         # Prepare response data
         response_data = {
             'success': True, 
             'cases': cases,
-            'cache_version': int(time.time() * 1000)
+            'cache_version': int(time.time() * 1000),
+            'debug_info': {
+                'user_id': user['id'],
+                'username': user['username'],
+                'role': user['role'],
+                'total_cases_in_db': all_cases_count,
+                'user_cases_count': len(cases)
+            }
         }
         
         # Generate ETag for conditional requests

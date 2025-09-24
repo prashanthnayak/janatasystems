@@ -531,10 +531,22 @@
                     return;
                 }
                 
-                console.log('✅ legalAPI is defined, proceeding with API call...');
-                
-                const result = await legalAPI.getCases();
-                console.log('📊 API call result:', result);
+        console.log('✅ legalAPI is defined, proceeding with API call...');
+        
+        // Debug: Show current user info
+        const currentUser = localStorage.getItem('currentUser');
+        console.log('👤 Current user from localStorage:', currentUser);
+        
+        const result = await legalAPI.getCases();
+        console.log('📊 API call result:', result);
+        
+        // Debug: Show debug info if available
+        if (result.debug_info) {
+            console.log('🔍 DEBUG INFO:', result.debug_info);
+            console.log(`👤 User: ${result.debug_info.username} (ID: ${result.debug_info.user_id}, Role: ${result.debug_info.role})`);
+            console.log(`📊 Total cases in DB: ${result.debug_info.total_cases_in_db}`);
+            console.log(`📊 Cases for this user: ${result.debug_info.user_cases_count}`);
+        }
                 
                 if (result.success) {
                     console.log('✅ API call successful, processing cases...');
