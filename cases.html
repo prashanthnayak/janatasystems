@@ -552,8 +552,11 @@
                     console.log('✅ API call successful, processing cases...');
                     console.log('📊 Raw cases data:', result.cases);
                     
+                    console.log('🔍 DEBUG: Processing cases...');
+                    console.log('🔍 DEBUG: Raw case data structure:', result.cases[0]);
+                    
                     allCases = result.cases.map(caseData => ({
-                        id: caseData.id,
+                        id: caseData.cnr_number || caseData.id, // Use CNR as ID if no ID field
                         name: caseData.case_title || 'Untitled Case',
                         client: caseData.petitioner || 'N/A',
                         cnr_number: caseData.cnr_number,
@@ -567,6 +570,7 @@
                     
                     console.log('📊 Processed cases:', allCases.length);
                     console.log('📊 First processed case:', allCases[0]);
+                    console.log('🔍 DEBUG: All cases array:', allCases);
                     
                     currentCases = [...allCases];
                     displayCases();
@@ -612,14 +616,22 @@
 
         // Display cases for current page
         function displayCases() {
+            console.log('🔍 DEBUG: displayCases() called');
+            console.log('🔍 DEBUG: currentCases length:', currentCases.length);
+            console.log('🔍 DEBUG: currentCases:', currentCases);
+            
             const tableBody = document.querySelector('.cases-table .table-body');
             const startIndex = (currentPage - 1) * casesPerPage;
             const endIndex = startIndex + casesPerPage;
             const pageCases = currentCases.slice(startIndex, endIndex);
+            
+            console.log('🔍 DEBUG: pageCases length:', pageCases.length);
+            console.log('🔍 DEBUG: pageCases:', pageCases);
 
             tableBody.innerHTML = '';
 
             if (pageCases.length === 0) {
+                console.log('🔍 DEBUG: No cases to display, showing no-data message');
                 tableBody.innerHTML = `
                     <div class="no-data">
                         <p>No cases found</p>
@@ -630,6 +642,7 @@
             }
 
             pageCases.forEach(caseItem => {
+                console.log('🔍 DEBUG: Creating row for case:', caseItem);
                 const row = document.createElement('div');
                 row.className = 'table-row';
                 row.innerHTML = `
