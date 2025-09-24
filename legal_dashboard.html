@@ -970,10 +970,11 @@
                     // Clear cache and reload data immediately (like calendar)
                     localStorage.removeItem('userDashboardData');
                     localStorage.removeItem('cacheVersion');
+                    localStorage.removeItem('cacheUpdated'); // Clear the update flag too
                     if (window.userDashboardData) {
                         delete window.userDashboardData;
                     }
-                    console.log('📊 Dashboard: Cleared cache and reloading data...');
+                    console.log('📊 Dashboard: Cleared ALL cache and reloading data...');
                     
                     lastCacheUpdate = currentCacheUpdate;
                     
