@@ -3,6 +3,8 @@
 <html lang="en">
 <head>
     <script src="config.js"></script>
+    <script src="common.js"></script>
+    <script src="cache-manager.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cases Management - LegalPro</title>
@@ -463,63 +465,33 @@
                 console.log('🔍 DEBUG: Current URL:', window.location.href);
                 console.log('🔍 DEBUG: Has refresh param:', new URLSearchParams(window.location.search).get('refresh') ? 'YES' : 'NO');
                 
-                // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
-                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
-                const cacheVersion = localStorage.getItem('cacheVersion') || '0';
-                
-                // Check if cache is valid (within last 5 minutes)
-                const cacheAge = Date.now() - parseInt(cacheVersion);
-                const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
-                
-                // Check if there's a recent cache update flag (within last 10 seconds)
-                const cacheUpdateTime = localStorage.getItem('cacheUpdated');
-                const hasRecentUpdate = cacheUpdateTime && (Date.now() - parseInt(cacheUpdateTime)) < 10000;
-                
-                console.log('🔍 Cache validation:', {
-                    hasCachedData: !!cachedDataFromStorage,
-                    cacheAge: cacheAge,
-                    maxCacheAge: maxCacheAge,
-                    cacheUpdateTime: cacheUpdateTime,
-                    hasRecentUpdate: hasRecentUpdate,
-                    shouldUseCache: cachedDataFromStorage && cacheAge < maxCacheAge && !hasRecentUpdate
-                });
-                
-                if (cachedDataFromStorage && cacheAge < maxCacheAge && !hasRecentUpdate) {
-                    try {
-                        const parsedData = JSON.parse(cachedDataFromStorage);
-                        console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
+                // Use CacheManager for consistent cache handling
+                if (window.cacheManager && window.cacheManager.isCacheValid()) {
+                    const cachedData = window.cacheManager.getCachedData();
+                    if (cachedData && cachedData.cases) {
+                        console.log('🚀 FAST MODE: Using CacheManager cached data!');
+                        console.log('🚀 DEBUG: Cached cases count:', cachedData.cases.length);
                         
-                        if (parsedData.cases) {
-                            console.log('🚀 FAST MODE: Using cached data from localStorage!');
-                            console.log('🚀 DEBUG: Cached cases count:', parsedData.cases.length);
-                            const cachedCases = parsedData.cases;
-                            
-                            allCases = cachedCases.map(caseData => ({
-                                id: caseData.id,
-                                name: caseData.case_title || 'Untitled Case',
-                                client: caseData.petitioner || 'N/A',
-                                cnr_number: caseData.cnr_number,
-                                type: caseData.case_type || 'Unknown',
-                                date: caseData.filing_date || caseData.created_at,
-                                status: caseData.status || 'Pending',
-                                court_name: caseData.court_name,
-                                judge_name: caseData.judge_name,
-                                registration_number: caseData.registration_number
-                            }));
-                            
-                            currentCases = [...allCases];
-                            displayCases();
-                            // showNotification(`✅ Loaded ${allCases.length} cases from localStorage cache (INSTANT!)`, 'success');
-                            return;
-                        }
-                    } catch (parseError) {
-                        console.error('❌ Error parsing localStorage data:', parseError);
+                        allCases = cachedData.cases.map(caseData => ({
+                            id: caseData.id,
+                            name: caseData.case_title || 'Untitled Case',
+                            client: caseData.petitioner || 'N/A',
+                            cnr_number: caseData.cnr_number,
+                            type: caseData.case_type || 'Unknown',
+                            date: caseData.filing_date || caseData.created_at,
+                            status: caseData.status || 'Pending',
+                            court_name: caseData.court_name,
+                            judge_name: caseData.judge_name,
+                            registration_number: caseData.registration_number
+                        }));
+                        
+                        currentCases = [...allCases];
+                        displayCases();
+                        return;
                     }
-                } else if (cachedDataFromStorage && (cacheAge > maxCacheAge || hasRecentUpdate)) {
-                    console.log('🔄 Cache expired or recent update detected, clearing old data');
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
                 }
+                
+                console.log('🔄 CacheManager: Cache invalid or not available, fetching from API...');
                 
                 // SECOND: Check if we have cached data from dashboard (same page)
                 console.log('🔍 DEBUG: window.userDashboardData exists?', !!window.userDashboardData);
@@ -781,7 +753,7 @@
                 // Clear ALL cached data aggressively
                 localStorage.removeItem('userDashboardData');
                 localStorage.removeItem('cacheVersion');
-                localStorage.removeItem('userDashboardData'); // Double clear
+                localStorage.removeItem('cacheUpdated'); // Also clear the update flag
                 if (window.userDashboardData) {
                     delete window.userDashboardData;
                 }
@@ -857,14 +829,20 @@
         
         function handleCacheUpdate() {
             console.log('🔄 Cases page: Handling cache update...');
-            // Clear ALL cache aggressively
-            localStorage.removeItem('userDashboardData');
-            localStorage.removeItem('cacheVersion');
-            // Don't clear cacheUpdated immediately - let other pages detect it too
-            if (window.userDashboardData) {
-                delete window.userDashboardData;
+            // Use CacheManager for consistent cache handling
+            if (window.cacheManager) {
+                window.cacheManager.clearCache();
+                console.log('🔄 Cases page: Cleared cache using CacheManager');
+            } else {
+                // Fallback to manual cache clearing
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('cacheUpdated');
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('🔄 Cases page: Cleared cache manually (CacheManager not available)');
             }
-            console.log('🔄 Cases page: Cleared cache and reloading data...');
             loadCasesFromDatabase();
         }
     </script>
