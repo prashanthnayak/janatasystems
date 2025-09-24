@@ -443,6 +443,8 @@
         async function loadCasesFromDatabase() {
             try {
                 console.log('🔍 DEBUG: Starting loadCasesFromDatabase...');
+                console.log('🔍 DEBUG: Current URL:', window.location.href);
+                console.log('🔍 DEBUG: Has refresh param:', new URLSearchParams(window.location.search).get('refresh') ? 'YES' : 'NO');
                 
                 // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
                 const cachedDataFromStorage = localStorage.getItem('userDashboardData');
@@ -709,6 +711,13 @@
             const refreshParam = urlParams.get('refresh');
             if (refreshParam) {
                 console.log('🔄 Cases page: Refresh parameter detected, forcing data reload...');
+                // Clear cache and force fresh data load
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('💾 Cleared cache due to refresh parameter');
                 // Remove the refresh parameter from URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }

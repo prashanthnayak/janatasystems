@@ -763,6 +763,9 @@
                     }
                     console.log('💾 Cleared cached data to show new case immediately');
                     
+                    // Reset form
+                    event.target.reset();
+                    
                     // Notify other pages that cache has been updated
                     const cacheUpdateTime = Date.now().toString();
                     localStorage.setItem('cacheUpdated', cacheUpdateTime);
@@ -771,13 +774,10 @@
                     // Also dispatch a custom event for same-tab updates
                     window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
                     
-                    // Reset form
-                    event.target.reset();
-                    
-                    // Redirect to cases list with refresh parameter
-                        setTimeout(() => {
-                            window.location.href = 'cases.html?refresh=' + Date.now();
-                        }, 1000); // Reduced from 2000ms to 1000ms
+                    // Redirect to cases list with refresh parameter (with small delay to ensure cache flag is set)
+                    setTimeout(() => {
+                        window.location.href = 'cases.html?refresh=' + Date.now();
+                    }, 500); // Small delay to ensure cache flag is set
                     } else {
                     showNotification(` Failed to save case: ${result.error}`, 'error');
                     Alert.error(`FAILED! Could not save case to database:\n\n${result.error}`);
