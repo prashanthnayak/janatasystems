@@ -177,13 +177,16 @@ class CacheManager {
         console.log(`🔄 CacheManager: Details:`, details);
         
         // Dispatch custom event for same-tab updates
-        window.dispatchEvent(new CustomEvent('cacheUpdated', { 
+        const customEvent = new CustomEvent('cacheUpdated', { 
             detail: { 
                 timestamp: cacheUpdateTime,
                 operation: operation,
                 ...details
             } 
-        }));
+        });
+        
+        console.log(`🔄 CacheManager: Dispatching custom event:`, customEvent);
+        window.dispatchEvent(customEvent);
         
         console.log(`🔄 CacheManager: Custom event dispatched for ${operation}`);
         

@@ -1053,6 +1053,21 @@
                 console.log('📊 Dashboard: Forcing refresh of dashboard data...');
                 loadDashboardData(true); // true = force refresh
             });
+            
+            // Test if event listener is working
+            console.log('📊 Dashboard: Event listener registered for cacheUpdated');
+            
+            // Dispatch a test event to verify listener is working
+            setTimeout(() => {
+                console.log('📊 Dashboard: Testing event listener...');
+                window.dispatchEvent(new CustomEvent('cacheUpdated', { 
+                    detail: { 
+                        timestamp: Date.now().toString(),
+                        operation: 'test',
+                        test: true
+                    } 
+                }));
+            }, 2000);
         }
 
         // Load dashboard data (SMART CACHE MODE!)
