@@ -731,18 +731,19 @@
             document.getElementById('searchInput').addEventListener('input', searchCases);
             document.getElementById('typeFilter').addEventListener('change', searchCases);
 
-            // Check if we have a refresh parameter (from redirect after save/update)
+            // Check if we have a refresh parameter (from redirect after save/update/delete)
             const urlParams = new URLSearchParams(window.location.search);
             const refreshParam = urlParams.get('refresh');
             if (refreshParam) {
-                console.log('🔄 Cases page: Refresh parameter detected, forcing data reload...');
-                // Clear cache and force fresh data load
+                console.log('🔄 Cases page: Refresh parameter detected, forcing COMPLETE data reload...');
+                // Clear ALL cached data aggressively
                 localStorage.removeItem('userDashboardData');
                 localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('userDashboardData'); // Double clear
                 if (window.userDashboardData) {
                     delete window.userDashboardData;
                 }
-                console.log('💾 Cleared cache due to refresh parameter');
+                console.log('💾 Cleared ALL cache due to refresh parameter');
                 // Remove the refresh parameter from URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }

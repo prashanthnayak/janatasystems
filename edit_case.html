@@ -703,15 +703,16 @@
                     const result = await legalAPI.deleteCase(cnrNumber);
                     console.log('🗑️ API response:', result);
                     if (result.success) {
-                        alert('Case deleted successfully!');
+                        CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
                         
-                        // Clear cached data to force refresh
+                        // Clear ALL cached data aggressively
                         localStorage.removeItem('userDashboardData');
                         localStorage.removeItem('cacheVersion');
+                        localStorage.removeItem('userDashboardData');
                         if (window.userDashboardData) {
                             delete window.userDashboardData;
                         }
-                        console.log('🗑️ Cleared cached data to force refresh');
+                        console.log('🗑️ Cleared ALL cached data to force refresh');
                         
                         // Notify other pages that cache has been updated
                         const cacheUpdateTime = Date.now().toString();
@@ -721,12 +722,10 @@
                         // Also dispatch a custom event for same-tab updates
                         window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
                         
-                        // Redirect with small delay to ensure cache flag is set
-                        setTimeout(() => {
-                            window.location.href = 'cases.html?refresh=' + Date.now();
-                        }, 500);
+                        // Redirect immediately to cases page with refresh parameter
+                        window.location.href = 'cases.html?refresh=' + Date.now();
                     } else {
-                        alert('Error deleting case: ' + result.error);
+                        CommonUtils.Alert.show('Error', 'Failed to delete case: ' + result.error, 'error');
                     }
                 } catch (error) {
                     alert('Error deleting case: ' + error.message);
