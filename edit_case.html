@@ -694,11 +694,13 @@
             console.log('🗑️ Starting delete process for CNR:', cnrNumber);
             
             if (confirm(`Are you sure you want to delete the case "${caseName}"? This action cannot be undone and will also delete all associated case history.`)) {
+                console.log('🗑️ User confirmed deletion, calling API...');
                 try {
-                    console.log('🗑️ User confirmed deletion, calling API...');
+                    console.log('🗑️ Calling deleteCase API...');
                     const result = await legalAPI.deleteCase(cnrNumber);
                     console.log('🗑️ API response:', result);
                     if (result.success) {
+                        console.log('🗑️ Delete successful, clearing cache...');
                         CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
                         
                         // UNIFIED CACHE CLEAR: Clear ALL cache data immediately
