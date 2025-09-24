@@ -1082,6 +1082,15 @@
                 
                 const result = await response.json();
                 
+                // Add debug logging for API response
+                console.log('🔍 DEBUG: Dashboard API response:', result);
+                console.log('🔍 DEBUG: Response success:', result.success);
+                console.log('🔍 DEBUG: Dashboard data:', result.dashboard_data);
+                if (result.dashboard_data) {
+                    console.log('🔍 DEBUG: Cases count:', result.dashboard_data.cases ? result.dashboard_data.cases.length : 'No cases array');
+                    console.log('🔍 DEBUG: First case:', result.dashboard_data.cases ? result.dashboard_data.cases[0] : 'No cases');
+                }
+                
                 if (result.success && result.dashboard_data) {
                     // Validate the dashboard data structure
                     const dashboardData = result.dashboard_data;

@@ -737,12 +737,20 @@ def get_user_dashboard_data():
         return jsonify({'success': False, 'error': 'Invalid session'}), 401
     
     try:
+        print(f"🔍 DASHBOARD API: User authenticated: {user['username']} (ID: {user['id']}, Role: {user['role']})")
         
         # Get all cases for the user
         if user['role'] == 'admin':
             cases = legal_api.db.get_all_cases()
+            print(f"🔍 DASHBOARD API: Admin user - getting ALL cases: {len(cases)} cases")
         else:
             cases = legal_api.db.get_cases_for_user(user['id'])
+            print(f"🔍 DASHBOARD API: Regular user - getting cases for user {user['id']}: {len(cases)} cases")
+        
+        if cases:
+            print(f"🔍 DASHBOARD API: First case: {cases[0]}")
+        else:
+            print(f"🔍 DASHBOARD API: No cases found for user {user['username']} (ID: {user['id']})")
         
         # Get case history for all cases in one batch
         all_histories = {}
