@@ -1070,24 +1070,29 @@
                 const result = await response.json();
                 
                 if (result.success && result.dashboard_data) {
-                    console.log(`✅ API LOADED: ${result.dashboard_data.cases.length} cases, ${result.dashboard_data.clients.length} clients, ${result.dashboard_data.calendar_events.length} events`);
+                    // Validate the dashboard data structure
+                    const dashboardData = result.dashboard_data;
+                    const cases = dashboardData.cases || [];
+                    const clients = dashboardData.clients || [];
+                    const calendarEvents = dashboardData.calendar_events || [];
+                    
+                    console.log(`✅ API LOADED: ${cases.length} cases, ${clients.length} clients, ${calendarEvents.length} events`);
                     
                     // Store all data globally for other pages
-                    window.userDashboardData = result.dashboard_data;
+                    window.userDashboardData = dashboardData;
                     
                     // ALSO store in localStorage for cross-page access
-                    localStorage.setItem('userDashboardData', JSON.stringify(result.dashboard_data));
+                    localStorage.setItem('userDashboardData', JSON.stringify(dashboardData));
                     localStorage.setItem('cacheVersion', Date.now().toString());
                     
                     console.log('💾 Data cached globally and in localStorage');
                     
                     // Update the display
-                    updateDashboardDisplay(result.dashboard_data, true); // true = show success notification
+                    updateDashboardDisplay(dashboardData, true); // true = show success notification
                     
                 } else {
-                    console.error('❌ Failed to load user data:', result.error);
-                    console.log('Falling back to slow method...');
-                    // await loadDashboardDataSlow(); // Fallback to old method - COMMENTED OUT FOR PERFORMANCE
+                    console.error('❌ Failed to load user data:', result.error || 'Unknown error');
+                    console.log('❌ API response:', result);
                     console.error('❌ No data available - dashboard will show empty');
                 }
                 

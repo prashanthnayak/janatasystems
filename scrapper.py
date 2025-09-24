@@ -840,4 +840,8 @@ if __name__ == "__main__":
                 print("❌ All attempts failed. Restarting script as a new process.")
                 python = sys.executable
                 os.execv(python, [python] + sys.argv)
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> caching-strategy
