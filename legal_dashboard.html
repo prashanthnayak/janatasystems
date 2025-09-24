@@ -641,9 +641,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Common utilities -->
-    <script src="common.js"></script>
     
     <script>
         // Notification system
@@ -904,7 +901,17 @@
 
         // Update dashboard display with data
         async function updateDashboardDisplay(dashboardData, showNotification = false) {
-            const cases = dashboardData.cases;
+            // Validate dashboardData structure
+            if (!dashboardData) {
+                console.error('❌ updateDashboardDisplay: dashboardData is undefined');
+                return;
+            }
+            
+            const cases = dashboardData.cases || [];
+            const clients = dashboardData.clients || [];
+            const calendarEvents = dashboardData.calendar_events || [];
+            
+            console.log(`📊 Dashboard Display: ${cases.length} cases, ${clients.length} clients, ${calendarEvents.length} events`);
             
             // Update stats
             document.getElementById('totalCasesCount').textContent = cases.length;
@@ -1095,6 +1102,17 @@
                     console.error('❌ Failed to load user data:', result.error || 'Unknown error');
                     console.log('❌ API response:', result);
                     console.error('❌ No data available - dashboard will show empty');
+                    
+                    // Create empty dashboard data structure
+                    const emptyDashboardData = {
+                        cases: [],
+                        clients: [],
+                        calendar_events: [],
+                        case_histories: {}
+                    };
+                    
+                    // Update display with empty data
+                    updateDashboardDisplay(emptyDashboardData, false);
                 }
                 
                 isLoading = false; // Reset loading flag
