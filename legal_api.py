@@ -444,7 +444,15 @@ def save_case():
         # Add user_id to user_data so it gets saved with the case
         user_data['user_id'] = user['id']
         
-        return jsonify(legal_api.save_to_database(cnr_number, user_data))
+        print(f"🔍 SAVE CASE DEBUG: User ID: {user['id']}, Username: {user['username']}")
+        print(f"🔍 SAVE CASE DEBUG: CNR: {cnr_number}")
+        print(f"🔍 SAVE CASE DEBUG: User data: {user_data}")
+        
+        result = legal_api.save_to_database(cnr_number, user_data)
+        
+        print(f"🔍 SAVE CASE DEBUG: Save result: {result}")
+        
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -745,7 +753,14 @@ def get_user_dashboard_data():
             print(f"🔍 DASHBOARD API: Admin user - getting ALL cases: {len(cases)} cases")
         else:
             cases = legal_api.db.get_cases_for_user(user['id'])
-            print(f"🔍 DASHBOARD API: Regular user - getting cases for user {user['id']}: {len(cases)} cases")
+            print(f"🔍 DASHBOARD API: Regular user {user['username']} (ID: {user['id']}) - getting cases for user {user['id']}: {len(cases)} cases")
+            
+            # Debug: Check if there are any cases in the database at all
+            all_cases = legal_api.db.get_all_cases()
+            print(f"🔍 DASHBOARD API DEBUG: Total cases in database: {len(all_cases)}")
+            if all_cases:
+                print(f"🔍 DASHBOARD API DEBUG: First case user_id: {all_cases[0].get('user_id', 'NO_USER_ID')}")
+                print(f"🔍 DASHBOARD API DEBUG: First case CNR: {all_cases[0].get('cnr_number', 'NO_CNR')}")
         
         if cases:
             print(f"🔍 DASHBOARD API: First case: {cases[0]}")
