@@ -1120,12 +1120,18 @@
                 }
                 
                 // Call the new super-fast endpoint
+                console.log('🔍 DEBUG: About to call dashboard API:', config.getApiUrl('/user/dashboard-data'));
+                console.log('🔍 DEBUG: Token:', token ? 'Present' : 'Missing');
+                
                 const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
+                
+                console.log('🔍 DEBUG: API Response status:', response.status);
+                console.log('🔍 DEBUG: API Response ok:', response.ok);
                 
                 const result = await response.json();
                 
