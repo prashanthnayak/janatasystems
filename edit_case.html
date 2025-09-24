@@ -663,7 +663,12 @@
                         console.log('✏️ Cleared cached data to force refresh with updated data');
                         
                         // Notify other pages that cache has been updated
-                        localStorage.setItem('cacheUpdated', Date.now().toString());
+                        const cacheUpdateTime = Date.now().toString();
+                        localStorage.setItem('cacheUpdated', cacheUpdateTime);
+                        console.log('🔄 Edit Case: Set cacheUpdated flag to:', cacheUpdateTime);
+                        
+                        // Also dispatch a custom event for same-tab updates
+                        window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
                         
                         window.location.href = 'cases.html';
                     } else {
@@ -708,7 +713,12 @@
                         console.log('🗑️ Cleared cached data to force refresh');
                         
                         // Notify other pages that cache has been updated
-                        localStorage.setItem('cacheUpdated', Date.now().toString());
+                        const cacheUpdateTime = Date.now().toString();
+                        localStorage.setItem('cacheUpdated', cacheUpdateTime);
+                        console.log('🔄 Edit Case: Set cacheUpdated flag to:', cacheUpdateTime);
+                        
+                        // Also dispatch a custom event for same-tab updates
+                        window.dispatchEvent(new CustomEvent('cacheUpdated', { detail: { timestamp: cacheUpdateTime } }));
                         
                         window.location.href = 'cases.html';
                     } else {

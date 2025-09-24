@@ -703,22 +703,48 @@
         // Listen for cache updates from other pages
         function listenForCacheUpdates() {
             let lastCacheUpdate = localStorage.getItem('cacheUpdated') || '0';
+            console.log('🔍 Cases page: Starting cache listener, initial value:', lastCacheUpdate);
             
+            // Method 1: Polling every second
             setInterval(() => {
                 const currentCacheUpdate = localStorage.getItem('cacheUpdated') || '0';
                 if (currentCacheUpdate !== lastCacheUpdate) {
-                    console.log('🔄 Cache updated detected, refreshing cases data...');
+                    console.log('🔄 Cases page: Cache updated detected via polling!');
+                    console.log('   Old value:', lastCacheUpdate);
+                    console.log('   New value:', currentCacheUpdate);
                     
-                    // Clear old cache and force fresh data
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
-                    
+                    handleCacheUpdate();
                     lastCacheUpdate = currentCacheUpdate;
-                    
-                    // Reload cases data
-                    loadCasesFromDatabase();
                 }
             }, 1000); // Check every second
+            
+            // Method 2: Storage event listener (for same-tab updates)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'cacheUpdated' && e.newValue !== lastCacheUpdate) {
+                    console.log('🔄 Cases page: Cache updated detected via storage event!');
+                    console.log('   Old value:', lastCacheUpdate);
+                    console.log('   New value:', e.newValue);
+                    
+                    handleCacheUpdate();
+                    lastCacheUpdate = e.newValue;
+                }
+            });
+            
+            // Method 3: Custom event listener (for same-tab updates)
+            window.addEventListener('cacheUpdated', () => {
+                console.log('🔄 Cases page: Cache updated detected via custom event!');
+                handleCacheUpdate();
+            });
+        }
+        
+        function handleCacheUpdate() {
+            // Clear old cache and force fresh data
+            localStorage.removeItem('userDashboardData');
+            localStorage.removeItem('cacheVersion');
+            
+            // Reload cases data
+            console.log('🔄 Cases page: Reloading cases data...');
+            loadCasesFromDatabase();
         }
     </script>
 </body>
