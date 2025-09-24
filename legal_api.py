@@ -725,7 +725,11 @@ def get_user_dashboard_data():
     """Get ALL user data in ONE API call - SUPER FAST! 🚀"""
     # Handle CORS preflight request
     if request.method == 'OPTIONS':
-        return '', 200
+        response = make_response('', 200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
     
     # Apply authentication only for non-OPTIONS requests
     auth_header = request.headers.get('Authorization')
