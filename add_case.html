@@ -766,28 +766,14 @@
                     // Clear temporary scraped data from sessionStorage
                     sessionStorage.removeItem('temp_scraped_data');
                     
-                    // Use smart cache management
-                    if (result.case) {
-                        const cacheUpdated = window.cacheManager.addCaseToCache(result.case);
-                        if (!cacheUpdated) {
-                            // Fallback to clearing cache if smart update failed
-                            window.cacheManager.clearCache();
-                        }
-                    } else {
-                        console.error('❌ No case data in result, clearing cache');
-                        window.cacheManager.clearCache();
+                    // UNIFIED CACHE CLEAR: Clear ALL cache data immediately
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
+                    localStorage.removeItem('cacheUpdated');
+                    if (window.userDashboardData) {
+                        delete window.userDashboardData;
                     }
-                    
-                    // Notify other pages of the cache update
-                    if (result.case) {
-                        window.cacheManager.notifyCacheUpdate('add', { 
-                            case: result.case,
-                            cnrNumber: result.case.cnr_number,
-                            caseTitle: result.case.case_title 
-                        });
-                    } else {
-                        window.cacheManager.notifyCacheUpdate('add', {});
-                    }
+                    console.log('➕ UNIFIED CACHE CLEAR: All cache data cleared');
                     
                     console.log('💾 Smart cache update completed');
                     

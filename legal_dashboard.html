@@ -1089,15 +1089,7 @@
                     return;
                 }
                 
-                // SIMPLE FIX: Check for forceRefresh flag FIRST
-                const forceRefreshFlag = localStorage.getItem('forceRefresh');
-                if (forceRefreshFlag === 'true') {
-                    console.log('🔄 FORCE REFRESH FLAG DETECTED - fetching fresh data');
-                    localStorage.removeItem('forceRefresh'); // Clear the flag
-                    forceRefresh = true; // Force refresh
-                }
-                
-                // Check if we already have valid cached data (unless forcing refresh)
+                // SIMPLIFIED: Check if we have valid cached data
                 if (!forceRefresh && window.userDashboardData && 
                     window.userDashboardData.cases && 
                     Array.isArray(window.userDashboardData.cases) && 
@@ -1105,20 +1097,6 @@
                     console.log('💾 CACHE HIT: Using existing dashboard data (no API call needed)');
                     updateDashboardDisplay(window.userDashboardData);
                     return;
-                }
-                
-                // Remove the duplicate check
-                
-                // Also check localStorage cache with versioning
-                // Use CacheManager for consistent cache handling
-                if (!forceRefresh && !forceRefreshFlag && window.cacheManager && window.cacheManager.isCacheValid()) {
-                    const cachedData = window.cacheManager.getCachedData();
-                    if (cachedData && cachedData.cases && cachedData.cases.length > 0) {
-                        console.log('💾 CACHEMANAGER HIT: Using cached dashboard data (no API call needed)');
-                        window.userDashboardData = cachedData;
-                        updateDashboardDisplay(cachedData);
-                        return;
-                    }
                 }
                 
                 console.log('🔄 CacheManager: Cache invalid or not available, fetching from API...');

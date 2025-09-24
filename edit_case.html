@@ -653,19 +653,14 @@
                     if (result.success) {
                         alert('Case updated successfully!');
                         
-                        // Use smart cache management for update
-                        const cacheUpdated = window.cacheManager.updateCaseInCache(cnrNumber, caseData);
-                        if (!cacheUpdated) {
-                            // Fallback to clearing cache if smart update failed
-                            window.cacheManager.clearCache();
+                        // UNIFIED CACHE CLEAR: Clear ALL cache data immediately
+                        localStorage.removeItem('userDashboardData');
+                        localStorage.removeItem('cacheVersion');
+                        localStorage.removeItem('cacheUpdated');
+                        if (window.userDashboardData) {
+                            delete window.userDashboardData;
                         }
-                        
-                        // Notify other pages of the cache update
-                        window.cacheManager.notifyCacheUpdate('update', { 
-                            cnrNumber: cnrNumber,
-                            caseData: caseData,
-                            caseTitle: caseData.case_title 
-                        });
+                        console.log('✏️ UNIFIED CACHE CLEAR: All cache data cleared');
                         
                         console.log('✏️ Smart cache update completed');
                         
@@ -706,9 +701,14 @@
                     if (result.success) {
                         CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
                         
-                        // SIMPLE FIX: Set a flag that forces dashboard to refresh
-                        localStorage.setItem('forceRefresh', 'true');
-                        console.log('🗑️ Set forceRefresh flag - dashboard will refresh');
+                        // UNIFIED CACHE CLEAR: Clear ALL cache data immediately
+                        localStorage.removeItem('userDashboardData');
+                        localStorage.removeItem('cacheVersion');
+                        localStorage.removeItem('cacheUpdated');
+                        if (window.userDashboardData) {
+                            delete window.userDashboardData;
+                        }
+                        console.log('🗑️ UNIFIED CACHE CLEAR: All cache data cleared');
                         
                         console.log('🗑️ Smart cache update completed');
                         
