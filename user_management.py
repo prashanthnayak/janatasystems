@@ -193,9 +193,15 @@ def main():
     print("5. user_manager.activate_user(username) - Activate user")
     
     print("\n🔐 Current User Credentials:")
-    print("👑 Admin: username='admin', password='admin123'")
-    print("👤 Shantharam: username='shantharam', password='shantharam123'")
-    print("👤 Rajaram: username='rajaram', password='rajaram123'")
+    import os
+    admin_password = os.getenv('ADMIN_DEFAULT_PASSWORD', 'admin123')
+    shantharam_password = os.getenv('SHANTHARAM_PASSWORD', 'shantharam123')
+    rajaram_password = os.getenv('RAJARAM_PASSWORD', 'rajaram123')
+    
+    print(f"👑 Admin: username='admin', password='{admin_password}'")
+    print(f"👤 Shantharam: username='shantharam', password='{shantharam_password}'")
+    print(f"👤 Rajaram: username='rajaram', password='{rajaram_password}'")
+    print("\n⚠️  WARNING: These are default passwords. Change them immediately!")
 
 if __name__ == "__main__":
     main()

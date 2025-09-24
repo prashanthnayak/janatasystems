@@ -190,9 +190,11 @@ class DatabaseManager:
             # Check if admin user exists
             cursor.execute("SELECT id FROM users WHERE username = 'admin'")
             if cursor.fetchone() is None:
-                # Hash the default password
+                # Get default password from environment or use a secure default
                 import hashlib
-                password_hash = hashlib.sha256('admin123'.encode()).hexdigest()
+                import os
+                default_password = os.getenv('ADMIN_DEFAULT_PASSWORD', 'admin123')
+                password_hash = hashlib.sha256(default_password.encode()).hexdigest()
                 
                 # Create default admin user
                 cursor.execute("""
@@ -201,7 +203,8 @@ class DatabaseManager:
                 """, ('admin', 'admin@legalsystem.com', password_hash, 'System Administrator', 'admin'))
                 
                 conn.commit()
-                print("✅ Default admin user created (username: admin, password: admin123)")
+                print(f"✅ Default admin user created (username: admin, password: {default_password})")
+                print("⚠️  WARNING: Please change the default password immediately!")
             else:
                 print("ℹ️ Admin user already exists")
                 

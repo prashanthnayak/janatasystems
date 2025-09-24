@@ -15,6 +15,7 @@ pip install selenium==4.20.0 pillow transformers torch torchvision
 import os, sys, csv, time
 from datetime import datetime
 from pathlib import Path
+import requests
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -28,18 +29,51 @@ from PIL import Image
 import torch
 from transformers import VisionEncoderDecoderModel, TrOCRProcessor
 from database_setup import DatabaseManager
-import requests
 
 # Initialize database
 db = DatabaseManager()
 
-# ----------------------- CONFIG ---------------------------------
+# ----------------------- CONFIGURATION ---------------------------------
+def get_api_base_url():
+    """Get API base URL from environment or use dynamic detection"""
+    # Try environment variable first
+    api_url = os.getenv('LEGAL_API_URL')
+    if api_url:
+        return api_url
+    
+    # Try to detect the API server dynamically
+    try:
+        # Check if we're running locally
+        import socket
+        hostname = socket.gethostname()
+        if hostname in ['localhost', '127.0.0.1']:
+            return 'http://localhost:5002'
+        
+        # Try to get public IP
+        response = requests.get('https://api.ipify.org', timeout=TIMEOUT_CONSTANTS['API_REQUEST_TIMEOUT'])
+        if response.status_code == 200:
+            public_ip = response.text.strip()
+            return f'http://{public_ip}:5002'
+    except Exception as e:
+        print(f"Warning: Could not detect API URL dynamically: {e}")
+    
+    # Fallback to localhost
+    return 'http://localhost:5002'
+
+def get_file_paths():
+    """Get file paths from environment or use defaults"""
+    csv_folder = os.getenv('SCRAPER_CSV_FOLDER', '~/Desktop/scraped_cases')
+    captcha_folder = os.getenv('SCRAPER_CAPTCHA_FOLDER', '~/Desktop/captcha_images')
+    
+    return Path(csv_folder).expanduser(), Path(captcha_folder).expanduser()
+
+# Configuration constants
 CNR_NUMBER = None                        # Will be set dynamically by scrape_case_details()
-HEADLESS = True                          # Set to True for EC2/headless servers
-CSV_FOLDER = Path("~/Desktop/shantharam").expanduser()
-CAPTCHA_FOLDER = Path("~/Desktop/captcha_images").expanduser()
-OCR_MODEL_NAME = "anuashok/ocr-captcha-v3"
+HEADLESS = os.getenv('SCRAPER_HEADLESS', 'True').lower() == 'true'
+CSV_FOLDER, CAPTCHA_FOLDER = get_file_paths()
+OCR_MODEL_NAME = os.getenv('OCR_MODEL_NAME', 'anuashok/ocr-captcha-v3')
 PAGE_URL = "https://services.ecourts.gov.in/ecourtindia_v6/"
+API_BASE_URL = get_api_base_url()
 
 # Extraction constants
 DEFAULT_VALUES = {
@@ -67,7 +101,14 @@ COURT_PATTERNS = {
     'Sessions Court': 'Sessions Court',
     'Magistrate Court': 'Magistrate Court'
 }
-# ----------------------------------------------------------------
+
+# Timeout constants
+TIMEOUT_CONSTANTS = {
+    'API_REQUEST_TIMEOUT': int(os.getenv('API_REQUEST_TIMEOUT', '5')),
+    'DRIVER_WAIT_TIMEOUT': int(os.getenv('DRIVER_WAIT_TIMEOUT', '30')),
+    'THREAD_JOIN_TIMEOUT': int(os.getenv('THREAD_JOIN_TIMEOUT', '20'))
+}
+# ------------------------------------------------------------------------
 
 # Cache settings
 USE_CACHE_IF_FAIL = True   # Enable cache fallback for better reliability
@@ -206,9 +247,9 @@ def scrape_case_details(cnr_number):
                     exc['error'] = e
             t = threading.Thread(target=load_page)
             t.start()
-            t.join(timeout=30)  # Increased timeout to 30 seconds
+            t.join(timeout=TIMEOUT_CONSTANTS['DRIVER_WAIT_TIMEOUT'])  # Use configurable timeout
             if t.is_alive():
-                print("Page did not load within 30 seconds. Loading from cache...")
+                print(f"Page did not load within {TIMEOUT_CONSTANTS['DRIVER_WAIT_TIMEOUT']} seconds. Loading from cache...")
                 # Optionally, try to stop the thread/browser here
                 if USE_CACHE_IF_FAIL and CACHE_FILE.exists():
                     with CACHE_FILE.open("r", encoding="utf-8") as f:
@@ -576,26 +617,42 @@ def extract_case_details(driver):
 
 
 def send_log_to_api(message, log_type='info', source='scraper'):
-    """Send log message to API server"""
+    """Send log message to API server using dynamic URL detection"""
     try:
-        # Try localhost first, then fallback to the original IP
-        urls_to_try = [
+        # Use the dynamically configured API base URL
+        log_url = f"{API_BASE_URL}/api/logs/add"
+        
+        # Try the configured URL first
+        try:
+            response = requests.post(log_url, 
+                                   json={'message': message, 'type': log_type, 'source': source},
+                                   timeout=TIMEOUT_CONSTANTS['API_REQUEST_TIMEOUT'])
+            if response.status_code == 200:
+                return
+        except Exception as e:
+            print(f"Failed to send log to {log_url}: {e}")
+        
+        # Fallback URLs (only if main URL fails)
+        fallback_urls = [
             'http://localhost:5002/api/logs/add',
-            'http://127.0.0.1:5002/api/logs/add',
-            'http://52.23.206.51:5002/api/logs/add'
+            'http://127.0.0.1:5002/api/logs/add'
         ]
         
-        for url in urls_to_try:
+        for url in fallback_urls:
             try:
-                requests.post(url, 
-                             json={'message': message, 'type': log_type, 'source': source},
-                             timeout=1)
-                break  # If successful, stop trying other URLs
-            except:
-                continue  # Try next URL
-    except:
-        # Silently fail if API is not available
-        pass
+                response = requests.post(url, 
+                                       json={'message': message, 'type': log_type, 'source': source},
+                                       timeout=TIMEOUT_CONSTANTS['API_REQUEST_TIMEOUT'])
+                if response.status_code == 200:
+                    return
+            except Exception as e:
+                print(f"Failed to send log to {url}: {e}")
+                continue
+        
+        print(f"All log endpoints failed for message: {message}")
+        
+    except Exception as e:
+        print(f"Error in send_log_to_api: {e}")
 
 
 def main():
@@ -621,9 +678,9 @@ def main():
                     exc['error'] = e
             t = threading.Thread(target=load_page)
             t.start()
-            t.join(timeout=20)
+            t.join(timeout=TIMEOUT_CONSTANTS['THREAD_JOIN_TIMEOUT'])
             if t.is_alive():
-                print("Page did not load within 5 seconds. Loading from cache...")
+                print(f"Page did not load within {TIMEOUT_CONSTANTS['THREAD_JOIN_TIMEOUT']} seconds. Loading from cache...")
                 # Optionally, try to stop the thread/browser here
                 if USE_CACHE_IF_FAIL and CACHE_FILE.exists():
                     with CACHE_FILE.open("r", encoding="utf-8") as f:

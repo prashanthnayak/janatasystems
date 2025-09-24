@@ -27,21 +27,44 @@ from scrapper import scrape_case_details
 
 app = Flask(__name__)
 #CORS(app)
+# Configuration constants
+API_REQUEST_TIMEOUT = int(os.getenv('API_REQUEST_TIMEOUT', '5'))
+
 # Dynamic CORS configuration
 def get_cors_origins():
-    """Get CORS origins dynamically"""
+    """Get CORS origins dynamically from environment or auto-detect"""
+    import os
+    
+    # Check for environment variable first
+    cors_origins = os.getenv('CORS_ORIGINS')
+    if cors_origins:
+        return cors_origins.split(',')
+    
+    # Auto-detect origins
+    origins = []
+    
+    # Add localhost variants
+    origins.extend([
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ])
+    
+    # Try to get public IP
     try:
         import requests
-        # Get current public IP
-        response = requests.get('https://api.ipify.org', timeout=5)
-        public_ip = response.text.strip()
-        return [
-            f"http://{public_ip}:8000",
-            "http://localhost:8000",
-            "http://127.0.0.1:8000"
-        ]
-    except:
-        return ["http://localhost:8000", "http://127.0.0.1:8000"]
+        response = requests.get('https://api.ipify.org', timeout=API_REQUEST_TIMEOUT)
+        if response.status_code == 200:
+            public_ip = response.text.strip()
+            origins.append(f"http://{public_ip}:8000")
+    except Exception as e:
+        print(f"Warning: Could not detect public IP for CORS: {e}")
+    
+    # Add any additional origins from environment
+    additional_origins = os.getenv('ADDITIONAL_CORS_ORIGINS', '')
+    if additional_origins:
+        origins.extend(additional_origins.split(','))
+    
+    return origins
 
 CORS(app,
      origins=get_cors_origins(),
@@ -1393,7 +1416,7 @@ def get_server_info():
         
         for service in ip_services:
             try:
-                response = requests.get(service, timeout=5)
+                response = requests.get(service, timeout=API_REQUEST_TIMEOUT)
                 if response.status_code == 200:
                     public_ip = response.text.strip()
                     break
@@ -1410,8 +1433,8 @@ def get_server_info():
             'public_ip': public_ip,
             'local_ip': local_ip,
             'hostname': hostname,
-            'api_port': 5002,
-            'web_port': 8000
+            'api_port': int(os.getenv('API_PORT', '5002')),
+            'web_port': int(os.getenv('WEB_PORT', '8000'))
         })
         
     except Exception as e:
@@ -1419,11 +1442,13 @@ def get_server_info():
             'success': False,
             'error': str(e),
             'local_ip': '127.0.0.1',
-            'api_port': 5002,
-            'web_port': 8000
+            'api_port': int(os.getenv('API_PORT', '5002')),
+            'web_port': int(os.getenv('WEB_PORT', '8000'))
         })
 
 if __name__ == '__main__':
+    import os
     legal_api.add_log("API server starting up", 'info', 'system')
-    print("🚀 Starting Legal API Server on port 5002...")
-    app.run(host='0.0.0.0', port=5002, debug=False) 
+    api_port = int(os.getenv('API_PORT', '5002'))
+    print(f"🚀 Starting Legal API Server on port {api_port}...")
+    app.run(host='0.0.0.0', port=api_port, debug=False) 

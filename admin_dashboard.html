@@ -2122,7 +2122,9 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
                 btn.textContent = '⏱️ Auto Refresh: OFF';
                 btn.style.background = '#6b7280';
             } else {
-                autoRefreshInterval = setInterval(refreshAllMetrics, 30000); // 30 seconds
+                // Configurable auto-refresh interval (default: 30 seconds)
+                const AUTO_REFRESH_INTERVAL = window.AUTO_REFRESH_INTERVAL || 30000;
+                autoRefreshInterval = setInterval(refreshAllMetrics, AUTO_REFRESH_INTERVAL); // Configurable interval
                 isAutoRefresh = true;
                 btn.textContent = '⏱️ Auto Refresh: ON';
                 btn.style.background = '#15803d';
@@ -2312,7 +2314,9 @@ ${document.getElementById('systemLogs')?.textContent || 'No logs available'}
         // Initialize system monitor when system monitor section is shown
         function initSystemMonitor() {
             if (document.getElementById('systemMonitorSection') && document.getElementById('systemMonitorSection').style.display !== 'none') {
-                setTimeout(refreshAllMetrics, 500);
+                // Configurable retry delay (default: 500ms)
+                const RETRY_DELAY = window.RETRY_DELAY || 500;
+                setTimeout(refreshAllMetrics, RETRY_DELAY);
             }
         }
 

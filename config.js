@@ -6,8 +6,8 @@
 class Config {
     constructor() {
         this.API_HOST = null;
-        this.API_PORT = '5002';
-        this.WEB_PORT = '8000';
+        this.API_PORT = window.API_PORT || '5002';
+        this.WEB_PORT = window.WEB_PORT || '8000';
         this.initialized = false;
     }
 
@@ -31,7 +31,7 @@ class Config {
         try {
             // Build the correct URL for the API server
             const apiHost = window.location.hostname;
-            const apiUrl = `http://${apiHost}:5002/api/server-info`;
+            const apiUrl = `http://${apiHost}:${this.API_PORT}/api/server-info`;
             
             console.log(`🔍 Trying to get server info from: ${apiUrl}`);
             
@@ -76,11 +76,21 @@ class Config {
     getCorsOrigins() {
         if (!this.initialized) return [];
         
-        return [
-            `http://${this.API_HOST}:${this.WEB_PORT}`,
-            'http://localhost:8000',
-            'http://127.0.0.1:8000'
+        const origins = [
+            `http://${this.API_HOST}:${this.WEB_PORT}`
         ];
+        
+        // Add localhost variants
+        origins.push(`http://localhost:${this.WEB_PORT}`);
+        origins.push(`http://127.0.0.1:${this.WEB_PORT}`);
+        
+        // Add any additional origins from environment or config
+        const additionalOrigins = window.ADDITIONAL_CORS_ORIGINS || '';
+        if (additionalOrigins) {
+            origins.push(...additionalOrigins.split(','));
+        }
+        
+        return origins;
     }
 }
 

@@ -3,7 +3,42 @@
 Assign orphaned cases to the shantharam user (ID: 4)
 """
 
+import os
+import requests
 from database_setup import DatabaseManager
+
+# Configuration
+API_REQUEST_TIMEOUT = int(os.getenv('API_REQUEST_TIMEOUT', '5'))
+
+def get_api_base_url():
+    """Get API base URL from environment or use default"""
+    api_url = os.getenv('LEGAL_API_URL')
+    if api_url:
+        return api_url
+    
+    # Try to detect the API server dynamically
+    try:
+        # Check if we're running locally
+        import socket
+        hostname = socket.gethostname()
+        if hostname in ['localhost', '127.0.0.1']:
+            api_port = os.getenv('API_PORT', '5002')
+            return f'http://localhost:{api_port}'
+        
+        # Try to get public IP
+        response = requests.get('https://api.ipify.org', timeout=API_REQUEST_TIMEOUT)
+        if response.status_code == 200:
+            public_ip = response.text.strip()
+            api_port = os.getenv('API_PORT', '5002')
+            return f'http://{public_ip}:{api_port}'
+    except Exception as e:
+        print(f"Warning: Could not detect API URL dynamically: {e}")
+    
+    # Fallback to localhost
+    api_port = os.getenv('API_PORT', '5002')
+    return f'http://localhost:{api_port}'
+
+API_BASE_URL = get_api_base_url()
 
 def assign_cases_to_shantharam():
     """Assign orphaned cases to shantharam user (ID: 4)"""
@@ -68,14 +103,15 @@ def test_user_dashboard_after_fix():
     
     try:
         # Login as shantharam
-        login_data = {"username": "shantharam", "password": "shantharam123"}  # Assuming password
-        response = requests.post("http://localhost:5002/api/auth/login", json=login_data)
+        shantharam_password = os.getenv('SHANTHARAM_PASSWORD', 'shantharam123')
+        login_data = {"username": "shantharam", "password": shantharam_password}
+        response = requests.post(f"{API_BASE_URL}/api/auth/login", json=login_data)
         
         if response.status_code != 200:
             print(f"❌ Login failed: {response.status_code}")
             # Try with a different password
             login_data = {"username": "shantharam", "password": "password"}
-            response = requests.post("http://localhost:5002/api/auth/login", json=login_data)
+            response = requests.post(f"{API_BASE_URL}/api/auth/login", json=login_data)
             
             if response.status_code != 200:
                 print(f"❌ Login still failed: {response.status_code}")
@@ -87,7 +123,7 @@ def test_user_dashboard_after_fix():
         
         # Test dashboard data API
         headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-        response = requests.get("http://localhost:5002/api/user/dashboard-data", headers=headers)
+        response = requests.get(f"{API_BASE_URL}/api/user/dashboard-data", headers=headers)
         
         if response.status_code == 200:
             result = response.json()

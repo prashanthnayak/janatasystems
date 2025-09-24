@@ -244,7 +244,9 @@ function handleApiError(error, context = 'API call') {
     
     if (error.status === 401) {
         showNotification('Session expired. Please login again.', 'error');
-        setTimeout(() => logout(), 2000);
+        // Configurable logout delay (default: 2 seconds)
+        const LOGOUT_DELAY = window.LOGOUT_DELAY || 2000;
+        setTimeout(() => logout(), LOGOUT_DELAY);
     } else if (error.status === 403) {
         showNotification('Access denied. You do not have permission for this action.', 'error');
     } else if (error.status >= 500) {
