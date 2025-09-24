@@ -695,7 +695,31 @@
 
             // Load cases from database
             loadCasesFromDatabase();
+            
+            // Listen for cache updates from other pages
+            listenForCacheUpdates();
         });
+        
+        // Listen for cache updates from other pages
+        function listenForCacheUpdates() {
+            let lastCacheUpdate = localStorage.getItem('cacheUpdated') || '0';
+            
+            setInterval(() => {
+                const currentCacheUpdate = localStorage.getItem('cacheUpdated') || '0';
+                if (currentCacheUpdate !== lastCacheUpdate) {
+                    console.log('🔄 Cache updated detected, refreshing cases data...');
+                    
+                    // Clear old cache and force fresh data
+                    localStorage.removeItem('userDashboardData');
+                    localStorage.removeItem('cacheVersion');
+                    
+                    lastCacheUpdate = currentCacheUpdate;
+                    
+                    // Reload cases data
+                    loadCasesFromDatabase();
+                }
+            }, 1000); // Check every second
+        }
     </script>
 </body>
 </html> 
