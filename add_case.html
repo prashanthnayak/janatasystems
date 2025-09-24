@@ -735,6 +735,11 @@
                     return;
                 }
                 
+                console.log('🔍 ADD CASE DEBUG: About to save case to database');
+                console.log('🔍 ADD CASE DEBUG: CNR Number:', cnrNumber);
+                console.log('🔍 ADD CASE DEBUG: User Data:', userData);
+                console.log('🔍 ADD CASE DEBUG: API URL:', config.getApiUrl('/cases/save'));
+                
                 const response = await fetch(config.getApiUrl('/cases/save'), {
                     method: 'POST',
                     headers: {
@@ -748,6 +753,11 @@
                 });
                 
                 const result = await response.json();
+                
+                console.log('🔍 ADD CASE DEBUG: API Response:', result);
+                console.log('🔍 ADD CASE DEBUG: Response success:', result.success);
+                console.log('🔍 ADD CASE DEBUG: Response message:', result.message);
+                console.log('🔍 ADD CASE DEBUG: Case data:', result.case);
                 
                     if (result.success) {
                     showNotification(`Case saved successfully! ${result.message}`, 'success');
