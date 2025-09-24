@@ -949,7 +949,7 @@
             
             // Update stats
             document.getElementById('totalCasesCount').textContent = cases.length;
-            document.getElementById('activeCasesCount').textContent = cases.filter(c => c.status === 'Active').length;
+            document.getElementById('activeCasesCount').textContent = cases.filter(c => c && c.status === 'Active').length;
             
             // Calculate today's hearings count
             if (cases.length > 0 && dashboardData.case_histories) {
@@ -1202,7 +1202,7 @@
                     
                     // Update stats
                     document.getElementById('totalCasesCount').textContent = cases.length;
-                    document.getElementById('activeCasesCount').textContent = cases.filter(c => c.status === 'Active').length;
+                    document.getElementById('activeCasesCount').textContent = cases.filter(c => c && c.status === 'Active').length;
                     
                     // Case history loading removed since Case History section was removed
                     // Load case history count for first case
@@ -1520,15 +1520,20 @@
                 }
 
                 // Get case history for the first case
-                const firstCase = casesResult.cases[0];
-                const historyResult = await legalAPI.getCaseHistory(firstCase.cnr_number);
-                
-                if (!historyResult.success || !historyResult.history || historyResult.history.length === 0) {
+                if (casesResult.cases && casesResult.cases.length > 0) {
+                    const firstCase = casesResult.cases[0];
+                    const historyResult = await legalAPI.getCaseHistory(firstCase.cnr_number);
+                    
+                    if (!historyResult.success || !historyResult.history || historyResult.history.length === 0) {
+                        showNoHearingsModal();
+                        return;
+                    }
+
+                    showHearingsModal(firstCase, historyResult.history);
+                } else {
                     showNoHearingsModal();
                     return;
                 }
-
-                showHearingsModal(firstCase, historyResult.history);
             } catch (error) {
                 console.error('Error loading case history:', error);
                 showNoHearingsModal();
