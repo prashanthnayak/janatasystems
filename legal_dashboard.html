@@ -896,6 +896,39 @@
             }
         }
 
+        // Decompress data if it's compressed
+        function decompressData(compressedData) {
+            try {
+                // Decode base64
+                const binaryString = atob(compressedData);
+                
+                // Convert to Uint8Array
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                // Decompress using pako (if available) or fallback
+                if (typeof pako !== 'undefined') {
+                    const decompressed = pako.inflate(bytes, { to: 'string' });
+                    return JSON.parse(decompressed);
+                } else {
+                    // Fallback: try to parse as JSON (in case compression failed)
+                    console.warn('⚠️ Pako not available, trying to parse as JSON');
+                    return JSON.parse(compressedData);
+                }
+            } catch (error) {
+                console.error('❌ Decompression failed:', error);
+                // Fallback: try to parse as JSON
+                try {
+                    return JSON.parse(compressedData);
+                } catch (parseError) {
+                    console.error('❌ JSON parsing also failed:', parseError);
+                    return null;
+                }
+            }
+        }
+
         // Initialize API
         const legalAPI = new LegalAPI();
 
@@ -1086,14 +1119,29 @@
                 console.log('🔍 DEBUG: Dashboard API response:', result);
                 console.log('🔍 DEBUG: Response success:', result.success);
                 console.log('🔍 DEBUG: Dashboard data:', result.dashboard_data);
-                if (result.dashboard_data) {
-                    console.log('🔍 DEBUG: Cases count:', result.dashboard_data.cases ? result.dashboard_data.cases.length : 'No cases array');
-                    console.log('🔍 DEBUG: First case:', result.dashboard_data.cases ? result.dashboard_data.cases[0] : 'No cases');
+                console.log('🔍 DEBUG: Compressed:', result.compressed);
+                
+                // Handle compressed data
+                let dashboardData = result.dashboard_data;
+                if (result.compressed && typeof dashboardData === 'string') {
+                    console.log('🗜️ DEBUG: Data is compressed, decompressing...');
+                    dashboardData = decompressData(dashboardData);
+                    if (!dashboardData) {
+                        console.error('❌ Failed to decompress data');
+                        showNotification('❌ Failed to load dashboard data', 'error');
+                        isLoading = false;
+                        return;
+                    }
+                    console.log('✅ DEBUG: Data decompressed successfully');
                 }
                 
-                if (result.success && result.dashboard_data) {
+                if (dashboardData) {
+                    console.log('🔍 DEBUG: Cases count:', dashboardData.cases ? dashboardData.cases.length : 'No cases array');
+                    console.log('🔍 DEBUG: First case:', dashboardData.cases ? dashboardData.cases[0] : 'No cases');
+                }
+                
+                if (result.success && dashboardData) {
                     // Validate the dashboard data structure
-                    const dashboardData = result.dashboard_data;
                     const cases = dashboardData.cases || [];
                     const clients = dashboardData.clients || [];
                     const calendarEvents = dashboardData.calendar_events || [];
