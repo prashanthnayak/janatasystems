@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <script src="config.js"></script>
+    <script src="common.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cases Management - LegalPro</title>
@@ -25,26 +25,12 @@
             min-height: 100vh;
         }
 
-        /* All sidebar styles moved to shared-dashboard-styles.css */
-
-        /* Nav menu styles moved to shared-dashboard-styles.css */
-
-        /* All navigation styles moved to shared-dashboard-styles.css */
-
         /* Main Content */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 20px;
         }
-
-        /* Header styles moved to shared-dashboard-styles.css */
-
-        /* Header h1 styles moved to shared-dashboard-styles.css */
-
-        /* Second header definition removed - using shared-dashboard-styles.css */
-
-        /* Duplicate header h1 styles removed - using shared-dashboard-styles.css */
 
         .header-actions {
             display: flex;
@@ -217,8 +203,6 @@
             justify-content: center;
         }
 
-        /* Action button styles moved to shared-dashboard-styles.css */
-
         /* Pagination */
         .pagination {
             display: flex;
@@ -276,19 +260,6 @@
                     <i>📅</i>
                     <span>Calendar</span>
                 </a>
-                <!-- Documents and Billing tabs removed as requested -->
-                <!-- <a href="documents.html" class="nav-item">
-                    <i>📋</i>
-                    <span>Documents</span>
-                </a>
-                <a href="billing.html" class="nav-item">
-                    <i>💰</i>
-                    <span>Billing</span>
-                </a> -->
-                <!-- <a href="settings.html" class="nav-item">
-                    <i>⚙️</i>
-                    <span>Settings</span>
-                </a> -->
             </nav>
         </div>
 
@@ -352,7 +323,7 @@
     
     <!-- Database Integration Script -->
     <script>
-        // LegalAPI class definition
+        // LegalAPI class definition - copied from dashboard
         class LegalAPI {
             constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
@@ -370,7 +341,7 @@
                 }
             }
 
-            // Get all cases
+            // Get all cases - direct API call only
             async getCases(userId = null, limit = 50, offset = 0) {
                 try {
                     // Ensure API is initialized
@@ -415,17 +386,6 @@
                     return { success: false, error: error.message };
                 }
             }
-
-            // Get scraping status
-            async getScrapingStatus(cnrNumber) {
-                try {
-                    const response = await fetch(`${this.baseUrl}/scraping/status/${cnrNumber}`);
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error getting scraping status:', error);
-                    return { success: false, error: error.message };
-                }
-            }
         }
 
         // Initialize API
@@ -438,99 +398,40 @@
         let currentPage = 1;
         const casesPerPage = 5;
 
-        // Notification function
-        // Load cases from database on page load
+        // SIMPLE CASES LOADING - NO CACHE, DIRECT API CALLS ONLY
         async function loadCasesFromDatabase() {
             try {
-                console.log('🔍 DEBUG: Starting loadCasesFromDatabase...');
+                console.log('🚀 Loading cases directly from API...');
                 
-                // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
-                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
-                const cacheVersion = localStorage.getItem('cacheVersion') || '0';
+                // Ensure config is initialized
+                if (!config.initialized) {
+                    await config.init();
+                }
                 
-                // Check if cache is valid (within last 5 minutes)
-                const cacheAge = Date.now() - parseInt(cacheVersion);
-                const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
+                // Get authentication token
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    console.error('❌ No authentication token found');
+                    return;
+                }
                 
-                if (cachedDataFromStorage && cacheAge < maxCacheAge) {
-                    try {
-                        const parsedData = JSON.parse(cachedDataFromStorage);
-                        console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
-                        
-                        if (parsedData.cases) {
-                            console.log('🚀 FAST MODE: Using cached data from localStorage!');
-                            console.log('🚀 DEBUG: Cached cases count:', parsedData.cases.length);
-                            const cachedCases = parsedData.cases;
-                            
-                            allCases = cachedCases.map(caseData => ({
-                                id: caseData.id,
-                                name: caseData.case_title || 'Untitled Case',
-                                client: caseData.petitioner || 'N/A',
-                                cnr_number: caseData.cnr_number,
-                                type: caseData.case_type || 'Unknown',
-                                date: caseData.filing_date || caseData.created_at,
-                                status: caseData.status || 'Pending',
-                                court_name: caseData.court_name,
-                                judge_name: caseData.judge_name,
-                                registration_number: caseData.registration_number
-                            }));
-                            
-                            currentCases = [...allCases];
-                            displayCases();
-                            // showNotification(`✅ Loaded ${allCases.length} cases from localStorage cache (INSTANT!)`, 'success');
-                            return;
-                        }
-                    } catch (parseError) {
-                        console.error('❌ Error parsing localStorage data:', parseError);
+                // Make direct API call
+                const response = await fetch(config.getApiUrl('/cases'), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
-                } else if (cachedDataFromStorage && cacheAge > maxCacheAge) {
-                    console.log('🔄 Cache expired, clearing old data');
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed: ${response.status}`);
                 }
                 
-                // SECOND: Check if we have cached data from dashboard (same page)
-                console.log('🔍 DEBUG: window.userDashboardData exists?', !!window.userDashboardData);
-                console.log('🔍 DEBUG: window.userDashboardData.cases exists?', !!(window.userDashboardData && window.userDashboardData.cases));
+                const result = await response.json();
+                console.log('🔍 Cases API response:', result);
                 
-                if (window.userDashboardData && window.userDashboardData.cases) {
-                    console.log('🚀 FAST MODE: Using cached data from dashboard!');
-                    console.log('🚀 DEBUG: Cached cases count:', window.userDashboardData.cases.length);
-                    const cachedCases = window.userDashboardData.cases;
-                    
-                    allCases = cachedCases.map(caseData => ({
-                        id: caseData.id,
-                        name: caseData.case_title || 'Untitled Case',
-                        client: caseData.petitioner || 'N/A',
-                        cnr_number: caseData.cnr_number,
-                        type: caseData.case_type || 'Unknown',
-                        date: caseData.filing_date || caseData.created_at,
-                        status: caseData.status || 'Pending',
-                        court_name: caseData.court_name,
-                        judge_name: caseData.judge_name,
-                        registration_number: caseData.registration_number
-                    }));
-                    
-                    currentCases = [...allCases];
-                    displayCases();
-                    //showNotification(`✅ Loaded ${allCases.length} cases from cache (INSTANT!)`, 'success');
-                    return;
-                }
-                
-                // THIRD: Fallback to API call if no cached data
-                console.log('🔄 SLOW MODE: No cached data, loading from API...');
-                console.log('🔄 DEBUG: Available global data:', Object.keys(window).filter(key => key.includes('user') || key.includes('case')));
-                
-                // Debug: Check if legalAPI is defined
-                if (typeof legalAPI === 'undefined') {
-                    console.error('legalAPI is not defined!');
-                    //showNotification('❌ legalAPI is not defined', 'error');
-                    loadSampleData();
-                    return;
-                }
-                
-                const result = await legalAPI.getCases();
-                if (result.success) {
+                if (result.success && result.cases) {
                     allCases = result.cases.map(caseData => ({
                         id: caseData.id,
                         name: caseData.case_title || 'Untitled Case',
@@ -545,21 +446,21 @@
                     }));
                     
                     currentCases = [...allCases];
+                    console.log('✅ API LOADED:', allCases.length, 'cases');
+                    
+                    // Display cases
                     displayCases();
-                    showNotification(`✅ Loaded ${allCases.length} cases from API`, 'success');
                 } else {
-                    showNotification(`❌ Error loading cases: ${result.error}`, 'error');
-                    // Fallback to sample data
+                    console.error('❌ API returned error:', result.error);
                     loadSampleData();
                 }
+                
             } catch (error) {
-                showNotification(`❌ Network Error: ${error.message}`, 'error');
-                // Fallback to sample data
+                console.error('❌ Error loading cases:', error);
                 loadSampleData();
             }
         }
 
-        // Show no data when database fails
         function loadSampleData() {
             allCases = [];
             currentCases = [];
@@ -574,7 +475,8 @@
 
             currentCases = allCases.filter(caseItem => {
                 const matchesSearch = caseItem.name.toLowerCase().includes(searchTerm) ||
-                                    caseItem.client.toLowerCase().includes(searchTerm);
+                                    caseItem.client.toLowerCase().includes(searchTerm) ||
+                                    caseItem.cnr_number.toLowerCase().includes(searchTerm);
                 const matchesType = typeFilter === '' || caseItem.type === typeFilter;
 
                 return matchesSearch && matchesType;
@@ -698,4 +600,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
