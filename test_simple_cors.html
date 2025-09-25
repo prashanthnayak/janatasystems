@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple CORS Test</title>
+</head>
+<body>
+    <h1>Simple CORS Test</h1>
+    <button onclick="testCORS()">Test CORS</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCORS() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testing CORS...</p>';
+            
+            try {
+                // Test OPTIONS request first
+                console.log('Testing OPTIONS request...');
+                const optionsResponse = await fetch('http://18.234.219.146:5002/api/cases/save', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'http://18.234.219.146:8000',
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type,Authorization'
+                    }
+                });
+                
+                console.log('OPTIONS response:', optionsResponse.status);
+                console.log('OPTIONS headers:', [...optionsResponse.headers.entries()]);
+                
+                if (optionsResponse.ok) {
+                    resultDiv.innerHTML += '<p style="color: green;">✅ OPTIONS request successful!</p>';
+                    
+                    // Now test POST request
+                    console.log('Testing POST request...');
+                    const postResponse = await fetch('http://18.234.219.146:5002/api/cases/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer test-token'
+                        },
+                        body: JSON.stringify({
+                            cnr_number: 'TEST123',
+                            user_data: { case_title: 'Test' }
+                        })
+                    });
+                    
+                    console.log('POST response:', postResponse.status);
+                    const postResult = await postResponse.text();
+                    console.log('POST result:', postResult);
+                    
+                    if (postResponse.status === 401) {
+                        resultDiv.innerHTML += '<p style="color: orange;">⚠️ POST request got 401 (expected - no valid token)</p>';
+                        resultDiv.innerHTML += '<p style="color: green;">✅ CORS is working! The 401 is just because we used a test token.</p>';
+                    } else {
+                        resultDiv.innerHTML += `<p>POST response: ${postResponse.status}</p>`;
+                    }
+                    
+                } else {
+                    resultDiv.innerHTML += `<p style="color: red;">❌ OPTIONS request failed: ${optionsResponse.status}</p>`;
+                }
+                
+            } catch (error) {
+                console.error('CORS test error:', error);
+                resultDiv.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
