@@ -25,6 +25,8 @@ class Config {
         
         this.initialized = true;
         console.log(`🌐 API Host configured: ${this.API_HOST}`);
+        console.log(`🔍 DEBUG: API_HOST = "${this.API_HOST}"`);
+        console.log(`🔍 DEBUG: API_PORT = "${this.API_PORT}"`);
     }
 
     async getServerIP() {
@@ -61,7 +63,9 @@ class Config {
         }
         
         const baseUrl = `http://${this.API_HOST}:${this.API_PORT}/api`;
-        return endpoint ? `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}` : baseUrl;
+        const result = endpoint ? `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}` : baseUrl;
+        console.log(`🔍 DEBUG: getApiUrl('${endpoint}') = "${result}"`);
+        return result;
     }
 
     getWebUrl(path = '') {
