@@ -1083,6 +1083,14 @@
 
         async function loadDashboardData(forceRefresh = false) {
             try {
+                // Check if cache was cleared (e.g., after delete operation)
+                const cacheCleared = localStorage.getItem('cacheCleared');
+                if (cacheCleared === 'true') {
+                    console.log('🗑️ Cache was cleared, forcing refresh...');
+                    forceRefresh = true;
+                    localStorage.removeItem('cacheCleared'); // Clear the flag
+                }
+                
                 // Prevent duplicate loads
                 if (isLoading && !forceRefresh) {
                     console.log('🔄 Dashboard already loading, skipping duplicate request');
