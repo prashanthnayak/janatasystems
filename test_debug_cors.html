@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug CORS Test</title>
+</head>
+<body>
+    <h1>Debug CORS Test</h1>
+    <button onclick="testDebugCORS()">Test Debug CORS</button>
+    <div id="result"></div>
+
+    <script>
+        async function testDebugCORS() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testing debug CORS...</p>';
+            
+            try {
+                // Get token from localStorage (you need to login first)
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    resultDiv.innerHTML += '<p style="color: red;">❌ No token found. Please login first.</p>';
+                    return;
+                }
+                
+                resultDiv.innerHTML += `<p>Token: ${token.substring(0, 20)}...</p>`;
+                
+                // Test the exact same request as debug page
+                console.log('Testing debug request...');
+                const response = await fetch('http://18.234.219.146:5002/api/cases/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        cnr_number: 'TEST999999999',
+                        user_data: {
+                            case_title: 'Debug Test Case',
+                            client_name: 'Debug Client',
+                            client_phone: '9876543210',
+                            client_email: 'debug@test.com',
+                            case_type: 'Civil',
+                            court_name: 'Debug Court',
+                            filing_date: '2024-01-01',
+                            case_description: 'This is a debug test case',
+                            registration_number: null
+                        }
+                    })
+                });
+                
+                console.log('Debug response:', response.status);
+                const result = await response.json();
+                console.log('Debug result:', result);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML += '<p style="color: green;">✅ Debug request successful!</p>';
+                    resultDiv.innerHTML += `<p>Response: ${JSON.stringify(result, null, 2)}</p>`;
+                } else {
+                    resultDiv.innerHTML += `<p style="color: red;">❌ Debug request failed: ${response.status}</p>`;
+                    resultDiv.innerHTML += `<p>Error: ${result.error || 'Unknown error'}</p>`;
+                }
+                
+            } catch (error) {
+                console.error('Debug CORS test error:', error);
+                resultDiv.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
