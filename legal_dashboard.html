@@ -1154,6 +1154,8 @@
                 }
                 
                 if (dashboardData) {
+                    console.log('🔍 DEBUG: Full dashboardData structure:', dashboardData);
+                    console.log('🔍 DEBUG: dashboardData.dashboard_data:', dashboardData.dashboard_data);
                     console.log('🔍 DEBUG: Cases count:', dashboardData.dashboard_data?.cases ? dashboardData.dashboard_data.cases.length : 'No cases array');
                     console.log('🔍 DEBUG: First case:', dashboardData.dashboard_data?.cases ? dashboardData.dashboard_data.cases[0] : 'No cases');
                 }
