@@ -756,13 +756,7 @@ def get_user_dashboard_data():
         return jsonify({'success': False, 'error': 'Authorization header required'}), 401
     
     token = auth_header.split(' ')[1]
-    user = get_cached_user(token)
-    
-    # If not in cache, query database and cache the result
-    if not user:
-        user = legal_api.db.get_user_by_session(token)
-        if user:
-            cache_user(token, user)
+    user = legal_api.db.get_user_by_session(token)
     
     if not user:
         return jsonify({'success': False, 'error': 'Invalid session'}), 401
@@ -898,33 +892,17 @@ def get_user_dashboard_data():
         }
         
         # Generate ETag for conditional requests
-        etag = generate_etag(response_data)
+        # NO CACHING - Always send fresh data
         
-        # Check if client has current version (ETag)
-        if_none_match = request.headers.get('If-None-Match')
-        if if_none_match == etag:
-            print(f"📦 ETag match for user {user['username']}, returning 304 Not Modified")
-            return '', 304  # Not Modified
-        
-        # Check if client accepts compression (DISABLED for now)
-        # accept_encoding = request.headers.get('Accept-Encoding', '')
-        # if 'gzip' in accept_encoding:
-        #     try:
-        #         compressed_data = compress_data(response_data['dashboard_data'])
-        #         response_data['dashboard_data'] = compressed_data
-        #         response_data['compressed'] = True
-        #         print(f"🗜️ Compressed dashboard data for user {user['username']}")
-        #     except Exception as e:
-        #         print(f"❌ Compression failed: {e}")
-        
-        # For now, always send uncompressed data
+        # NO CACHING - Always send fresh data
         response_data['compressed'] = False
-        print(f"📦 Sending uncompressed dashboard data for user {user['username']}")
+        print(f"📦 Sending fresh dashboard data for user {user['username']}")
         
         response = jsonify(response_data)
-        response.headers['ETag'] = etag
-        response.headers['Cache-Control'] = 'max-age=300, must-revalidate'  # 5 minutes
-        response.headers['Last-Modified'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
+        # NO CACHE HEADERS - Always fresh data
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
         
         return response
         
