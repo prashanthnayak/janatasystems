@@ -529,8 +529,24 @@
             displayCases();
             showNotification('No cases found. Add your first case to get started.', 'info');
         }
-                if (window.cacheManager && window.cacheManager.isCacheValid()) {
-                    const cachedData = window.cacheManager.getCachedData();
+
+        // Search functionality
+        function searchCases() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            currentCases = allCases.filter(caseItem => {
+                const matchesSearch = caseItem.name.toLowerCase().includes(searchTerm) ||
+                                    caseItem.client.toLowerCase().includes(searchTerm) ||
+                                    caseItem.cnr_number.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilter === '' || caseItem.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+
+            currentPage = 1;
+            displayCases();
+            updatePagination();
+        }
                     if (cachedData && cachedData.cases) {
                         console.log('🚀 FAST MODE: Using CacheManager cached data!');
                         console.log('🚀 DEBUG: Cached cases count:', cachedData.cases.length);
