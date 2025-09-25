@@ -423,6 +423,7 @@
                         await config.init();
                     }
                     this.baseUrl = config.getApiUrl('');
+                    console.log('🔍 DEBUG: LegalAPI baseUrl set to:', this.baseUrl);
                     this.initialized = true;
                     console.log('🔧 Edit Case LegalAPI initialized with baseUrl:', this.baseUrl);
                 }
@@ -444,7 +445,9 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`, {
+                    const fullUrl = `${this.baseUrl}/cases/${cnrNumber}`;
+                    console.log('🔍 DEBUG: GET case URL:', fullUrl);
+                    const response = await fetch(fullUrl, {
                         headers: headers
                     });
                     return await response.json();
@@ -470,7 +473,9 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`, {
+                    const fullUrl = `${this.baseUrl}/cases/${cnrNumber}`;
+                    console.log('🔍 DEBUG: UPDATE case URL:', fullUrl);
+                    const response = await fetch(fullUrl, {
                         method: 'PUT',
                         headers: headers,
                         body: JSON.stringify(caseData)
@@ -494,7 +499,9 @@
                     
                     console.log('🗑️ Deleting case:', cnrNumber);
                     
-                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`, {
+                    const fullUrl = `${this.baseUrl}/cases/${cnrNumber}`;
+                    console.log('🔍 DEBUG: DELETE case URL:', fullUrl);
+                    const response = await fetch(fullUrl, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
