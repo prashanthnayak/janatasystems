@@ -594,7 +594,7 @@
                         await this.init();
                     }
                     
-                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`);
+                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`);
                     return await response.json();
                 } catch (error) {
                     console.error('Error getting case:', error);
@@ -675,7 +675,7 @@
                 }
                 
                 // Check if case exists
-                const checkUrl = config.getApiUrl(`/cases/${cnrNumber}`);
+                const checkUrl = config.getApiUrl(`/api/cases/${cnrNumber}`);
                 const checkResponse = await fetch(checkUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -738,9 +738,9 @@
                 console.log('🔍 ADD CASE DEBUG: About to save case to database');
                 console.log('🔍 ADD CASE DEBUG: CNR Number:', cnrNumber);
                 console.log('🔍 ADD CASE DEBUG: User Data:', userData);
-                console.log('🔍 ADD CASE DEBUG: API URL:', config.getApiUrl('/cases/save'));
+                console.log('🔍 ADD CASE DEBUG: API URL:', config.getApiUrl('/api/cases/save'));
                 
-                const response = await fetch(config.getApiUrl('/cases/save'), {
+                const response = await fetch(config.getApiUrl('/api/cases/save'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -820,7 +820,7 @@
                 }
                 
                 // Check if case exists
-                const checkUrl = config.getApiUrl(`/cases/${cnrNumber}`);
+                const checkUrl = config.getApiUrl(`/api/cases/${cnrNumber}`);
                 console.log('🔍 Checking URL:', checkUrl);
                 
                 const checkResponse = await fetch(checkUrl, {
