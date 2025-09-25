@@ -594,7 +594,7 @@
                         await this.init();
                     }
                     
-                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`);
+                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`);
                     return await response.json();
                 } catch (error) {
                     console.error('Error getting case:', error);
@@ -778,7 +778,7 @@
                     console.log('💾 Smart cache update completed');
                     
                     // Redirect to cases list with refresh parameter (with small delay to ensure cache flag is set)
-                    setTimeout(() => {
+                        setTimeout(() => {
                         window.location.href = 'cases.html?refresh=' + Date.now();
                     }, 500); // Small delay to ensure cache flag is set
                     } else {
@@ -981,7 +981,7 @@
         }
 
         // Simple notification system - Old commented function removed
-        
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🔄 DOM Content Loaded - Initializing page...');
