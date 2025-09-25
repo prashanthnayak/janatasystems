@@ -1143,6 +1143,7 @@
                 console.log('🔍 DEBUG: Response success:', result.success);
                 console.log('🔍 DEBUG: Dashboard data:', result.dashboard_data);
                 console.log('🔍 DEBUG: Compressed:', result.compressed);
+                console.log('🔍 DEBUG: Full result structure:', JSON.stringify(result, null, 2));
                 
                 // Handle compressed data
                 let dashboardData = result.dashboard_data;
