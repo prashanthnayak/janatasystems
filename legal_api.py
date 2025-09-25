@@ -427,10 +427,9 @@ def trigger_scraping(cnr_number):
     return jsonify(legal_api.trigger_scraping(cnr_number))
 
 @app.route('/api/cases/save', methods=['POST', 'OPTIONS'])
-@require_auth
 def save_case():
     """Step 3: Save case to database"""
-    # Handle CORS preflight request
+    # Handle CORS preflight request BEFORE authentication
     if request.method == 'OPTIONS':
         response = make_response('', 200)
         response.headers['Access-Control-Allow-Origin'] = '*'
@@ -438,18 +437,18 @@ def save_case():
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
         return response
     
+    # Apply authentication only for POST requests
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'success': False, 'error': 'Authorization header required'}), 401
+    
+    token = auth_header.split(' ')[1]
+    user = legal_api.db.get_user_by_session(token)
+    
+    if not user:
+        return jsonify({'success': False, 'error': 'Invalid session'}), 401
+    
     try:
-        # Get user from token
-        auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({'success': False, 'error': 'Authorization header required'}), 401
-        
-        token = auth_header.split(' ')[1]
-        user = legal_api.db.get_user_by_session(token)
-        
-        if not user:
-            return jsonify({'success': False, 'error': 'Invalid session'}), 401
-        
         data = request.get_json()
         cnr_number = data.get('cnr_number')
         user_data = data.get('user_data', {})
