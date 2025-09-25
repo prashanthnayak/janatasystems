@@ -608,8 +608,8 @@
                     return;
                 }
                 
-                // Make direct API call to get cases
-                const response = await fetch(config.getApiUrl('/cases'), {
+                // Make direct API call to dashboard-data endpoint (same as dashboard/calendar)
+                const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -622,10 +622,10 @@
                 }
                 
                 const result = await response.json();
-                console.log('🔍 Cases API response:', result);
+                console.log('🔍 Dashboard API response:', result);
                 
-                if (result.success && result.cases) {
-                    const cases = result.cases;
+                if (result.success && result.dashboard_data && result.dashboard_data.cases) {
+                    const cases = result.dashboard_data.cases;
                     const clientsMap = new Map();
 
                     // Extract unique clients from case data
@@ -775,7 +775,7 @@
 
                     allClients = Array.from(clientsMap.values());
                     currentClients = [...allClients];
-                    console.log('✅ API LOADED:', allClients.length, 'clients');
+                    console.log('✅ API LOADED:', allClients.length, 'clients from dashboard-data endpoint');
                     
                     // If no real clients found, show message
                     if (allClients.length === 0) {
