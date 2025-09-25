@@ -610,28 +610,90 @@
         // Load clients from case data
         async function loadClientsFromCases() {
             try {
-                // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
-                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
-                const cacheVersion = localStorage.getItem('cacheVersion') || '0';
+                console.log('🚀 Loading clients directly from API...');
                 
-                // Check if cache is valid (within last 5 minutes)
-                const cacheAge = Date.now() - parseInt(cacheVersion);
-                const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
+                // Ensure config is initialized
+                if (!config.initialized) {
+                    await config.init();
+                }
                 
-                if (cachedDataFromStorage && cacheAge < maxCacheAge) {
-                    try {
-                        const parsedData = JSON.parse(cachedDataFromStorage);
-                        console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
+                // Get authentication token
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    console.error('❌ No authentication token found');
+                    return;
+                }
+                
+                // Make direct API call to get cases
+                const response = await fetch(config.getApiUrl('/cases'), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('🔍 Cases API response:', result);
+                
+                if (result.success && result.cases) {
+                    const cases = result.cases;
+                    console.log('✅ API LOADED:', cases.length, 'cases');
+                    
+                    // Group cases by client (phone number or name)
+                    const clientMap = new Map();
+                    
+                    cases.forEach(caseData => {
+                        const clientPhone = caseData.client_phone || 'NP';
+                        const clientEmail = caseData.client_email || 'NP';
+                        const clientName = caseData.client_name || 'Unknown Client';
                         
-                        if (parsedData.cases) {
-                            console.log('🚀 FAST MODE: Using cached data from localStorage!');
-                            const cases = parsedData.cases;
-                            const clientsMap = new Map();
+                        // Use phone as primary key, fallback to name
+                        const clientKey = clientPhone !== 'NP' ? clientPhone : clientName;
+                        
+                        if (!clientMap.has(clientKey)) {
+                            clientMap.set(clientKey, {
+                                name: clientName,
+                                phone: clientPhone,
+                                email: clientEmail,
+                                cases: [],
+                                totalCases: 0
+                            });
+                        }
+                        
+                        clientMap.get(clientKey).cases.push({
+                            cnr: caseData.cnr_number,
+                            title: caseData.case_title,
+                            type: caseData.case_type,
+                            status: caseData.status,
+                            court: caseData.court_name
+                        });
+                        clientMap.get(clientKey).totalCases++;
+                    });
+                    
+                    // Convert map to array
+                    allClients = Array.from(clientMap.values());
+                    currentClients = [...allClients];
+                    
+                    console.log('✅ CLIENTS PROCESSED:', allClients.length, 'unique clients');
+                    
+                    // Display clients
+                    displayClients();
+                } else {
+                    console.error('❌ API returned error:', result.error);
+                    showNoClientsMessage();
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading clients:', error);
+                showNoClientsMessage();
+            }
 
-                            // Extract unique clients based on phone number (primary) or name (fallback)
-                            cases.forEach(caseData => {
-                                // Add client_name as primary client
-                                if (caseData.client_name && caseData.client_name.trim() && caseData.client_name !== 'Unknown') {
+        }
                                     const clientName = caseData.client_name;
                                     const clientPhone = caseData.client_phone || '';
                                     const clientEmail = caseData.client_email || '';
@@ -1244,28 +1306,10 @@
         document.getElementById('typeFilter').addEventListener('change', searchClients);
         document.getElementById('statusFilter').addEventListener('change', searchClients);
 
-        // Listen for cache updates from other pages
+        // Simple cache listener (no complex logic)
         function listenForCacheUpdates() {
-            let lastCacheUpdate = localStorage.getItem('cacheUpdated');
-            
-            setInterval(() => {
-                const currentCacheUpdate = localStorage.getItem('cacheUpdated');
-                if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
-                    console.log('👥 Cache updated by another page, refreshing clients...');
-                    
-                    // Clear cache and reload data immediately (like calendar)
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
-                    // Don't clear cacheUpdated immediately - let other pages detect it too
-                    if (window.userDashboardData) {
-                        delete window.userDashboardData;
-                    }
-                    console.log('👥 Clients: Cleared cache and reloading data...');
-                    
-                    lastCacheUpdate = currentCacheUpdate;
-                    loadClientsFromCases(); // Reload clients data
-                }
-            }, 1000); // Check every second
+            // No complex cache listening - just direct API calls
+            console.log('📅 Cache listener disabled - using direct API calls only');
         }
 
         // Load clients when page loads
