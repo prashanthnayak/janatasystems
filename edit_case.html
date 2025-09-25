@@ -708,16 +708,25 @@
                     console.log('🗑️ API response:', result);
                     if (result.success) {
                         console.log('🗑️ Delete successful!');
-                        CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
+                        showNotification('Case deleted successfully!', 'success');
                         
                         // Set flag for dashboard to refresh
                         localStorage.setItem('recentOperation', 'delete');
                         console.log('🗑️ Set recentOperation flag for dashboard refresh');
                         
+                        // Clear cache immediately
+                        localStorage.removeItem('userDashboardData');
+                        localStorage.removeItem('cacheVersion');
+                        localStorage.removeItem('cacheUpdated');
+                        if (window.userDashboardData) {
+                            delete window.userDashboardData;
+                        }
+                        console.log('🗑️ Cache cleared after delete');
+                        
                         // Redirect immediately to cases page with refresh parameter
                         window.location.href = 'cases.html?refresh=' + Date.now();
                     } else {
-                        CommonUtils.Alert.show('Error', 'Failed to delete case: ' + result.error, 'error');
+                        showNotification('Failed to delete case: ' + result.error, 'error');
                     }
                 } catch (error) {
                     alert('Error deleting case: ' + error.message);
