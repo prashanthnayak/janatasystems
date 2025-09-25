@@ -4,7 +4,7 @@
  */
 
 // Logging system - centralized console logging
-const Logger = {
+const Logger = window.Logger || {
     debug: (message, ...args) => {
         if (window.DEBUG_MODE !== false) {
             console.log(`🔍 ${message}`, ...args);
@@ -38,6 +38,9 @@ const Logger = {
         console.log(`✏️ ${message}`, ...args);
     }
 };
+
+// Make Logger available globally to prevent redeclaration errors
+window.Logger = Logger;
 
 // Notification system
 let notificationStack = [];
