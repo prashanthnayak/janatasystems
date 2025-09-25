@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <script src="config.js"></script>
@@ -9,498 +8,171 @@
     <title>Cases Management - LegalPro</title>
     <link rel="stylesheet" href="shared-dashboard-styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9fbfc;
-            color: #232323;
-        }
-
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* All sidebar styles moved to shared-dashboard-styles.css */
-
-        /* Nav menu styles moved to shared-dashboard-styles.css */
-
-        /* All navigation styles moved to shared-dashboard-styles.css */
-
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            flex: 1;
+        .cases-container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
         }
-
-        /* Header styles moved to shared-dashboard-styles.css */
-
-        /* Header h1 styles moved to shared-dashboard-styles.css */
-
-        /* Second header definition removed - using shared-dashboard-styles.css */
-
-        /* Duplicate header h1 styles removed - using shared-dashboard-styles.css */
-
-        .header-actions {
+        
+        .cases-header {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
         }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2);
-        }
-
-        .btn-primary {
-            background: #1e3a8a;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-secondary {
-            background: #ecf0f1;
-            color: #2c3e50;
-        }
-
-        .btn-secondary:hover {
-            background: #bdc3c7;
-        }
-
-        /* Search and Filters */
+        
         .search-filters {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .search-row {
             display: flex;
             gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-
-        .search-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 2px solid #ecf0f1;
-            border-radius: 6px;
-            font-size: 14px;
+        
+        .search-filters input,
+        .search-filters select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #1e3a8a;
-        }
-
-        .filter-select {
-            padding: 10px 15px;
-            border: 2px solid #ecf0f1;
-            border-radius: 6px;
-            background: white;
-            font-size: 14px;
-        }
-
-        /* Cases Table */
+        
         .cases-table {
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
+        
         .table-header {
             background: #f8f9fa;
-            padding: 18px 25px;
-            border-bottom: 2px solid #ecf0f1;
-            font-weight: 600;
-            color: #2c3e50;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
         }
-
-        .table-header .table-row {
-            border-bottom: none;
+        
+        .table-body {
             padding: 0;
         }
-
-        .table-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 120px;
-            gap: 25px;
-            padding: 18px 25px;
-            border-bottom: 1px solid #ecf0f1;
-            align-items: center;
-            transition: background 0.3s;
+        
+        .table-body tr {
+            border-bottom: 1px solid #dee2e6;
         }
-
-        .table-row > div:nth-child(4) {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .table-row:hover {
-            background: #f8f9fa;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .table-row:last-child {
+        
+        .table-body tr:last-child {
             border-bottom: none;
         }
-
-        .case-name {
-            font-weight: 600;
-            color: #2c3e50;
+        
+        .table-body td {
+            padding: 15px 20px;
+            vertical-align: middle;
         }
-
-        .case-title {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 6px;
-            font-size: 15px;
-        }
-
-        .case-cnr {
-            font-size: 13px;
-            color: #7f8c8d;
-            font-weight: normal;
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-        }
-
-        .no-data button {
-            margin-top: 15px;
-        }
-
-        .case-type {
-            color: #2c3e50;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .case-client {
-            color: #2c3e50;
-        }
-
-        .case-date {
-            color: #7f8c8d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .case-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        /* Action button styles moved to shared-dashboard-styles.css */
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-            padding: 20px;
-        }
-
-        .page-btn {
-            padding: 8px 12px;
-            border: 1px solid #ecf0f1;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .page-btn:hover {
-            background: #fef5e7;
-            color: #2c3e50;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(243, 156, 18, 0.2);
-        }
-
-        .page-btn.active {
-            background: #1e3a8a;
-            color: white;
-        }
-        .no-data i {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: #dee2e6;
-        }
-
+        
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
-
+        
         .action-btn {
-            padding: 6px 10px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
+            font-size: 14px;
         }
-
+        
         .action-btn-view {
             background: #007bff;
             color: white;
         }
-
-        .action-btn-view:hover {
-            background: #0056b3;
-        }
-
+        
         .action-btn-edit {
             background: #28a745;
             color: white;
         }
-
-        .action-btn-edit:hover {
-            background: #1e7e34;
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .page-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>LegalPro</h2>
-                <p>Management System</p>
-            </div>
-            <nav class="nav-menu">
-                <a href="legal_dashboard.html" class="nav-item">
-                    <i>📊</i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="cases.html" class="nav-item active">
-                    <i>📁</i>
-                    <span>Cases</span>
-                </a>
-                <a href="clients.html" class="nav-item">
-                    <i>👥</i>
-                    <span>Clients</span>
-                </a>
-                <a href="calendar.html" class="nav-item">
-                    <i>📅</i>
-                    <span>Calendar</span>
-                </a>
-                <!-- Documents and Billing tabs removed as requested -->
-                <!-- <a href="documents.html" class="nav-item">
-                    <i>📋</i>
-                    <span>Documents</span>
-                </a>
-                <a href="billing.html" class="nav-item">
-                    <i>💰</i>
-                    <span>Billing</span>
-                </a> -->
-                <!-- <a href="settings.html" class="nav-item">
-                    <i>⚙️</i>
-                    <span>Settings</span>
-                </a> -->
-            </nav>
+    <div class="cases-container">
+        <div class="cases-header">
+            <h1>Cases Management</h1>
+            <button class="btn btn-primary" onclick="window.location.href='add_case.html'">
+                <i class="fas fa-plus"></i> Add New Case
+            </button>
         </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Header -->
-            <div class="header">
-                <h1>Cases Management</h1>
-                <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="clearAllCache()" title="Clear all cached data">
-                        <i class="fas fa-sync-alt"></i> Clear Cache
-                    </button>
-                    <button class="btn btn-primary" onclick="window.location.href='add_case.html'">+ Add Case</button>
-                </div>
+        
+        <div class="search-filters">
+            <input type="text" id="searchInput" placeholder="Search cases..." style="flex: 1;">
+            <select id="typeFilter">
+                <option value="">All Types</option>
+                <option value="Civil">Civil</option>
+                <option value="Criminal">Criminal</option>
+                <option value="Family">Family</option>
+                <option value="Commercial">Commercial</option>
+            </select>
+        </div>
+        
+        <div class="cases-table">
+            <div class="table-header">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th>Case Title</th>
+                            <th>Client</th>
+                            <th>CNR Number</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
-
-            <!-- Search and Filters -->
-            <div class="search-filters">
-                <div class="search-row">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search cases by name, client, or case number...">
-                    <select id="typeFilter" class="filter-select">
-                        <option value="">All Types</option>
-                        <option value="Civil">Civil</option>
-                        <option value="Criminal">Criminal</option>
-                        <option value="Commercial">Commercial</option>
-                        <option value="Family">Family</option>
-                        <option value="Probate">Probate</option>
-                        <option value="Traffic">Traffic</option>
-                        <option value="Employment">Employment</option>
-                        <option value="Immigration">Immigration</option>
-                    </select>
-                </div>
+            <div class="table-body">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody class="table-body">
+                        <!-- Cases will be loaded here -->
+                    </tbody>
+                </table>
             </div>
-
-            <!-- Cases Table -->
-            <div class="cases-table">
-                <div class="table-header">
-                    <div class="table-row">
-                        <div>Case Name</div>
-                        <div>Type</div>
-                        <div>Filing Date</div>
-                        <div>Actions</div>
-                    </div>
-                </div>
-                
-                <div class="table-body">
-                    <!-- Cases will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination">
-                <button class="page-btn">Previous</button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <button class="page-btn">Next</button>
-            </div>
+        </div>
+        
+        <div class="pagination">
+            <!-- Pagination will be generated here -->
         </div>
     </div>
 
-    <!-- Database Integration Script -->
     <script>
-        // LegalAPI class definition
-        class LegalAPI {
-            constructor(baseUrl = null) {
-                this.baseUrl = baseUrl;
-                this.initialized = false;
-            }
-
-            async init() {
-                if (!this.initialized) {
-                    if (!config.initialized) {
-                        await config.init();
-                    }
-                    this.baseUrl = config.getApiUrl('');
-                    this.initialized = true;
-                    console.log('🔧 Cases LegalAPI initialized with baseUrl:', this.baseUrl);
-                }
-            }
-
-            // Get all cases
-            async getCases(userId = null, limit = 50, offset = 0) {
-                try {
-                    // Ensure API is initialized
-                    if (!this.initialized) {
-                        await this.init();
-                    }
-                    
-                    let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
-                    if (userId) url += `&user_id=${userId}`;
-                    
-                    console.log('🔗 Fetching cases from:', url);
-                    
-                    // Get the auth token from localStorage
-                    const token = localStorage.getItem('userToken');
-                    if (!token) {
-                        console.error('❌ No auth token found');
-                        return { success: false, error: 'No authentication token' };
-                    }
-                    
-                    console.log('🔑 Using token:', token.substring(0, 20) + '...');
-                    
-                    const response = await fetch(url, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-                    console.log('📡 Cases API response status:', response.status);
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('❌ Cases API error:', errorText);
-                        return { success: false, error: `API error: ${response.status} - ${errorText}` };
-                    }
-                    
-                    const result = await response.json();
-                    console.log('📊 Cases API result:', result);
-                    return result;
-                } catch (error) {
-                    console.error('Error getting cases:', error);
-                    return { success: false, error: error.message };
-                }
-            }
-
-            // Get scraping status
-            async getScrapingStatus(cnrNumber) {
-                try {
-                    const response = await fetch(`${this.baseUrl}/scraping/status/${cnrNumber}`);
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error getting scraping status:', error);
-                    return { success: false, error: error.message };
-                }
-            }
-        }
-
-        // Initialize API
-        const legalAPI = new LegalAPI();
-    </script>
-    <script>
-        // Database-driven case data
         let allCases = [];
         let currentCases = [];
         let currentPage = 1;
         const casesPerPage = 5;
 
-        // Notification function
-        // Simple cache clear function
-        function clearAllCache() {
-            console.log('🧹 Clearing cache...');
-            localStorage.removeItem('userDashboardData');
-            localStorage.removeItem('cacheVersion');
-            localStorage.removeItem('cacheUpdated');
-            if (window.userDashboardData) {
-                delete window.userDashboardData;
-            }
-            console.log('🧹 Cache cleared, reloading data...');
-            loadCasesFromDatabase();
-        }
-
-        // COPY EXACT DASHBOARD LOGIC - NO CACHE, DIRECT API CALLS
+        // SIMPLE CASES LOADING - NO CACHE, DIRECT API CALLS
         async function loadCasesFromDatabase() {
             try {
                 console.log('🚀 Loading cases directly from API...');
-                
-                // Check if there was a recent operation (add/delete/update)
-                const recentOperation = localStorage.getItem('recentOperation');
-                if (recentOperation) {
-                    console.log('🔄 Recent operation detected:', recentOperation);
-                    localStorage.removeItem('recentOperation'); // Clear the flag
-                }
                 
                 // Ensure config is initialized
                 if (!config.initialized) {
@@ -514,7 +186,7 @@
                     return;
                 }
                 
-                // Make direct API call - SAME AS DASHBOARD
+                // Make direct API call
                 const response = await fetch(config.getApiUrl('/cases'), {
                     method: 'GET',
                     headers: {
@@ -567,7 +239,6 @@
             showNotification('No cases found. Add your first case to get started.', 'info');
         }
 
-        // Search functionality
         function searchCases() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const typeFilter = document.getElementById('typeFilter').value;
@@ -585,28 +256,32 @@
             updatePagination();
         }
 
-        // Display cases for current page
         function displayCases() {
-            console.log('🔍 DEBUG: displayCases() called');
-            console.log('🔍 DEBUG: currentCases length:', currentCases.length);
-            console.log('🔍 DEBUG: currentCases:', currentCases);
-            
-            const tableBody = document.querySelector('.cases-table .table-body');
-            const startIndex = (currentPage - 1) * casesPerPage;
-            const endIndex = startIndex + casesPerPage;
-            const pageCases = currentCases.slice(startIndex, endIndex);
+            const tableBody = document.querySelector('.table-body tbody');
+            if (!tableBody) {
+                console.error('Table body not found');
+                return;
+            }
 
-            console.log('🔍 DEBUG: pageCases length:', pageCases.length);
-            console.log('🔍 DEBUG: pageCases:', pageCases);
-
-            if (pageCases.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="6" class="no-data"><i class="fas fa-folder-open"></i><h3>No Cases Found</h3><p>No cases match your search criteria.</p></td></tr>';
+            if (currentCases.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #7f8c8d;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
+                            <h3>No Cases Found</h3>
+                            <p>No cases match your search criteria or no cases have been added yet.</p>
+                        </td>
+                    </tr>
+                `;
                 updatePagination();
                 return;
             }
 
-            // Generate table rows
-            tableBody.innerHTML = pageCases.map(caseItem => `
+            const startIndex = (currentPage - 1) * casesPerPage;
+            const endIndex = startIndex + casesPerPage;
+            const casesToShow = currentCases.slice(startIndex, endIndex);
+
+            tableBody.innerHTML = casesToShow.map(caseItem => `
                 <tr>
                     <td>${caseItem.name}</td>
                     <td>${caseItem.client}</td>
@@ -621,7 +296,7 @@
                             <button class="action-btn action-btn-edit" data-cnr="${caseItem.cnr_number}" title="Edit Case">
                                 <i class="fas fa-edit"></i>
                             </button>
-                    </div>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -692,4 +367,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
