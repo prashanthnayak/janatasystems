@@ -549,9 +549,6 @@
             <div class="header">
                 <h1>Dashboard</h1>
                 <div class="user-info">
-                    <button onclick="clearAllCache()" class="btn btn-secondary" title="Clear all cached data">
-                        <i class="fas fa-sync-alt"></i> Clear Cache
-                    </button>
                     <span id="welcomeMessage">Welcome, Loading...</span>
                     <div class="user-avatar" id="userAvatar">--</div>
                     <button onclick="logout()" class="logout-btn" title="Logout">Logout</button>
@@ -981,7 +978,7 @@
             displayRecentCases(cases.slice(0, 5));
             
             // Display upcoming hearings
-            await displayUpcomingHearings(cases.slice(0, 4));
+            await displayUpcomingHearings(cases.slice(0, 4), dashboardData.case_histories);
             
             // Show success notification only if requested (for API loads, not cache hits)
             if (showNotification) {
@@ -1060,26 +1057,6 @@
 
         // Load dashboard data (SMART CACHE MODE!)
         let isLoading = false; // Prevent duplicate API calls
-        // Clear all cache function
-        function clearAllCache() {
-            console.log('🧹 Dashboard: Clearing ALL cache...');
-            // Use CacheManager for consistent cache handling
-            if (window.cacheManager) {
-                window.cacheManager.clearCache();
-                console.log('🧹 Dashboard: Cleared cache using CacheManager');
-            } else {
-                // Fallback to manual cache clearing
-                localStorage.removeItem('userDashboardData');
-                localStorage.removeItem('cacheVersion');
-                localStorage.removeItem('cacheUpdated');
-                if (window.userDashboardData) {
-                    delete window.userDashboardData;
-                }
-                console.log('🧹 Dashboard: Cleared cache manually (CacheManager not available)');
-            }
-            alert('Cache cleared! Reloading dashboard...');
-            loadDashboardData(true); // Force refresh
-        }
 
         // SIMPLE DASHBOARD LOADING - NO CACHE, DIRECT API CALLS
         async function loadDashboardData() {
@@ -1217,7 +1194,7 @@
         }
 
         // Display upcoming hearings
-        async function displayUpcomingHearings(cases) {
+        async function displayUpcomingHearings(cases, caseHistories = null) {
             const hearingsContainer = document.getElementById('upcomingHearings');
             if (!cases || cases.length === 0) {
                 hearingsContainer.innerHTML = `
@@ -1241,16 +1218,17 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Reset time to start of day
             
-            // Collect all future hearings from all cases using cached dashboard data
-            if (!window.userDashboardData?.case_histories) {
-                console.log('⚠️ No cached case histories available');
+            // Use provided case histories or fall back to cached data
+            const histories = caseHistories || window.userDashboardData?.case_histories;
+            if (!histories) {
+                console.log('⚠️ No case histories available');
                 hearingsContainer.innerHTML = '<div class="hearing-item"><div class="hearing-info"><h4>No upcoming hearings</h4><p>No case history data available</p></div></div>';
                 return;
             }
             
             // Process cases efficiently without excessive logging
             for (const caseData of cases) {
-                const caseHistory = window.userDashboardData.case_histories[caseData.cnr_number];
+                const caseHistory = histories[caseData.cnr_number];
                 
                 if (caseHistory?.history && Array.isArray(caseHistory.history)) {
                     caseHistory.history.forEach(entry => {
