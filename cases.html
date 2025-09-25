@@ -250,6 +250,43 @@
             background: #1e3a8a;
             color: white;
         }
+        .no-data i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #dee2e6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn-view {
+            background: #007bff;
+            color: white;
+        }
+
+        .action-btn-view:hover {
+            background: #0056b3;
+        }
+
+        .action-btn-edit {
+            background: #28a745;
+            color: white;
+        }
+
+        .action-btn-edit:hover {
+            background: #1e7e34;
+        }
     </style>
 </head>
 <body>
@@ -558,10 +595,10 @@
             const startIndex = (currentPage - 1) * casesPerPage;
             const endIndex = startIndex + casesPerPage;
             const pageCases = currentCases.slice(startIndex, endIndex);
-            
+
             console.log('🔍 DEBUG: pageCases length:', pageCases.length);
             console.log('🔍 DEBUG: pageCases:', pageCases);
-            
+
             if (pageCases.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" class="no-data"><i class="fas fa-folder-open"></i><h3>No Cases Found</h3><p>No cases match your search criteria.</p></td></tr>';
                 updatePagination();
@@ -584,7 +621,7 @@
                             <button class="action-btn action-btn-edit" data-cnr="${caseItem.cnr_number}" title="Edit Case">
                                 <i class="fas fa-edit"></i>
                             </button>
-                        </div>
+                    </div>
                     </td>
                 </tr>
             `).join('');
@@ -655,4 +692,4 @@
         });
     </script>
 </body>
-</html>
+</html> 
