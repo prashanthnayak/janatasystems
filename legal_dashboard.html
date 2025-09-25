@@ -1162,9 +1162,27 @@
                 
                 if (result.success && dashboardData) {
                     // Validate the dashboard data structure
-                    const cases = dashboardData.dashboard_data?.cases || [];
-                    const clients = dashboardData.dashboard_data?.clients || [];
-                    const calendarEvents = dashboardData.dashboard_data?.calendar_events || [];
+                    // Try different possible structures
+                    let cases = [];
+                    let clients = [];
+                    let calendarEvents = [];
+                    
+                    if (dashboardData.dashboard_data) {
+                        // Structure: { dashboard_data: { cases: [...] } }
+                        cases = dashboardData.dashboard_data.cases || [];
+                        clients = dashboardData.dashboard_data.clients || [];
+                        calendarEvents = dashboardData.dashboard_data.calendar_events || [];
+                        console.log('🔍 DEBUG: Using dashboard_data structure');
+                    } else if (dashboardData.cases) {
+                        // Structure: { cases: [...] }
+                        cases = dashboardData.cases || [];
+                        clients = dashboardData.clients || [];
+                        calendarEvents = dashboardData.calendar_events || [];
+                        console.log('🔍 DEBUG: Using direct structure');
+                    } else {
+                        console.log('🔍 DEBUG: Unknown structure, trying to find data...');
+                        console.log('🔍 DEBUG: Available keys:', Object.keys(dashboardData));
+                    }
                     
                     console.log(`✅ API LOADED: ${cases.length} cases, ${clients.length} clients, ${calendarEvents.length} events`);
                     
