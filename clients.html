@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <script src="config.js"></script>
-    <script src="common.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clients Management - LegalPro</title>
@@ -545,7 +544,8 @@
     </div>
 
     <!-- Common utilities -->
-
+    <script src="common.js"></script>
+    
     <script>
         // LegalAPI class definition
         class LegalAPI {
@@ -609,92 +609,29 @@
         // Load clients from case data
         async function loadClientsFromCases() {
             try {
-                console.log('🚀 Loading clients directly from API...');
+                // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
+                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
+                const cacheVersion = localStorage.getItem('cacheVersion') || '0';
                 
-                // Ensure config is initialized
-                if (!config.initialized) {
-                    await config.init();
-                }
+                // Check if cache is valid (within last 5 minutes)
+                const cacheAge = Date.now() - parseInt(cacheVersion);
+                const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
                 
-                // Get authentication token
-                const token = localStorage.getItem('userToken');
-                if (!token) {
-                    console.error('❌ No authentication token found');
-                    return;
-                }
-                
-                // Make direct API call to get cases
-                const response = await fetch(config.getApiUrl('/cases'), {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`API request failed: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                console.log('🔍 Cases API response:', result);
-                
-                if (result.success && result.cases) {
-                    const cases = result.cases;
-                    console.log('✅ API LOADED:', cases.length, 'cases');
-                    
-                    // Group cases by client (phone number or name)
-                    const clientMap = new Map();
-                    
-                    cases.forEach(caseData => {
-                        const clientPhone = caseData.client_phone || 'NP';
-                        const clientEmail = caseData.client_email || 'NP';
-                        const clientName = caseData.client_name || 'Unknown Client';
+                if (cachedDataFromStorage && cacheAge < maxCacheAge) {
+                    try {
+                        const parsedData = JSON.parse(cachedDataFromStorage);
+                        console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
                         
-                        // Use phone as primary key, fallback to name
-                        const clientKey = clientPhone !== 'NP' ? clientPhone : clientName;
-                        
-                        if (!clientMap.has(clientKey)) {
-                            clientMap.set(clientKey, {
-                                name: clientName,
-                                phone: clientPhone,
-                                email: clientEmail,
-                                cases: [],
-                                totalCases: 0
-                            });
-                        }
-                        
-                        clientMap.get(clientKey).cases.push({
-                            cnr: caseData.cnr_number,
-                            title: caseData.case_title,
-                            type: caseData.case_type,
-                            status: caseData.status,
-                            court: caseData.court_name
-                        });
-                        clientMap.get(clientKey).totalCases++;
-                    });
-                    
-                    // Convert map to array
-                    allClients = Array.from(clientMap.values());
-                    currentClients = [...allClients];
-                    
-                    console.log('✅ CLIENTS PROCESSED:', allClients.length, 'unique clients');
-                    
-                    // Display clients
-                    displayClients();
-                } else {
-                    console.error('❌ API returned error:', result.error);
-                    showNoClientsMessage();
-                }
-                
-            } catch (error) {
-                console.error('❌ Error loading clients:', error);
-                showNoClientsMessage();
-            }
+                        if (parsedData.cases) {
+                            console.log('🚀 FAST MODE: Using cached data from localStorage!');
+                            const cases = parsedData.cases;
+                            const clientsMap = new Map();
 
-        }
-
-        function showNoClientsMessage() {
+                            // Extract unique clients based on phone number (primary) or name (fallback)
+                            cases.forEach(caseData => {
+                                // Add client_name as primary client
+                                if (caseData.client_name && caseData.client_name.trim() && caseData.client_name !== 'Unknown') {
+                                    const clientName = caseData.client_name;
                                     const clientPhone = caseData.client_phone || '';
                                     const clientEmail = caseData.client_email || '';
                                     
@@ -1142,9 +1079,28 @@
                             <span class="detail-value">${client.email || 'NP'}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Cases:</span>
-                            <span class="detail-value">${client.cnrs ? client.cnrs.length : 0}</span>
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">${client.location}</span>
                         </div>
+                        <!-- <div class="detail-row">
+                            <span class="detail-label">Role:</span>
+                            <span class="detail-value">${client.role}</span>
+                        </div> -->
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Case Types:</span>
+                            <span class="detail-value">${client.caseTypes ? client.caseTypes.join(', ') : 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <div class="client-stats">
+                        <!-- <div class="stat">
+                            <span class="stat-number">${client.activeCases}</span>
+                            <span class="stat-label">Active Cases</span>
+                        </div> -->
+                        <!-- <div class="stat">
+                            <span class="stat-number">${client.totalBilled}</span>
+                            <span class="stat-label">Total Billed</span>
+                        </div> -->
                     </div>
                     <div class="client-actions">
                         <button class="btn btn-primary" onclick="viewClientCases('${client.name}', ${JSON.stringify(client.cnrs).replace(/"/g, '&quot;')})">View Cases</button>
@@ -1306,10 +1262,18 @@
         document.getElementById('typeFilter').addEventListener('change', searchClients);
         document.getElementById('statusFilter').addEventListener('change', searchClients);
 
-        // Simple cache listener (no complex logic)
+        // Listen for cache updates from other pages
         function listenForCacheUpdates() {
-            // No complex cache listening - just direct API calls
-            console.log('📅 Cache listener disabled - using direct API calls only');
+            let lastCacheUpdate = localStorage.getItem('cacheUpdated');
+            
+            setInterval(() => {
+                const currentCacheUpdate = localStorage.getItem('cacheUpdated');
+                if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
+                    console.log('👥 Cache updated by another page, refreshing clients...');
+                    lastCacheUpdate = currentCacheUpdate;
+                    loadClientsFromCases(); // Reload clients data
+                }
+            }, 1000); // Check every second
         }
 
         // Load clients when page loads
