@@ -4,7 +4,9 @@
  */
 
 // Logging system - centralized console logging
-const Logger = window.Logger || {
+// Prevent redeclaration by checking if Logger already exists
+if (typeof window.Logger === 'undefined') {
+    window.Logger = {
     debug: (message, ...args) => {
         if (window.DEBUG_MODE !== false) {
             console.log(`🔍 ${message}`, ...args);
@@ -37,10 +39,11 @@ const Logger = window.Logger || {
     edit: (message, ...args) => {
         console.log(`✏️ ${message}`, ...args);
     }
-};
+    };
+}
 
-// Make Logger available globally to prevent redeclaration errors
-window.Logger = Logger;
+// Create local Logger reference for backward compatibility
+const Logger = window.Logger;
 
 // Notification system
 let notificationStack = [];
