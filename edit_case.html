@@ -444,7 +444,7 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
+                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`, {
                         headers: headers
                     });
                     return await response.json();
@@ -470,7 +470,7 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
+                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`, {
                         method: 'PUT',
                         headers: headers,
                         body: JSON.stringify(caseData)
@@ -494,7 +494,7 @@
                     
                     console.log('🗑️ Deleting case:', cnrNumber);
                     
-                    const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
+                    const response = await fetch(`${this.baseUrl}/api/cases/${cnrNumber}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
