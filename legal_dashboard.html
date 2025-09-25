@@ -831,8 +831,6 @@
                     
                     // Get the auth token from localStorage
                     const token = localStorage.getItem('userToken');
-                    console.log('🔍 DEBUG: Token for API call:', token ? 'EXISTS' : 'MISSING');
-                    console.log('🔍 DEBUG: API URL:', url);
                     
                     if (!token) {
                         console.error('No auth token found');
@@ -846,8 +844,6 @@
                         }
                     });
                     
-                    console.log('🔍 DEBUG: API Response status:', response.status);
-                    console.log('🔍 DEBUG: API Response ok:', response.ok);
                     
                     if (response.status === 401) {
                         console.error('❌ 401 Unauthorized - Token may be expired');
@@ -1096,7 +1092,6 @@
                 }
                 
                 const result = await response.json();
-                console.log('🔍 Dashboard API response:', result);
                 
                 if (result.success && result.dashboard_data) {
                     const dashboardData = result.dashboard_data;
@@ -1113,48 +1108,6 @@
             }
         }
 
-        // Fallback slow method (kept for compatibility) - COMMENTED OUT FOR PERFORMANCE
-        /*
-        async function loadDashboardDataSlow() {
-            try {
-                console.log('🔄 Loading dashboard data (SLOW FALLBACK)...');
-                
-                // Load cases
-                const casesResult = await legalAPI.getCases();
-                if (casesResult.success && casesResult.cases) {
-                    const cases = casesResult.cases;
-                    
-                    // Update stats
-                    document.getElementById('totalCasesCount').textContent = cases.length;
-                    document.getElementById('activeCasesCount').textContent = cases.filter(c => c && c.status === 'Active').length;
-                    
-                    // Case history loading removed since Case History section was removed
-                    // Load case history count for first case
-                    if (cases.length > 0) {
-                        const historyResult = await legalAPI.getCaseHistory(cases[0].cnr_number);
-                        if (historyResult.success && historyResult.history) {
-                            // Count today's hearings for the stats
-                            const today = new Date().toDateString();
-                            const todayHearings = historyResult.history.filter(entry => {
-                                const entryDate = new Date(entry.hearing_date).toDateString();
-                                return entryDate === today;
-                            });
-                            
-                            document.getElementById('todayHearingsCount').textContent = todayHearings.length;
-                        }
-                    }
-                    
-                    // Display recent cases
-                    displayRecentCases(cases.slice(0, 5));
-                    
-                    // Display upcoming hearings (now uses real hearing dates)
-                    await displayUpcomingHearings(cases.slice(0, 4));
-                }
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-            }
-        }
-        */
 
         // Display recent cases
         function displayRecentCases(cases) {
@@ -1275,7 +1228,6 @@
                 return;
             }
             
-            console.log('✅ DEBUG: Displaying upcoming hearings:', nextHearings.map(h => `${h.cnr} on ${h.date.toDateString()}`));
             
             // Display upcoming hearings with real dates
             nextHearings.forEach(hearing => {
@@ -1304,20 +1256,15 @@
 
         // Today's Hearings functionality - restored
         async function showTodayHearings() {
-            console.log('🔍 DEBUG: showTodayHearings function called!');
             try {
                 // Get cases first
-                console.log('🔍 DEBUG: Getting cases from API...');
                 const casesResult = await legalAPI.getCases();
-                console.log('🔍 DEBUG: Cases result:', casesResult);
                 
                 if (!casesResult.success || !casesResult.cases || casesResult.cases.length === 0) {
-                    console.log('⚠️ DEBUG: No cases found, showing no hearings modal');
                     showNoTodayHearingsModal();
                     return;
                 }
                 
-                console.log('✅ DEBUG: Found', casesResult.cases.length, 'cases');
 
                 // Get case history for all cases and filter for today
                 const today = new Date().toDateString();
@@ -1347,15 +1294,12 @@
                     }
                 }
 
-                console.log('🔍 DEBUG: Total today hearings found:', todayHearings.length);
 
                 if (todayHearings.length === 0) {
-                    console.log('⚠️ DEBUG: No hearings today, showing no hearings modal');
                     showNoTodayHearingsModal();
                     return;
                 }
 
-                console.log('✅ DEBUG: Showing today hearings modal with', todayHearings.length, 'hearings');
                 showTodayHearingsModal(todayHearings);
             } catch (error) {
                 console.error('Error loading today\'s hearings:', error);
@@ -1538,8 +1482,6 @@
 
         // Create modal helper function
         function createModal(title, content, color = '#3498db') {
-            console.log('🔍 DEBUG: createModal called with title:', title);
-            console.log('🔍 DEBUG: Modal content length:', content.length);
             
             // Create modal
             const modal = document.createElement('div');
@@ -1580,9 +1522,6 @@
             modal.className = 'modal-overlay';
             document.body.appendChild(modal);
             
-            console.log('✅ DEBUG: Modal added to DOM with class:', modal.className);
-            console.log('✅ DEBUG: Modal element:', modal);
-            console.log('✅ DEBUG: Total modals in DOM:', document.querySelectorAll('.modal-overlay').length);
 
             // Close modal when clicking outside
             modal.addEventListener('click', function(e) {

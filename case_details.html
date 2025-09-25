@@ -446,18 +446,14 @@
             // Get case by CNR number
             async getCase(cnrNumber) {
                 try {
-                    console.log('🔍 DEBUG: getCase called with CNR:', cnrNumber);
                     
                     const token = localStorage.getItem('userToken');
-                    console.log('🔍 DEBUG: Token from localStorage:', token ? 'EXISTS' : 'MISSING');
                     
                     if (!token) {
                         console.error('❌ No auth token found');
                         return { success: false, error: 'No authentication token found' };
                     }
 
-                    console.log('🔍 DEBUG: Making API call to:', `${this.baseUrl}/cases/${cnrNumber}`);
-                    console.log('🔍 DEBUG: With headers:', { 'Authorization': `Bearer ${token.substring(0, 10)}...`, 'Content-Type': 'application/json' });
 
                     const response = await fetch(`${this.baseUrl}/cases/${cnrNumber}`, {
                         headers: {
@@ -466,11 +462,8 @@
                         }
                     });
                     
-                    console.log('🔍 DEBUG: Response status:', response.status);
-                    console.log('🔍 DEBUG: Response headers:', response.headers);
                     
                     const result = await response.json();
-                    console.log('🔍 DEBUG: Response data:', result);
                     
                     return result;
                 } catch (error) {
@@ -545,11 +538,9 @@
         }
 
         async function getCaseDetails() {
-            console.log('🚀 DEBUG: getCaseDetails function called');
             
             // Check if user is authenticated
             const token = localStorage.getItem('userToken');
-            console.log('🔍 DEBUG: Token check:', token ? 'EXISTS' : 'MISSING');
             
             if (!token) {
                 console.error('❌ No auth token found - redirecting to login');
@@ -560,7 +551,6 @@
             // Try to get CNR from URL parameters first, then session storage
             const urlParams = new URLSearchParams(window.location.search);
             let cnrNumber = urlParams.get('cnr') || sessionStorage.getItem('viewCaseCNR');
-            console.log('🔍 DEBUG: CNR Number found:', cnrNumber);
             
             if (cnrNumber) {
                 try {
@@ -575,15 +565,12 @@
                     if (cachedDataFromStorage && cacheAge < maxCacheAge) {
                         try {
                             const parsedData = JSON.parse(cachedDataFromStorage);
-                            console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
                             
                             if (parsedData.cases) {
-                                console.log('🚀 FAST MODE: Using cached data from localStorage!');
                                 const cachedCases = parsedData.cases;
                                 const caseData = cachedCases.find(c => c.cnr_number === cnrNumber);
                                 
                                 if (caseData) {
-                                    console.log('✅ DEBUG: Case data loaded from localStorage cache:', caseData);
                                     
                                     // Update page with real data
                                     document.getElementById('caseTitle').textContent = caseData.case_title || 'Untitled Case';
@@ -603,10 +590,8 @@
                                     // Calculate and display statistics (will be handled by loadCaseHistoryFromCache)
                                     // updateCaseStatistics will be called from loadCaseHistoryFromCache with history data
                                     
-                                    console.log('✅ DEBUG: Page updated with localStorage cached case data');
                                     return;
                                 } else {
-                                    console.log('⚠️ DEBUG: Case not found in localStorage cache, falling back to API...');
                                 }
                             }
                         } catch (parseError) {
@@ -621,12 +606,10 @@
                     
                     // SECOND: Check if we have cached data from dashboard (same page)
                     if (window.userDashboardData && window.userDashboardData.cases) {
-                        console.log('🚀 FAST MODE: Using cached data from dashboard!');
                         const cachedCases = window.userDashboardData.cases;
                         const caseData = cachedCases.find(c => c.cnr_number === cnrNumber);
                         
                         if (caseData) {
-                            console.log('✅ DEBUG: Case data loaded from cache:', caseData);
                             
                             // Update page with real data
                             document.getElementById('caseTitle').textContent = caseData.case_title || 'Untitled Case';
@@ -646,23 +629,18 @@
                             // Calculate and display statistics (will be handled by loadCaseHistoryFromCache)
                             // updateCaseStatistics will be called from loadCaseHistoryFromCache with history data
                             
-                            console.log('✅ DEBUG: Page updated with cached case data');
                             return;
                         } else {
-                            console.log('⚠️ DEBUG: Case not found in cache, falling back to API...');
                         }
                     }
                     
                     // THIRD: Fallback to API call if no cached data
                     console.log('🔄 SLOW MODE: Loading case from API...');
                     
-                    console.log('🔍 DEBUG: Calling legalAPI.getCase with CNR:', cnrNumber);
                     const result = await legalAPI.getCase(cnrNumber);
-                    console.log('🔍 DEBUG: getCase result:', result);
                     
                     if (result.success && result.case) {
                         const caseData = result.case;
-                        console.log('✅ DEBUG: Case data loaded successfully:', caseData);
                         
                         // Update page with real data
                         document.getElementById('caseTitle').textContent = caseData.case_title || 'Untitled Case';
@@ -684,7 +662,6 @@
                         // Calculate and display statistics (will be handled by loadCaseHistory)
                         // updateCaseStatistics will be called after loading history data
                         
-                        console.log('✅ DEBUG: Page updated with case data');
                         return;
                     } else {
                         console.error('❌ DEBUG: Failed to load case:', result.error);
@@ -701,7 +678,6 @@
                     document.getElementById('caseTitle').style.color = '#e74c3c';
                 }
             } else {
-                console.log('⚠️ DEBUG: No CNR number found');
             }
             
             // If no real data available, show empty/blank data
@@ -733,12 +709,10 @@
                             const caseHistories = parsedData.case_histories;
                             const history = caseHistories[cnrNumber];
                             
-                            console.log('📄 DEBUG: Found cached case history:', history);
                             
                             if (history) {
                                 // Check if history has a nested history property (object format)
                                 if (history.history && Array.isArray(history.history) && history.history.length > 0) {
-                                    console.log('📄 DEBUG: Using nested history format');
                                     displayCaseHistory(history.history);
                                     // Update statistics with this history data
                                     const caseData = parsedData.cases?.find(c => c.cnr_number === cnrNumber);
@@ -747,7 +721,6 @@
                                 }
                                 // Check if history is directly an array
                                 else if (Array.isArray(history) && history.length > 0) {
-                                    console.log('📄 DEBUG: Using direct array format');
                                     displayCaseHistory(history);
                                     // Update statistics with this history data
                                     const caseData = parsedData.cases?.find(c => c.cnr_number === cnrNumber);
@@ -766,12 +739,10 @@
                     const caseHistories = window.userDashboardData.case_histories;
                     const history = caseHistories[cnrNumber];
                     
-                    console.log('📄 DEBUG: Found window cached case history:', history);
                     
                     if (history) {
                         // Check if history has a nested history property (object format)
                         if (history.history && Array.isArray(history.history) && history.history.length > 0) {
-                            console.log('📄 DEBUG: Using nested history format from window');
                             displayCaseHistory(history.history);
                             // Update statistics with this history data
                             const caseData = window.userDashboardData.cases?.find(c => c.cnr_number === cnrNumber);
@@ -780,7 +751,6 @@
                         }
                         // Check if history is directly an array
                         else if (Array.isArray(history) && history.length > 0) {
-                            console.log('📄 DEBUG: Using direct array format from window');
                             displayCaseHistory(history);
                             // Update statistics with this history data
                             const caseData = window.userDashboardData.cases?.find(c => c.cnr_number === cnrNumber);
@@ -895,7 +865,6 @@
         // Update case statistics using cached data
         function updateCaseStatistics(cnrNumber, filingDate, historyData = null) {
             try {
-                console.log('📊 DEBUG: updateCaseStatistics called with:', { cnrNumber, filingDate, historyData });
                 
                 // Calculate days since filing
                 let daysSinceFiling = '-';
@@ -905,7 +874,6 @@
                     const diffTime = Math.abs(today - filing);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     daysSinceFiling = diffDays.toString();
-                    console.log('📊 DEBUG: Days since filing calculated:', daysSinceFiling);
                 }
                 
                 let totalHearings = '0';
@@ -913,7 +881,6 @@
                 
                 // Use provided history data or try to get from cache
                 if (historyData && Array.isArray(historyData) && historyData.length > 0) {
-                    console.log('📊 DEBUG: Using provided history data:', historyData.length, 'entries');
                     totalHearings = historyData.length.toString();
                     
                     // Get the latest status (most recent hearing purpose)
@@ -923,11 +890,9 @@
                     
                     if (sortedHistory.length > 0) {
                         latestStatus = sortedHistory[0].purpose || sortedHistory[0].status || '-';
-                        console.log('📊 DEBUG: Latest status found:', latestStatus);
                     }
                 } else {
                     // Try to get from cached data
-                    console.log('📊 DEBUG: No history data provided, checking cache...');
                     const cachedDataFromStorage = localStorage.getItem('userDashboardData');
                     if (cachedDataFromStorage) {
                         try {
@@ -952,7 +917,6 @@
                                     if (sortedHistory.length > 0) {
                                         latestStatus = sortedHistory[0].purpose || sortedHistory[0].status || '-';
                                     }
-                                    console.log('📊 DEBUG: Stats from cache - Hearings:', totalHearings, 'Status:', latestStatus);
                                 }
                             }
                         } catch (e) {
@@ -961,7 +925,6 @@
                     }
                 }
                 
-                console.log('📊 DEBUG: Final statistics:', { daysSinceFiling, totalHearings, latestStatus });
                 
                 // Update the statistics display
                 document.getElementById('daysSinceFiling').textContent = daysSinceFiling;

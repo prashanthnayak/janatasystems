@@ -330,7 +330,6 @@
         // SIMPLE CASES LOADING - NO CACHE, DIRECT API CALLS ONLY
         async function loadCasesFromDatabase() {
             try {
-                console.log('🚀 Loading cases directly from API...');
                 
                 // Check if there was a recent operation (add/delete/update)
                 const recentOperation = localStorage.getItem('recentOperation');
@@ -365,7 +364,6 @@
                 }
                 
                 const result = await response.json();
-                console.log('🔍 Cases API response:', result);
                 
                 if (result.success && result.dashboard_data && result.dashboard_data.cases) {
                     allCases = result.dashboard_data.cases.map(caseData => ({
@@ -382,7 +380,6 @@
                     }));
                     
                     currentCases = [...allCases];
-                    console.log('✅ API LOADED:', allCases.length, 'cases from dashboard-data endpoint');
                     
                     // Display cases
                     displayCases();

@@ -423,7 +423,6 @@
                         await config.init();
                     }
                     this.baseUrl = config.getApiUrl('');
-                    console.log('🔍 DEBUG: LegalAPI baseUrl set to:', this.baseUrl);
                     this.initialized = true;
                     console.log('🔧 Edit Case LegalAPI initialized with baseUrl:', this.baseUrl);
                 }
@@ -446,7 +445,6 @@
                     }
                     
                     const fullUrl = config.getApiUrl(`/cases/${cnrNumber}`);
-                    console.log('🔍 DEBUG: GET case URL:', fullUrl);
                     const response = await fetch(fullUrl, {
                         headers: headers
                     });
@@ -474,7 +472,6 @@
                     }
                     
                     const fullUrl = config.getApiUrl(`/cases/${cnrNumber}`);
-                    console.log('🔍 DEBUG: UPDATE case URL:', fullUrl);
                     const response = await fetch(fullUrl, {
                         method: 'PUT',
                         headers: headers,
@@ -500,7 +497,6 @@
                     console.log('🗑️ Deleting case:', cnrNumber);
                     
                     const fullUrl = config.getApiUrl(`/cases/${cnrNumber}`);
-                    console.log('🔍 DEBUG: DELETE case URL:', fullUrl);
                     const response = await fetch(fullUrl, {
                         method: 'DELETE',
                         headers: {
@@ -543,11 +539,6 @@
                     if (result.success && result.case) {
                         const caseData = result.case;
                         
-                        console.log('🔍 DEBUG: Case data received:', caseData);
-                        console.log('🔍 DEBUG: Phone and email values:', {
-                            client_phone: caseData.client_phone,
-                            client_email: caseData.client_email
-                        });
                         
                         // Populate form fields with real data
                         document.getElementById('cnr_number').value = caseData.cnr_number || '';
@@ -559,10 +550,6 @@
                         document.getElementById('caseType').value = caseData.case_type || '';
                         document.getElementById('court').value = caseData.court_name || '';
                         
-                        console.log('🔍 DEBUG: Form fields populated:', {
-                            clientPhone: document.getElementById('clientPhone').value,
-                            clientEmail: document.getElementById('clientEmail').value
-                        });
                         // Convert date format for HTML date input (yyyy-MM-dd)
                         if (caseData.filing_date) {
                             try {

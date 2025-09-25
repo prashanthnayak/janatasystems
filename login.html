@@ -728,12 +728,6 @@
                     const username = document.getElementById('username').value.trim();
                     const password = document.getElementById('password').value.trim();
                     
-                    // DEBUG: Log what user entered
-                    console.log('🔍 DEBUG - User Input:');
-                    console.log('Username:', username);
-                    console.log('Password:', password);
-                    console.log('CAPTCHA entered:', document.getElementById('captcha').value.trim());
-                    console.log('CAPTCHA expected:', currentCaptcha);
                     
                     // Call login API
                     const response = await fetch(config.getApiUrl('/auth/login'), {
@@ -749,10 +743,6 @@
                     
                     const result = await response.json();
                     
-                    // DEBUG: Log API response
-                    console.log('🔍 DEBUG - API Response:');
-                    console.log('Response status:', response.status);
-                    console.log('Response data:', result);
                     
                     if (result.success) {
                         // Store user data and token

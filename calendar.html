@@ -1117,7 +1117,6 @@
                 if (!batchResponse.success) {
                     console.error('Failed to load batch case history, falling back to slow method');
                     console.error('⚠️ Calendar performance critical: Using slowest method with individual API calls');
-                    // await loadCalendarEventsSlow(); // Fallback to old method - COMMENTED OUT FOR PERFORMANCE
                     console.error('❌ No data available - calendar will show empty');
                     return;
                 }
@@ -1167,59 +1166,10 @@
             } catch (error) {
                 console.error('Error loading calendar events (fast mode):', error);
                 console.log('Falling back to slow method...');
-                // await loadCalendarEventsSlow(); // Fallback to old method - COMMENTED OUT FOR PERFORMANCE
                 console.error('❌ No data available - calendar will show empty');
             }
         }
 
-        // Fallback slow method (kept for compatibility) - COMMENTED OUT FOR PERFORMANCE
-        /*
-        async function loadCalendarEventsSlow() {
-            try {
-                console.log('📅 Loading calendar events from database (SLOW FALLBACK)...');
-                
-                // Get all cases
-                const casesResponse = await legalAPI.getCases(100, 0);
-                if (!casesResponse.success) {
-                    console.error('Failed to load cases');
-                    return;
-                }
-
-                calendarEvents = [];
-                
-                // Get case history for each case to populate calendar (SLOW!)
-                for (const caseData of casesResponse.cases) {
-                    const historyResponse = await legalAPI.getCaseHistory(caseData.cnr_number);
-                    if (historyResponse.success && historyResponse.history.length > 0) {
-                        // Add each history entry as a calendar event
-                        historyResponse.history.forEach(entry => {
-                            if (entry.hearing_date) {
-                                calendarEvents.push({
-                                    date: new Date(entry.hearing_date),
-                                    title: `${caseData.case_title || 'Unknown Case'} - ${entry.purpose || 'Hearing'}`,
-                                    description: entry.order_details || 'No details available',
-                                    caseTitle: caseData.case_title || 'Unknown Case',
-                                    cnrNumber: caseData.cnr_number,
-                                    type: 'hearing',
-                                    time: new Date(entry.hearing_date).toLocaleTimeString('en-US', { 
-                                        hour: 'numeric', 
-                                        minute: '2-digit',
-                                        hour12: true 
-                                    })
-                                });
-                            }
-                        });
-                    }
-                }
-                
-                console.log(`📅 SLOW MODE: Loaded ${calendarEvents.length} calendar events`);
-                generateCalendar(); // Refresh calendar with new events
-                
-            } catch (error) {
-                console.error('Error loading calendar events (slow mode):', error);
-            }
-        }
-        */
 
         function generateCalendar() {
             // Reduced debug logging for better performance

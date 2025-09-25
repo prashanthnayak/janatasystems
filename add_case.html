@@ -659,7 +659,6 @@
             }
             
             // Check if CNR already exists before saving
-            console.log('🔍 Checking if CNR already exists before saving...');
             //showNotification('🔍 Checking if case already exists...', 'info');
             
             try {
@@ -732,10 +731,6 @@
                     return;
                 }
                 
-                console.log('🔍 ADD CASE DEBUG: About to save case to database');
-                console.log('🔍 ADD CASE DEBUG: CNR Number:', cnrNumber);
-                console.log('🔍 ADD CASE DEBUG: User Data:', userData);
-                console.log('🔍 ADD CASE DEBUG: API URL:', config.getApiUrl('/cases/save'));
                 
                 const response = await fetch(config.getApiUrl('/cases/save'), {
                     method: 'POST',
@@ -751,17 +746,12 @@
                 
                 const result = await response.json();
                 
-                console.log('🔍 ADD CASE DEBUG: API Response:', result);
-                console.log('🔍 ADD CASE DEBUG: Response success:', result.success);
-                console.log('🔍 ADD CASE DEBUG: Response message:', result.message);
-                console.log('🔍 ADD CASE DEBUG: Case data:', result.case);
                 
                     if (result.success) {
                     showNotification(`Case saved successfully! ${result.message}`, 'success');
                     
                     // Set flag for dashboard to refresh
                     localStorage.setItem('recentOperation', 'add');
-                    console.log('✅ Set recentOperation flag for dashboard refresh');
                     
                     // Clear temporary scraped data from sessionStorage
                     sessionStorage.removeItem('temp_scraped_data');
@@ -807,7 +797,6 @@
             }
             
             // Check if CNR already exists for this user
-            console.log('🔍 Checking if CNR already exists in database...');
             showNotification('🔍 Checking if case already exists...', 'info');
             
             try {
@@ -824,7 +813,6 @@
                 
                 // Check if case exists
                 const checkUrl = config.getApiUrl(`/cases/${cnrNumber}`);
-                console.log('🔍 Checking URL:', checkUrl);
                 
                 const checkResponse = await fetch(checkUrl, {
                     headers: {
@@ -844,18 +832,15 @@
                     }
                 } else if (checkResponse.status === 404) {
                     // Case doesn't exist, proceed with fetch
-                    console.log('✅ CNR not found in database, proceeding with fetch...');
                 } else if (checkResponse.status === 403) {
                     // Access denied - case exists but belongs to another user
                     showNotification(`❌ CNR ${cnrNumber} already exists in the system`, 'error', 8000);
                     alert(`⚠️ CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\n\nThis case already exists in the system but may belong to another user. Please use a different CNR number.`);
                     return;
                 } else {
-                    console.log('⚠️ Unexpected response status:', checkResponse.status);
                     // Continue with fetch - better to allow fetch than block legitimate requests
                 }
             } catch (error) {
-                console.log('⚠️ Error checking CNR existence:', error);
                 // Continue with fetch - network errors shouldn't block the process
                 showNotification('⚠️ Could not verify if case exists. Proceeding with fetch...', 'warning');
             }
@@ -994,18 +979,14 @@
             await legalAPI.init();
             
             // Test if fetchFromECourts function is accessible
-            console.log('🔍 Testing fetchFromECourts function accessibility...');
             if (typeof window.fetchFromECourts === 'function') {
-                console.log('✅ fetchFromECourts function is accessible!');
             } else {
-                console.log('❌ fetchFromECourts function is NOT accessible!');
                 console.log('Available functions:', Object.keys(window).filter(key => typeof window[key] === 'function'));
             }
             
             // Add form submission handler
             const form = document.getElementById('caseForm');
             if (form) {
-                console.log('✅ Form found and handler attached');
                 form.addEventListener('submit', handleAddCaseForm);
             } else {
                 console.error('❌ Form not found!');
@@ -1013,10 +994,8 @@
             
             // Fetch button is already working with onclick="fetchFromECourts()"
             // No need to add additional event listeners
-            console.log('✅ Fetch button ready with onclick handler');
             
             // Functions are now working properly
-            console.log('✅ All functions are accessible and working');
         });
     </script>
 </body>

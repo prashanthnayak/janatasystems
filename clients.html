@@ -587,7 +587,6 @@
         // SIMPLE CLIENTS LOADING - NO CACHE, DIRECT API CALLS ONLY
         async function loadClientsFromDatabase() {
             try {
-                console.log('🚀 Loading clients directly from API...');
                 
                 // Check if there was a recent operation (add/delete/update)
                 const recentOperation = localStorage.getItem('recentOperation');
@@ -622,7 +621,6 @@
                 }
                 
                 const result = await response.json();
-                console.log('🔍 Dashboard API response:', result);
                 
                 if (result.success && result.dashboard_data && result.dashboard_data.cases) {
                     const cases = result.dashboard_data.cases;
@@ -775,7 +773,6 @@
 
                     allClients = Array.from(clientsMap.values());
                     currentClients = [...allClients];
-                    console.log('✅ API LOADED:', allClients.length, 'clients from dashboard-data endpoint');
                     
                     // If no real clients found, show message
                     if (allClients.length === 0) {
