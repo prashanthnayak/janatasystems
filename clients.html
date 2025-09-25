@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script src="config.js"></script>
+    <script src="common.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clients Management - LegalPro</title>
@@ -24,51 +25,12 @@
             min-height: 100vh;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: #232B3E;
-            color: white;
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            box-shadow: 4px 0 20px rgba(44,62,80,0.15);
-        }
-
-        /* Sidebar header styles moved to shared-dashboard-styles.css */
-
-        .nav-menu {
-            padding: 20px 0;
-        }
-
-        .nav-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: white;
-        }
-
-        /* Navigation styles moved to shared-dashboard-styles.css */
-
-        .nav-item i {
-            width: 20px;
-        }
-
         /* Main Content */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 20px;
         }
-
-        /* Header styles moved to shared-dashboard-styles.css */
-
-        /* Header h1 styles moved to shared-dashboard-styles.css */
 
         .header-actions {
             display: flex;
@@ -98,7 +60,14 @@
             background: #1d4ed8;
         }
 
-        /* btn-secondary styles moved to shared-dashboard-styles.css */
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
 
         /* Search and Filters */
         .search-filters {
@@ -278,8 +247,6 @@
             background: #f39c12;
             color: white;
         }
-
-
 
         .action-btn:hover {
             transform: translateY(-1px);
@@ -486,10 +453,6 @@
                     <i>📅</i>
                     <span>Calendar</span>
                 </a>
-                <!-- <a href="settings.html" class="nav-item">
-                    <i>⚙️</i>
-                    <span>Settings</span>
-                </a> -->
             </nav>
         </div>
 
@@ -547,7 +510,7 @@
     <script src="common.js"></script>
     
     <script>
-        // LegalAPI class definition
+        // LegalAPI class definition - copied from dashboard
         class LegalAPI {
             constructor(baseUrl = null) {
                 this.baseUrl = baseUrl;
@@ -565,7 +528,7 @@
                 }
             }
 
-            // Get all cases
+            // Get all cases - direct API call only
             async getCases(userId = null, limit = 50, offset = 0) {
                 try {
                     // Ensure API is initialized
@@ -576,12 +539,16 @@
                     let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
                     if (userId) url += `&user_id=${userId}`;
                     
+                    console.log('🔗 Fetching cases from:', url);
+                    
                     // Get the auth token from localStorage
                     const token = localStorage.getItem('userToken');
                     if (!token) {
-                        console.error('No auth token found');
+                        console.error('❌ No auth token found');
                         return { success: false, error: 'No authentication token' };
                     }
+                    
+                    console.log('🔑 Using token:', token.substring(0, 20) + '...');
                     
                     const response = await fetch(url, {
                         headers: {
@@ -589,7 +556,18 @@
                             'Content-Type': 'application/json'
                         }
                     });
-                    return await response.json();
+                    
+                    console.log('📡 Cases API response status:', response.status);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('❌ Cases API error:', errorText);
+                        return { success: false, error: `API error: ${response.status} - ${errorText}` };
+                    }
+                    
+                    const result = await response.json();
+                    console.log('📊 Cases API result:', result);
+                    return result;
                 } catch (error) {
                     console.error('Error getting cases:', error);
                     return { success: false, error: error.message };
@@ -599,225 +577,52 @@
 
         // Initialize API
         const legalAPI = new LegalAPI();
-
-        // Global clients array (derived from case data)
+    </script>
+    <script>
+        // Database-driven client data
         let allClients = [];
         let currentClients = [];
         let currentPage = 1;
         const clientsPerPage = 4;
 
-        // Load clients from case data
-        async function loadClientsFromCases() {
+        // SIMPLE CLIENTS LOADING - NO CACHE, DIRECT API CALLS ONLY
+        async function loadClientsFromDatabase() {
             try {
-                // FIRST: Check localStorage for cached data (cross-page access) with cache versioning
-                const cachedDataFromStorage = localStorage.getItem('userDashboardData');
-                const cacheVersion = localStorage.getItem('cacheVersion') || '0';
+                console.log('🚀 Loading clients directly from API...');
                 
-                // Check if cache is valid (within last 5 minutes)
-                const cacheAge = Date.now() - parseInt(cacheVersion);
-                const maxCacheAge = 5 * 60 * 1000; // 5 minutes in milliseconds
-                
-                if (cachedDataFromStorage && cacheAge < maxCacheAge) {
-                    try {
-                        const parsedData = JSON.parse(cachedDataFromStorage);
-                        console.log('💾 DEBUG: Found data in localStorage:', Object.keys(parsedData));
-                        
-                        if (parsedData.cases) {
-                            console.log('🚀 FAST MODE: Using cached data from localStorage!');
-                            const cases = parsedData.cases;
-                            const clientsMap = new Map();
-
-                            // Extract unique clients based on phone number (primary) or name (fallback)
-                            cases.forEach(caseData => {
-                                // Add client_name as primary client
-                                if (caseData.client_name && caseData.client_name.trim() && caseData.client_name !== 'Unknown') {
-                                    const clientName = caseData.client_name;
-                                    const clientPhone = caseData.client_phone || '';
-                                    const clientEmail = caseData.client_email || '';
-                                    
-                                    console.log('🔍 DEBUG: Processing case:', {
-                                        cnr: caseData.cnr_number,
-                                        clientName: clientName,
-                                        clientPhone: clientPhone,
-                                        clientEmail: clientEmail
-                                    });
-                                    console.log('🔍 DEBUG: Raw case data:', caseData);
-                                    
-                                    // Use phone number as primary key, fallback to name if no phone
-                                    const clientKey = clientPhone || clientName;
-                                    
-                                    if (!clientsMap.has(clientKey)) {
-                                        const newClient = {
-                                            name: clientName,
-                                            type: 'Individual', // Default type
-                                            email: clientEmail,
-                                            phone: clientPhone,
-                                            location: caseData.court_name || 'Unknown Court',
-                                            status: 'Active',
-                                            activeCases: 0,
-                                            totalBilled: 'N/A',
-                                            role: 'Primary Client',
-                                            cnrs: [caseData.cnr_number], // Array of all CNRs
-                                            caseTypes: [caseData.case_type], // Array of all case types
-                                            roles: ['Primary Client'] // Array of all roles
-                                        };
-                                        console.log('🆕 DEBUG: Creating new client:', newClient);
-                                        console.log('🆕 DEBUG: Client phone value:', newClient.phone);
-                                        console.log('🆕 DEBUG: Client email value:', newClient.email);
-                                        clientsMap.set(clientKey, newClient);
-                                    } else {
-                                        // Add to existing client's arrays
-                                        const client = clientsMap.get(clientKey);
-                                        if (!client.cnrs.includes(caseData.cnr_number)) {
-                                            client.cnrs.push(caseData.cnr_number);
-                                        }
-                                        if (!client.caseTypes.includes(caseData.case_type)) {
-                                            client.caseTypes.push(caseData.case_type);
-                                        }
-                                        if (!client.roles.includes('Primary Client')) {
-                                            client.roles.push('Primary Client');
-                                        }
-                                        // Update phone and email if they were missing
-                                        if (!client.phone && clientPhone) {
-                                            client.phone = clientPhone;
-                                        }
-                                        if (!client.email && clientEmail) {
-                                            client.email = clientEmail;
-                                        }
-                                    }
-                                    clientsMap.get(clientKey).activeCases++;
-                                }
-
-                                // Add petitioner as client (excluding "Unknown" entries)
-                                if (caseData.petitioner && caseData.petitioner.trim() && caseData.petitioner !== 'Unknown') {
-                                    const clientName = caseData.petitioner;
-                                    const clientPhone = caseData.client_phone || ''; // Use same phone as primary client
-                                    const clientEmail = caseData.client_email || '';
-                                    
-                                    // Use phone number as primary key, fallback to name if no phone
-                                    const clientKey = clientPhone || clientName;
-                                    
-                                    if (!clientsMap.has(clientKey)) {
-                                        clientsMap.set(clientKey, {
-                                            name: clientName,
-                                            type: 'Individual', // Default type
-                                            email: clientEmail,
-                                            phone: clientPhone,
-                                            location: caseData.court_name || 'Unknown Court',
-                                            status: 'Active',
-                                            activeCases: 0,
-                                            totalBilled: 'N/A',
-                                            role: 'Petitioner',
-                                            cnrs: [caseData.cnr_number], // Array of all CNRs
-                                            caseTypes: [caseData.case_type], // Array of all case types
-                                            roles: ['Petitioner'] // Array of all roles
-                                        });
-                                    } else {
-                                        // Add to existing client's arrays
-                                        const client = clientsMap.get(clientKey);
-                                        if (!client.cnrs.includes(caseData.cnr_number)) {
-                                            client.cnrs.push(caseData.cnr_number);
-                                        }
-                                        if (!client.caseTypes.includes(caseData.case_type)) {
-                                            client.caseTypes.push(caseData.case_type);
-                                        }
-                                        if (!client.roles.includes('Petitioner')) {
-                                            client.roles.push('Petitioner');
-                                        }
-                                        // Update phone and email if they were missing
-                                        if (!client.phone && clientPhone) {
-                                            client.phone = clientPhone;
-                                        }
-                                        if (!client.email && clientEmail) {
-                                            client.email = clientEmail;
-                                        }
-                                    }
-                                    clientsMap.get(clientKey).activeCases++;
-                                }
-
-                                // Add respondent as client (excluding "Unknown" entries)
-                                if (caseData.respondent && caseData.respondent.trim() && caseData.respondent !== 'Unknown') {
-                                    const clientName = caseData.respondent;
-                                    const clientPhone = caseData.client_phone || ''; // Use same phone as primary client
-                                    const clientEmail = caseData.client_email || '';
-                                    
-                                    // Use phone number as primary key, fallback to name if no phone
-                                    const clientKey = clientPhone || clientName;
-                                    
-                                    if (!clientsMap.has(clientKey)) {
-                                        clientsMap.set(clientKey, {
-                                            name: clientName,
-                                            type: 'Individual', // Default type
-                                            email: clientEmail,
-                                            phone: clientPhone,
-                                            location: caseData.court_name || 'Unknown Court',
-                                            status: 'Active',
-                                            activeCases: 0,
-                                            totalBilled: 'N/A',
-                                            role: 'Respondent',
-                                            cnrs: [caseData.cnr_number], // Array of all CNRs
-                                            caseTypes: [caseData.case_type], // Array of all case types
-                                            roles: ['Respondent'] // Array of all roles
-                                        });
-                                    } else {
-                                        // Add to existing client's arrays
-                                        const client = clientsMap.get(clientKey);
-                                        if (!client.cnrs.includes(caseData.cnr_number)) {
-                                            client.cnrs.push(caseData.cnr_number);
-                                        }
-                                        if (!client.caseTypes.includes(caseData.case_type)) {
-                                            client.caseTypes.push(caseData.case_type);
-                                        }
-                                        if (!client.roles.includes('Respondent')) {
-                                            client.roles.push('Respondent');
-                                        }
-                                        // Update phone and email if they were missing
-                                        if (!client.phone && clientPhone) {
-                                            client.phone = clientPhone;
-                                        }
-                                        if (!client.email && clientEmail) {
-                                            client.email = clientEmail;
-                                        }
-                                    }
-                                    clientsMap.get(clientKey).activeCases++;
-                                }
-                            });
-
-                            allClients = Array.from(clientsMap.values());
-                            currentClients = [...allClients];
-                            console.log('👥 DEBUG: Final clients array:', currentClients);
-                            console.log('👥 DEBUG: Sample client phone/email:', currentClients[0] ? {
-                                name: currentClients[0].name,
-                                phone: currentClients[0].phone,
-                                email: currentClients[0].email
-                            } : 'No clients found');
-                            console.log('👥 DEBUG: Full first client object:', currentClients[0]);
-                            
-                            // If no real clients found, show message
-                            if (allClients.length === 0) {
-                                showNoClientsMessage();
-                            } else {
-                                displayClients();
-                                updatePagination();
-                            }
-                            return;
-                        }
-                    } catch (parseError) {
-                        console.error('❌ Error parsing localStorage data:', parseError);
-                    }
-                } else if (cachedDataFromStorage && cacheAge > maxCacheAge) {
-                    console.log('🔄 Cache expired, clearing old data');
-                    localStorage.removeItem('userDashboardData');
-                    localStorage.removeItem('cacheVersion');
+                // Ensure config is initialized
+                if (!config.initialized) {
+                    await config.init();
                 }
                 
-                // SECOND: Check if we have cached data from dashboard (same page)
-                if (window.userDashboardData && window.userDashboardData.cases) {
-                    console.log('🚀 FAST MODE: Using cached data from dashboard!');
-                    const cases = window.userDashboardData.cases;
+                // Get authentication token
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    console.error('❌ No authentication token found');
+                    return;
+                }
+                
+                // Make direct API call to get cases
+                const response = await fetch(config.getApiUrl('/cases'), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('🔍 Cases API response:', result);
+                
+                if (result.success && result.cases) {
+                    const cases = result.cases;
                     const clientsMap = new Map();
 
-                    // Extract unique clients from client_name, petitioners and respondents
+                    // Extract unique clients from case data
                     cases.forEach(caseData => {
                         // Add client_name as primary client
                         if (caseData.client_name && caseData.client_name.trim() && caseData.client_name !== 'Unknown') {
@@ -825,14 +630,10 @@
                             const clientPhone = caseData.client_phone || '';
                             const clientEmail = caseData.client_email || '';
                             
-                            console.log('🔍 DEBUG: Processing case (fallback):', {
-                                cnr: caseData.cnr_number,
-                                clientName: clientName,
-                                clientPhone: clientPhone,
-                                clientEmail: clientEmail
-                            });
+                            // Use phone number as primary key, fallback to name if no phone
+                            const clientKey = clientPhone || clientName;
                             
-                            if (!clientsMap.has(clientName)) {
+                            if (!clientsMap.has(clientKey)) {
                                 const newClient = {
                                     name: clientName,
                                     type: 'Individual', // Default type
@@ -843,147 +644,132 @@
                                     activeCases: 0,
                                     totalBilled: 'N/A',
                                     role: 'Primary Client',
-                                    cnr: caseData.cnr_number,
-                                    caseType: caseData.case_type
+                                    cnrs: [caseData.cnr_number], // Array of all CNRs
+                                    caseTypes: [caseData.case_type], // Array of all case types
+                                    roles: ['Primary Client'] // Array of all roles
                                 };
-                                console.log('🆕 DEBUG: Creating new client (fallback):', newClient);
-                                clientsMap.set(clientName, newClient);
+                                clientsMap.set(clientKey, newClient);
+                            } else {
+                                // Add to existing client's arrays
+                                const client = clientsMap.get(clientKey);
+                                if (!client.cnrs.includes(caseData.cnr_number)) {
+                                    client.cnrs.push(caseData.cnr_number);
+                                }
+                                if (!client.caseTypes.includes(caseData.case_type)) {
+                                    client.caseTypes.push(caseData.case_type);
+                                }
+                                if (!client.roles.includes('Primary Client')) {
+                                    client.roles.push('Primary Client');
+                                }
+                                // Update phone and email if they were missing
+                                if (!client.phone && clientPhone) {
+                                    client.phone = clientPhone;
+                                }
+                                if (!client.email && clientEmail) {
+                                    client.email = clientEmail;
+                                }
                             }
-                            clientsMap.get(clientName).activeCases++;
+                            clientsMap.get(clientKey).activeCases++;
                         }
 
                         // Add petitioner as client (excluding "Unknown" entries)
                         if (caseData.petitioner && caseData.petitioner.trim() && caseData.petitioner !== 'Unknown') {
                             const clientName = caseData.petitioner;
-                            if (!clientsMap.has(clientName)) {
-                                clientsMap.set(clientName, {
+                            const clientPhone = caseData.client_phone || ''; // Use same phone as primary client
+                            const clientEmail = caseData.client_email || '';
+                            
+                            // Use phone number as primary key, fallback to name if no phone
+                            const clientKey = clientPhone || clientName;
+                            
+                            if (!clientsMap.has(clientKey)) {
+                                clientsMap.set(clientKey, {
                                     name: clientName,
                                     type: 'Individual', // Default type
-                                    email: '', // Blank - to be filled manually
-                                    phone: '', // Blank - to be filled manually
+                                    email: clientEmail,
+                                    phone: clientPhone,
                                     location: caseData.court_name || 'Unknown Court',
                                     status: 'Active',
                                     activeCases: 0,
                                     totalBilled: 'N/A',
                                     role: 'Petitioner',
-                                    cnr: caseData.cnr_number,
-                                    caseType: caseData.case_type
+                                    cnrs: [caseData.cnr_number], // Array of all CNRs
+                                    caseTypes: [caseData.case_type], // Array of all case types
+                                    roles: ['Petitioner'] // Array of all roles
                                 });
+                            } else {
+                                // Add to existing client's arrays
+                                const client = clientsMap.get(clientKey);
+                                if (!client.cnrs.includes(caseData.cnr_number)) {
+                                    client.cnrs.push(caseData.cnr_number);
+                                }
+                                if (!client.caseTypes.includes(caseData.case_type)) {
+                                    client.caseTypes.push(caseData.case_type);
+                                }
+                                if (!client.roles.includes('Petitioner')) {
+                                    client.roles.push('Petitioner');
+                                }
+                                // Update phone and email if they were missing
+                                if (!client.phone && clientPhone) {
+                                    client.phone = clientPhone;
+                                }
+                                if (!client.email && clientEmail) {
+                                    client.email = clientEmail;
+                                }
                             }
-                            clientsMap.get(clientName).activeCases++;
+                            clientsMap.get(clientKey).activeCases++;
                         }
 
                         // Add respondent as client (excluding "Unknown" entries)
                         if (caseData.respondent && caseData.respondent.trim() && caseData.respondent !== 'Unknown') {
                             const clientName = caseData.respondent;
-                            if (!clientsMap.has(clientName)) {
-                                clientsMap.set(clientName, {
+                            const clientPhone = caseData.client_phone || ''; // Use same phone as primary client
+                            const clientEmail = caseData.client_email || '';
+                            
+                            // Use phone number as primary key, fallback to name if no phone
+                            const clientKey = clientPhone || clientName;
+                            
+                            if (!clientsMap.has(clientKey)) {
+                                clientsMap.set(clientKey, {
                                     name: clientName,
                                     type: 'Individual', // Default type
-                                    email: '', // Blank - to be filled manually
-                                    phone: '', // Blank - to be filled manually
+                                    email: clientEmail,
+                                    phone: clientPhone,
                                     location: caseData.court_name || 'Unknown Court',
                                     status: 'Active',
                                     activeCases: 0,
                                     totalBilled: 'N/A',
                                     role: 'Respondent',
-                                    cnr: caseData.cnr_number,
-                                    caseType: caseData.case_type
+                                    cnrs: [caseData.cnr_number], // Array of all CNRs
+                                    caseTypes: [caseData.case_type], // Array of all case types
+                                    roles: ['Respondent'] // Array of all roles
                                 });
+                            } else {
+                                // Add to existing client's arrays
+                                const client = clientsMap.get(clientKey);
+                                if (!client.cnrs.includes(caseData.cnr_number)) {
+                                    client.cnrs.push(caseData.cnr_number);
+                                }
+                                if (!client.caseTypes.includes(caseData.case_type)) {
+                                    client.caseTypes.push(caseData.case_type);
+                                }
+                                if (!client.roles.includes('Respondent')) {
+                                    client.roles.push('Respondent');
+                                }
+                                // Update phone and email if they were missing
+                                if (!client.phone && clientPhone) {
+                                    client.phone = clientPhone;
+                                }
+                                if (!client.email && clientEmail) {
+                                    client.email = clientEmail;
+                                }
                             }
-                            clientsMap.get(clientName).activeCases++;
+                            clientsMap.get(clientKey).activeCases++;
                         }
                     });
 
                     allClients = Array.from(clientsMap.values());
                     currentClients = [...allClients];
-                    
-                    // If no real clients found, show message
-                    if (allClients.length === 0) {
-                        showNoClientsMessage();
-                    } else {
-                        displayClients();
-                        updatePagination();
-                    }
-                    return;
-                }
-                
-                // THIRD: Fallback to API call if no cached data
-                console.log('🔄 SLOW MODE: No cached data, loading from API...');
-                
-                const casesResult = await legalAPI.getCases();
-                if (casesResult.success && casesResult.cases) {
-                    const cases = casesResult.cases;
-                    const clientsMap = new Map();
-
-                    // Extract unique clients from client_name, petitioners and respondents
-                    cases.forEach(caseData => {
-                        // Add client_name as primary client
-                        if (caseData.client_name && caseData.client_name.trim() && caseData.client_name !== 'Unknown') {
-                            const clientName = caseData.client_name;
-                            if (!clientsMap.has(clientName)) {
-                                clientsMap.set(clientName, {
-                                    name: clientName,
-                                    type: 'Individual', // Default type
-                                    email: '', // Blank - to be filled manually
-                                    phone: '', // Blank - to be filled manually
-                                    location: caseData.court_name || 'Unknown Court',
-                                    status: 'Active',
-                                    activeCases: 0,
-                                    totalBilled: 'N/A',
-                                    role: 'Primary Client',
-                                    cnr: caseData.cnr_number,
-                                    caseType: caseData.case_type
-                                });
-                            }
-                            clientsMap.get(clientName).activeCases++;
-                        }
-
-                        // Add petitioner as client (excluding "Unknown" entries)
-                        if (caseData.petitioner && caseData.petitioner.trim() && caseData.petitioner !== 'Unknown') {
-                            const clientName = caseData.petitioner;
-                            if (!clientsMap.has(clientName)) {
-                                clientsMap.set(clientName, {
-                                    name: clientName,
-                                    type: 'Individual', // Default type
-                                    email: '', // Blank - to be filled manually
-                                    phone: '', // Blank - to be filled manually
-                                    location: caseData.court_name || 'Unknown Court',
-                                    status: 'Active',
-                                    activeCases: 0,
-                                    totalBilled: 'N/A',
-                                    role: 'Petitioner',
-                                    cnr: caseData.cnr_number,
-                                    caseType: caseData.case_type
-                                });
-                            }
-                            clientsMap.get(clientName).activeCases++;
-                        }
-
-                        // Add respondent as client (excluding "Unknown" entries)
-                        if (caseData.respondent && caseData.respondent.trim() && caseData.respondent !== 'Unknown') {
-                            const clientName = caseData.respondent;
-                            if (!clientsMap.has(clientName)) {
-                                clientsMap.set(clientName, {
-                                    name: clientName,
-                                    type: 'Individual', // Default type
-                                    email: '', // Blank - to be filled manually
-                                    phone: '', // Blank - to be filled manually
-                                    location: caseData.court_name || 'Unknown Court',
-                                    status: 'Active',
-                                    activeCases: 0,
-                                    totalBilled: 'N/A',
-                                    role: 'Respondent',
-                                    cnr: caseData.cnr_number,
-                                    caseType: caseData.case_type
-                                });
-                            }
-                            clientsMap.get(clientName).activeCases++;
-                        }
-                    });
-
-                    allClients = Array.from(clientsMap.values());
-                    currentClients = [...allClients];
+                    console.log('✅ API LOADED:', allClients.length, 'clients');
                     
                     // If no real clients found, show message
                     if (allClients.length === 0) {
@@ -993,10 +779,12 @@
                         updatePagination();
                     }
                 } else {
+                    console.error('❌ API returned error:', result.error);
                     showNoClientsMessage();
                 }
+                
             } catch (error) {
-                console.error('Error loading clients:', error);
+                console.error('❌ Error loading clients:', error);
                 showNoClientsMessage();
             }
         }
@@ -1044,15 +832,6 @@
             const startIndex = (currentPage - 1) * clientsPerPage;
             const endIndex = startIndex + clientsPerPage;
             const clientsToShow = currentClients.slice(startIndex, endIndex);
-            
-            console.log('🖥️ DEBUG: Displaying clients:', clientsToShow);
-            if (clientsToShow.length > 0) {
-                console.log('🖥️ DEBUG: First client data:', {
-                    name: clientsToShow[0].name,
-                    phone: clientsToShow[0].phone,
-                    email: clientsToShow[0].email
-                });
-            }
 
             const clientsGrid = document.getElementById('clientsGrid');
             clientsGrid.innerHTML = '';
@@ -1082,25 +861,20 @@
                             <span class="detail-label">Location:</span>
                             <span class="detail-value">${client.location}</span>
                         </div>
-                        <!-- <div class="detail-row">
-                            <span class="detail-label">Role:</span>
-                            <span class="detail-value">${client.role}</span>
-                        </div> -->
-                        
                         <div class="detail-row">
                             <span class="detail-label">Case Types:</span>
                             <span class="detail-value">${client.caseTypes ? client.caseTypes.join(', ') : 'Unknown'}</span>
                         </div>
                     </div>
                     <div class="client-stats">
-                        <!-- <div class="stat">
+                        <div class="stat">
                             <span class="stat-number">${client.activeCases}</span>
                             <span class="stat-label">Active Cases</span>
-                        </div> -->
-                        <!-- <div class="stat">
-                            <span class="stat-number">${client.totalBilled}</span>
-                            <span class="stat-label">Total Billed</span>
-                        </div> -->
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">${client.cnrs ? client.cnrs.length : 0}</span>
+                            <span class="stat-label">Total Cases</span>
+                        </div>
                     </div>
                     <div class="client-actions">
                         <button class="btn btn-primary" onclick="viewClientCases('${client.name}', ${JSON.stringify(client.cnrs).replace(/"/g, '&quot;')})">View Cases</button>
@@ -1191,25 +965,14 @@
                     </div>
                 `;
             } else {
-                // Get case details from cached data
-                const cachedData = localStorage.getItem('userDashboardData');
-                let casesData = [];
-                
-                if (cachedData) {
-                    try {
-                        const parsedData = JSON.parse(cachedData);
-                        casesData = parsedData.cases || [];
-                    } catch (e) {
-                        console.error('Error parsing cached data:', e);
-                    }
-                }
-                
+                // Get case details from current clients data
                 let casesHTML = '';
                 cnrs.forEach(cnr => {
-                    const caseData = casesData.find(c => c.cnr_number === cnr);
-                    const caseTitle = caseData ? caseData.case_title : 'Unknown Case';
-                    const caseType = caseData ? caseData.case_type : 'Unknown Type';
-                    const courtName = caseData ? caseData.court_name : 'Unknown Court';
+                    // Find case data from current clients
+                    const caseData = allClients.find(client => client.cnrs && client.cnrs.includes(cnr));
+                    const caseTitle = caseData ? caseData.name : 'Unknown Case';
+                    const caseType = caseData ? (caseData.caseTypes ? caseData.caseTypes[0] : 'Unknown Type') : 'Unknown Type';
+                    const courtName = caseData ? caseData.location : 'Unknown Court';
                     
                     casesHTML += `
                         <div class="case-item">
@@ -1256,31 +1019,16 @@
             }
         }
 
-
-        // Add event listeners
-        document.getElementById('searchInput').addEventListener('input', searchClients);
-        document.getElementById('typeFilter').addEventListener('change', searchClients);
-        document.getElementById('statusFilter').addEventListener('change', searchClients);
-
-        // Listen for cache updates from other pages
-        function listenForCacheUpdates() {
-            let lastCacheUpdate = localStorage.getItem('cacheUpdated');
-            
-            setInterval(() => {
-                const currentCacheUpdate = localStorage.getItem('cacheUpdated');
-                if (currentCacheUpdate && currentCacheUpdate !== lastCacheUpdate) {
-                    console.log('👥 Cache updated by another page, refreshing clients...');
-                    lastCacheUpdate = currentCacheUpdate;
-                    loadClientsFromCases(); // Reload clients data
-                }
-            }, 1000); // Check every second
-        }
-
-        // Load clients when page loads
+        // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            loadClientsFromCases();
-            listenForCacheUpdates(); // Start listening for cache updates
+            // Add event listeners
+            document.getElementById('searchInput').addEventListener('input', searchClients);
+            document.getElementById('typeFilter').addEventListener('change', searchClients);
+            document.getElementById('statusFilter').addEventListener('change', searchClients);
+
+            // Load clients from database
+            loadClientsFromDatabase();
         });
     </script>
 </body>
-</html> 
+</html>
