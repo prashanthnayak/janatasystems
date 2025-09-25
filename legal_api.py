@@ -552,7 +552,11 @@ def handle_case(cnr_number):
     """Handle GET, PUT, and DELETE operations for a specific case"""
     # Handle CORS preflight request
     if request.method == 'OPTIONS':
-        return '', 200
+        response = make_response('', 200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
     
     # Get user from cached authentication (already validated by require_auth if needed)
     auth_header = request.headers.get('Authorization')
