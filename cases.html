@@ -524,8 +524,11 @@
         }
 
         function loadSampleData() {
-                
-                // Use CacheManager for consistent cache handling
+            allCases = [];
+            currentCases = [];
+            displayCases();
+            showNotification('No cases found. Add your first case to get started.', 'info');
+        }
                 if (window.cacheManager && window.cacheManager.isCacheValid()) {
                     const cachedData = window.cacheManager.getCachedData();
                     if (cachedData && cachedData.cases) {
