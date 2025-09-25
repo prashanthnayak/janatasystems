@@ -33,7 +33,7 @@ def get_token():
         print(f"\n🔑 Logging in as: {login_data['username']}")
         
         # Make login request
-        response = requests.post("http://localhost:5002/api/login", json=login_data)
+        response = requests.post("http://localhost:5002/api/auth/login", json=login_data)
         
         print(f"📊 Response status: {response.status_code}")
         
