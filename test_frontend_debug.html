@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Debug Test</title>
+</head>
+<body>
+    <h1>Frontend Debug Test</h1>
+    <p>This will test what the frontend is sending to the backend.</p>
+    
+    <form id="testForm">
+        <div>
+            <label>CNR Number:</label>
+            <input type="text" name="cnrNumber" value="TEST999999999" required>
+        </div>
+        <div>
+            <label>Case Title:</label>
+            <input type="text" name="caseTitle" value="Debug Test Case" required>
+        </div>
+        <div>
+            <label>Client Name:</label>
+            <input type="text" name="clientName" value="Debug Client" required>
+        </div>
+        <div>
+            <label>Client Phone:</label>
+            <input type="text" name="clientPhone" value="9876543210" required>
+        </div>
+        <div>
+            <label>Client Email:</label>
+            <input type="text" name="clientEmail" value="debug@test.com">
+        </div>
+        <div>
+            <label>Case Type:</label>
+            <input type="text" name="case_type" value="Civil">
+        </div>
+        <div>
+            <label>Court Name:</label>
+            <input type="text" name="court_name" value="Debug Court">
+        </div>
+        <div>
+            <label>Filing Date:</label>
+            <input type="date" name="filingDate" value="2024-01-01">
+        </div>
+        <div>
+            <label>Case Description:</label>
+            <textarea name="caseDescription">This is a debug test case</textarea>
+        </div>
+        <button type="submit">Test Save Case</button>
+    </form>
+    
+    <div id="results"></div>
+
+    <script>
+        // Simple config (you'll need to replace with your actual config)
+        const config = {
+            getApiUrl: (endpoint) => `http://18.234.219.146:5002${endpoint}`
+        };
+
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>Debug Results:</h2>';
+            
+            try {
+                // Get form data
+                const formData = new FormData(e.target);
+                const cnrNumber = formData.get('cnrNumber');
+                
+                // Get user-entered data (same as add_case.html)
+                const userData = {
+                    case_title: formData.get('caseTitle'),
+                    client_name: formData.get('clientName'),
+                    client_phone: formData.get('clientPhone'),
+                    client_email: formData.get('clientEmail'),
+                    case_type: formData.get('case_type'),
+                    court_name: formData.get('court_name'),
+                    filing_date: formData.get('filingDate'),
+                    case_description: formData.get('caseDescription'),
+                    registration_number: formData.get('registration_number')
+                };
+                
+                resultsDiv.innerHTML += `<p><strong>CNR Number:</strong> ${cnrNumber}</p>`;
+                resultsDiv.innerHTML += `<p><strong>User Data:</strong> ${JSON.stringify(userData, null, 2)}</p>`;
+                
+                // Get token (you'll need to login first and get this)
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    resultsDiv.innerHTML += '<p style="color: red;"><strong>ERROR:</strong> No token found. Please login first.</p>';
+                    return;
+                }
+                
+                resultsDiv.innerHTML += `<p><strong>Token:</strong> ${token.substring(0, 20)}...</p>`;
+                
+                // Make API call
+                resultsDiv.innerHTML += '<p><strong>Making API call...</strong></p>';
+                
+                const response = await fetch(config.getApiUrl('/cases/save'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        cnr_number: cnrNumber,
+                        user_data: userData
+                    })
+                });
+                
+                resultsDiv.innerHTML += `<p><strong>Response Status:</strong> ${response.status}</p>`;
+                
+                const result = await response.json();
+                resultsDiv.innerHTML += `<p><strong>Response:</strong> ${JSON.stringify(result, null, 2)}</p>`;
+                
+                if (result.success) {
+                    resultsDiv.innerHTML += '<p style="color: green;"><strong>SUCCESS!</strong> Case saved successfully!</p>';
+                } else {
+                    resultsDiv.innerHTML += `<p style="color: red;"><strong>ERROR:</strong> ${result.error}</p>`;
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `<p style="color: red;"><strong>EXCEPTION:</strong> ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

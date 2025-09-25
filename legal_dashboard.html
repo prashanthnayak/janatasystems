@@ -642,7 +642,7 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         // Notification system
         // Authentication and User Profile Functions
@@ -1540,15 +1540,15 @@
 
                 // Get case history for the first case
                 if (casesResult.cases && casesResult.cases.length > 0) {
-                    const firstCase = casesResult.cases[0];
-                    const historyResult = await legalAPI.getCaseHistory(firstCase.cnr_number);
-                    
-                    if (!historyResult.success || !historyResult.history || historyResult.history.length === 0) {
-                        showNoHearingsModal();
-                        return;
-                    }
+                const firstCase = casesResult.cases[0];
+                const historyResult = await legalAPI.getCaseHistory(firstCase.cnr_number);
+                
+                if (!historyResult.success || !historyResult.history || historyResult.history.length === 0) {
+                    showNoHearingsModal();
+                    return;
+                }
 
-                    showHearingsModal(firstCase, historyResult.history);
+                showHearingsModal(firstCase, historyResult.history);
                 } else {
                     showNoHearingsModal();
                     return;
