@@ -333,6 +333,13 @@
             try {
                 console.log('🚀 Loading cases directly from API...');
                 
+                // Check if there was a recent operation (add/delete/update)
+                const recentOperation = localStorage.getItem('recentOperation');
+                if (recentOperation) {
+                    console.log('🔄 Recent operation detected:', recentOperation);
+                    localStorage.removeItem('recentOperation'); // Clear the flag
+                }
+                
                 // Ensure config is initialized
                 if (!config.initialized) {
                     await config.init();
@@ -524,6 +531,16 @@
             // Add event listeners
             document.getElementById('searchInput').addEventListener('input', searchCases);
             document.getElementById('typeFilter').addEventListener('change', searchCases);
+
+            // Check for refresh parameter in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('refresh')) {
+                console.log('🔄 Refresh parameter detected, forcing fresh data load');
+                // Clear any potential cache
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('cacheUpdated');
+            }
 
             // Load cases from database
             loadCasesFromDatabase();

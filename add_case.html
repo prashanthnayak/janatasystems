@@ -688,14 +688,12 @@
                     const existingCase = await checkResponse.json();
                     if (existingCase.success && existingCase.case) {
                         const caseTitle = existingCase.case.case_title || 'Untitled Case';
-                        showNotification(`CNR ${cnrNumber} already exists!`, 'error', 8000);
-                        Alert.warning(`CANNOT SAVE - CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\nCase Title: ${caseTitle}\n\nThis case is already in your database. Please check the case management page or use a different CNR number.`);
+                        showNotification(`CNR ${cnrNumber} already exists! Case Title: ${caseTitle}`, 'error', 8000);
                         return;
                     }
                 } else if (checkResponse.status === 403) {
                     // Access denied - case exists but belongs to another user
-                    showNotification(`CNR ${cnrNumber} already exists in the system`, 'error', 8000);
-                    Alert.warning(`CANNOT SAVE - CASE ALREADY EXISTS!\n\nCNR: ${cnrNumber}\n\nThis case already exists in the system but may belong to another user. Please use a different CNR number.`);
+                    showNotification(`CNR ${cnrNumber} already exists in the system but may belong to another user`, 'error', 8000);
                     return;
                 } else if (checkResponse.status === 404) {
                     // Case doesn't exist, proceed with save
@@ -710,8 +708,7 @@
                 showNotification('⚠️ Could not verify if case exists. Proceeding with save...', 'warning');
             }
             
-            showNotification('🔄 Saving case to database...', 'info');
-            Alert.info('SAVE CASE CLICKED!\n\nSaving case to database...');
+            showNotification('Saving case to database...', 'info');
             
             try {
                 // Get user-entered data
@@ -761,7 +758,6 @@
                 
                     if (result.success) {
                     showNotification(`Case saved successfully! ${result.message}`, 'success');
-                    Alert.success(`SUCCESS! Case saved to database!\n\n${result.message}\n\nRedirecting to cases list in 2 seconds...`);
                     
                     // Set flag for dashboard to refresh
                     localStorage.setItem('recentOperation', 'add');
@@ -786,12 +782,10 @@
                         window.location.href = 'cases.html?refresh=' + Date.now();
                     }, 500); // Small delay to ensure cache flag is set
                     } else {
-                    showNotification(` Failed to save case: ${result.error}`, 'error');
-                    Alert.error(`FAILED! Could not save case to database:\n\n${result.error}`);
+                    showNotification(`Failed to save case: ${result.error}`, 'error');
                 }
             } catch (error) {
                 showNotification(`Error saving case: ${error.message}`, 'error');
-                Alert.error(`ERROR! Something went wrong:\n\n${error.message}`);
             }
         }
 
