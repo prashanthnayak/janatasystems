@@ -445,7 +445,7 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const fullUrl = `${this.baseUrl}/cases/${cnrNumber}`;
+                    const fullUrl = config.getApiUrl(`/cases/${cnrNumber}`);
                     console.log('🔍 DEBUG: GET case URL:', fullUrl);
                     const response = await fetch(fullUrl, {
                         headers: headers
@@ -473,7 +473,7 @@
                         headers['Authorization'] = `Bearer ${token}`;
                     }
                     
-                    const fullUrl = `${this.baseUrl}/cases/${cnrNumber}`;
+                    const fullUrl = config.getApiUrl(`/cases/${cnrNumber}`);
                     console.log('🔍 DEBUG: UPDATE case URL:', fullUrl);
                     const response = await fetch(fullUrl, {
                         method: 'PUT',
@@ -499,7 +499,7 @@
                     
                     console.log('🗑️ Deleting case:', cnrNumber);
                     
-                    const fullUrl = `${this.baseUrl}/cases/${cnrNumber}`;
+                    const fullUrl = config.getApiUrl(`/cases/${cnrNumber}`);
                     console.log('🔍 DEBUG: DELETE case URL:', fullUrl);
                     const response = await fetch(fullUrl, {
                         method: 'DELETE',
