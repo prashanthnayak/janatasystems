@@ -8,605 +8,215 @@
     <title>Clients Management - LegalPro</title>
     <link rel="stylesheet" href="shared-dashboard-styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .clients-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9fbfc;
-            color: #232323;
-        }
-
-        .dashboard-container {
+        
+        .clients-header {
             display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: #232B3E;
-            color: white;
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            box-shadow: 4px 0 20px rgba(44,62,80,0.15);
-        }
-
-        /* Sidebar header styles moved to shared-dashboard-styles.css */
-
-        .nav-menu {
-            padding: 20px 0;
-        }
-
-        .nav-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: white;
+            margin-bottom: 30px;
         }
-
-        /* Navigation styles moved to shared-dashboard-styles.css */
-
-        .nav-item i {
-            width: 20px;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            flex: 1;
-            padding: 20px;
-        }
-
-        /* Header styles moved to shared-dashboard-styles.css */
-
-        /* Header h1 styles moved to shared-dashboard-styles.css */
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2);
-        }
-
-        .btn-primary {
-            background: #1e3a8a;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        /* btn-secondary styles moved to shared-dashboard-styles.css */
-
-        /* Search and Filters */
+        
         .search-filters {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .search-row {
             display: flex;
             gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-
-        .search-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 2px solid #ecf0f1;
-            border-radius: 6px;
-            font-size: 14px;
+        
+        .search-filters input,
+        .search-filters select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #1e3a8a;
-        }
-
-        .filter-select {
-            padding: 10px 15px;
-            border: 2px solid #ecf0f1;
-            border-radius: 6px;
-            background: white;
-            font-size: 14px;
-        }
-
-        /* Clients Grid */
+        
         .clients-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
-
+        
         .client-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            transition: transform 0.2s;
         }
-
+        
         .client-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(243, 156, 18, 0.15);
         }
-
+        
         .client-header {
             display: flex;
             align-items: center;
-            gap: 15px;
             margin-bottom: 15px;
         }
-
+        
         .client-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: #1e3a8a;
+            background: #007bff;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            font-size: 20px;
             font-weight: bold;
-            font-size: 18px;
+            margin-right: 15px;
         }
-
+        
         .client-info h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
+            margin: 0 0 5px 0;
             color: #2c3e50;
         }
-
-        .client-info p {
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-
+        
         .client-type {
-            font-size: 12px;
-            color: #1e3a8a;
-            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 14px;
+            margin: 0;
         }
-
+        
         .client-status {
+            padding: 4px 8px;
+            border-radius: 15px;
             font-size: 12px;
             font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 4px;
-            color: white;
+            margin-left: auto;
         }
-
+        
         .status-active {
-            background-color: #27ae60; /* Green */
+            background: #d4edda;
+            color: #155724;
         }
-
-        .status-inactive {
-            background-color: #e74c3c; /* Red */
-        }
-
+        
         .client-details {
             margin-bottom: 15px;
         }
-
+        
         .detail-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
-            font-size: 14px;
         }
-
+        
         .detail-label {
-            color: #7f8c8d;
-            font-weight: 500;
-        }
-
-        .detail-value {
-            color: #2c3e50;
-        }
-
-        .client-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .stat {
-            text-align: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .stat-number {
-            font-size: 18px;
             font-weight: bold;
-            color: #1e3a8a;
+            color: #495057;
         }
-
-        .stat-label {
-            font-size: 12px;
-            color: #7f8c8d;
+        
+        .detail-value {
+            color: #6c757d;
         }
-
+        
         .client-actions {
             display: flex;
             gap: 10px;
         }
-
-        .action-btn {
-            flex: 1;
-            padding: 8px 12px;
+        
+        .btn {
+            padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 12px;
-            transition: background 0.3s;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
         }
-
-        .action-btn-view {
-            background: #1e3a8a;
+        
+        .btn-primary {
+            background: #007bff;
             color: white;
         }
-
-        .action-btn-edit {
-            background: #f39c12;
-            color: white;
+        
+        .btn-primary:hover {
+            background: #0056b3;
         }
-
-
-
-        .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(243, 156, 18, 0.2);
-        }
-
-        /* Pagination */
+        
         .pagination {
             display: flex;
             justify-content: center;
-            align-items: center;
             gap: 10px;
             margin-top: 20px;
-            padding: 20px;
         }
-
+        
         .page-btn {
             padding: 8px 12px;
-            border: 1px solid #ecf0f1;
+            border: 1px solid #ddd;
             background: white;
-            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s;
+            border-radius: 5px;
         }
-
-        .page-btn:hover {
-            background: #fef5e7;
-            color: #2c3e50;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(243, 156, 18, 0.2);
-        }
-
+        
         .page-btn.active {
-            background: #1e3a8a;
+            background: #007bff;
             color: white;
+            border-color: #007bff;
         }
-
+        
         .page-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 0;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-            color: white;
-            padding: 20px;
-            border-radius: 12px 12px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .close {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .close:hover {
-            opacity: 0.7;
-        }
-
-        .modal-body {
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .case-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #1e3a8a;
-            transition: all 0.3s ease;
-        }
-
-        .case-item:hover {
-            background: #e3f2fd;
-            transform: translateX(5px);
-        }
-
-        .case-info {
-            flex: 1;
-        }
-
-        .case-cnr {
-            font-weight: 600;
-            color: #1e3a8a;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .case-details {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        .case-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-case {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-case-view {
-            background: #1e3a8a;
-            color: white;
-        }
-
-        .btn-case-view:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-        }
-
-        .no-cases {
-            text-align: center;
-            padding: 40px;
-            color: #6b7280;
-        }
-
-        .no-cases-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>LegalPro</h2>
-                <p>Management System</p>
-            </div>
-            <nav class="nav-menu">
-                <a href="legal_dashboard.html" class="nav-item">
-                    <i>📊</i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="cases.html" class="nav-item">
-                    <i>📁</i>
-                    <span>Cases</span>
-                </a>
-                <a href="clients.html" class="nav-item active">
-                    <i>👥</i>
-                    <span>Clients</span>
-                </a>
-                <a href="calendar.html" class="nav-item">
-                    <i>📅</i>
-                    <span>Calendar</span>
-                </a>
-                <!-- <a href="settings.html" class="nav-item">
-                    <i>⚙️</i>
-                    <span>Settings</span>
-                </a> -->
-            </nav>
+    <div class="clients-container">
+        <div class="clients-header">
+            <h1>Clients Management</h1>
         </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Header -->
-            <div class="header">
-                <h1>Clients Management</h1>
-            </div>
-
-            <!-- Search and Filters -->
-            <div class="search-filters">
-                <div class="search-row">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search clients by name, phone, email, or location...">
-                    <select id="typeFilter" class="filter-select">
-                        <option value="">All Types</option>
-                        <option value="Individual">Individual</option>
-                        <option value="Corporate">Corporate</option>
-                        <option value="Government">Government</option>
-                    </select>
-                    <select id="statusFilter" class="filter-select">
-                        <option value="">All Status</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Clients Grid -->
-            <div class="clients-grid" id="clientsGrid">
-                <!-- Clients will be populated by JavaScript -->
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination" id="pagination">
-                <!-- Pagination will be populated by JavaScript -->
-            </div>
+        
+        <div class="search-filters">
+            <input type="text" id="searchInput" placeholder="Search clients..." style="flex: 1;">
+            <select id="typeFilter">
+                <option value="">All Types</option>
+                <option value="Civil">Civil</option>
+                <option value="Criminal">Criminal</option>
+                <option value="Family">Family</option>
+                <option value="Commercial">Commercial</option>
+            </select>
+            <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Closed">Closed</option>
+                <option value="Pending">Pending</option>
+            </select>
+        </div>
+        
+        <div id="clientsGrid" class="clients-grid">
+            <!-- Clients will be loaded here -->
+        </div>
+        
+        <div id="pagination" class="pagination">
+            <!-- Pagination will be generated here -->
         </div>
     </div>
 
     <!-- Case Selection Modal -->
-    <div id="caseModal" class="modal">
+    <div id="caseModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Select Case</h3>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <div class="modal-body" id="modalBody">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Client Cases</h2>
+            <div id="modalBody">
                 <!-- Case list will be populated here -->
             </div>
         </div>
     </div>
 
-    <!-- Common utilities -->
-
     <script>
-        // LegalAPI class definition
-        class LegalAPI {
-            constructor(baseUrl = null) {
-                this.baseUrl = baseUrl;
-                this.initialized = false;
-            }
-
-            async init() {
-                if (!this.initialized) {
-                    if (!config.initialized) {
-                        await config.init();
-                    }
-                    this.baseUrl = config.getApiUrl('');
-                    this.initialized = true;
-                    console.log('🔧 Clients LegalAPI initialized with baseUrl:', this.baseUrl);
-                }
-            }
-
-            // Get all cases
-            async getCases(userId = null, limit = 50, offset = 0) {
-                try {
-                    // Ensure API is initialized
-                    if (!this.initialized) {
-                        await this.init();
-                    }
-                    
-                    let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
-                    if (userId) url += `&user_id=${userId}`;
-                    
-                    // Get the auth token from localStorage
-                    const token = localStorage.getItem('userToken');
-                    if (!token) {
-                        console.error('No auth token found');
-                        return { success: false, error: 'No authentication token' };
-                    }
-                    
-                    const response = await fetch(url, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error getting cases:', error);
-                    return { success: false, error: error.message };
-                }
-            }
-        }
-
-        // Initialize API
-        const legalAPI = new LegalAPI();
-
-        // Global clients array (derived from case data)
         let allClients = [];
         let currentClients = [];
         let currentPage = 1;
         const clientsPerPage = 4;
 
-        // Load clients from case data
+        // SIMPLE CLIENTS LOADING - NO CACHE, DIRECT API CALLS
         async function loadClientsFromCases() {
             try {
                 console.log('🚀 Loading clients directly from API...');
@@ -691,25 +301,19 @@
                 console.error('❌ Error loading clients:', error);
                 showNoClientsMessage();
             }
-
         }
-        // Show message when no clients are found
+
         function showNoClientsMessage() {
             const clientsGrid = document.getElementById('clientsGrid');
             clientsGrid.innerHTML = `
                 <div style="text-align: center; padding: 40px; grid-column: 1 / -1;">
                     <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
                     <h3 style="color: #2c3e50; margin-bottom: 10px;">No Clients Found</h3>
-                    <p style="color: #7f8c8d;">No client data available from cases. Add cases to see clients here.</p>
-                    <button onclick="window.location.href='add_case.html'" style="margin-top: 20px; padding: 10px 20px; background: #1e3a8a; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                        Add New Case
-                    </button>
+                    <p style="color: #7f8c8d;">No clients have been added yet. Add your first case to get started.</p>
                 </div>
             `;
-            document.getElementById('pagination').innerHTML = '';
         }
 
-        // Search functionality
         function searchClients() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const typeFilter = document.getElementById('typeFilter').value;
@@ -717,12 +321,12 @@
 
             currentClients = allClients.filter(client => {
                 const matchesSearch = client.name.toLowerCase().includes(searchTerm) ||
-                                    (client.email && client.email.toLowerCase().includes(searchTerm)) ||
-                                    (client.phone && client.phone.includes(searchTerm)) ||
-                                    client.location.toLowerCase().includes(searchTerm);
-                const matchesType = typeFilter === '' || client.type === typeFilter;
-                const matchesStatus = statusFilter === '' || client.status === statusFilter;
-
+                                    client.phone.toLowerCase().includes(searchTerm) ||
+                                    client.email.toLowerCase().includes(searchTerm);
+                
+                const matchesType = typeFilter === '' || client.cases.some(c => c.type === typeFilter);
+                const matchesStatus = statusFilter === '' || client.cases.some(c => c.status === statusFilter);
+                
                 return matchesSearch && matchesType && matchesStatus;
             });
 
@@ -731,21 +335,11 @@
             updatePagination();
         }
 
-        // Display clients
         function displayClients() {
             const startIndex = (currentPage - 1) * clientsPerPage;
             const endIndex = startIndex + clientsPerPage;
             const clientsToShow = currentClients.slice(startIndex, endIndex);
             
-            console.log('🖥️ DEBUG: Displaying clients:', clientsToShow);
-            if (clientsToShow.length > 0) {
-                console.log('🖥️ DEBUG: First client data:', {
-                    name: clientsToShow[0].name,
-                    phone: clientsToShow[0].phone,
-                    email: clientsToShow[0].email
-                });
-            }
-
             const clientsGrid = document.getElementById('clientsGrid');
             clientsGrid.innerHTML = '';
 
@@ -783,7 +377,6 @@
             });
         }
 
-        // Pagination
         function updatePagination() {
             const totalPages = Math.ceil(currentClients.length / clientsPerPage);
             const pagination = document.getElementById('pagination');
@@ -792,41 +385,28 @@
                 pagination.innerHTML = '';
                 return;
             }
-
+            
             let paginationHTML = '';
             
-            // Previous button
-            paginationHTML += `
-                <button class="page-btn ${currentPage === 1 ? 'disabled' : ''}" 
-                        onclick="changePage(${currentPage - 1})" 
-                        ${currentPage === 1 ? 'disabled' : ''}>
-                    ← Previous
-                </button>
-            `;
-
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                paginationHTML += `
-                    <button class="page-btn ${i === currentPage ? 'active' : ''}" 
-                            onclick="changePage(${i})">
-                        ${i}
-                    </button>
-                `;
+            if (currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">Previous</button>`;
             }
-
-            // Next button
-            paginationHTML += `
-                <button class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" 
-                        onclick="changePage(${currentPage + 1})" 
-                        ${currentPage === totalPages ? 'disabled' : ''}>
-                    Next →
-                </button>
-            `;
-
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    paginationHTML += `<button class="page-btn active">${i}</button>`;
+                } else {
+                    paginationHTML += `<button class="page-btn" onclick="changePage(${i})">${i}</button>`;
+                }
+            }
+            
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">Next</button>`;
+            }
+            
             pagination.innerHTML = paginationHTML;
         }
 
-        // Change page
         function changePage(page) {
             const totalPages = Math.ceil(currentClients.length / clientsPerPage);
             if (page >= 1 && page <= totalPages) {
@@ -836,86 +416,43 @@
             }
         }
 
-        // View client cases - always shows modal for case selection
         function viewClientCases(clientName, cnrs) {
-            // Always show modal for case selection
             showCaseSelectionModal(clientName, cnrs);
         }
 
-        // Show case selection modal
         function showCaseSelectionModal(clientName, cnrs) {
             const modal = document.getElementById('caseModal');
             const modalTitle = document.getElementById('modalTitle');
             const modalBody = document.getElementById('modalBody');
             
             if (!modal) {
-                console.error('❌ ERROR: Modal element not found!');
+                console.error('Modal not found');
                 return;
             }
             
-            modalTitle.textContent = `${clientName}'s Cases (${cnrs.length} cases)`;
+            modalTitle.textContent = `${clientName}'s Cases`;
             
-            if (cnrs.length === 0) {
-                modalBody.innerHTML = `
-                    <div class="no-cases">
-                        <div class="no-cases-icon">📁</div>
-                        <h4>No Cases Found</h4>
-                        <p>This client doesn't have any cases yet.</p>
+            if (cnrs && cnrs.length > 0) {
+                modalBody.innerHTML = cnrs.map(cnr => `
+                    <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                        <strong>${cnr.title}</strong><br>
+                        <small>CNR: ${cnr.cnr} | Type: ${cnr.type} | Status: ${cnr.status}</small><br>
+                        <button class="btn btn-primary" onclick="viewCase('${cnr.cnr}')" style="margin-top: 5px;">View Details</button>
                     </div>
-                `;
+                `).join('');
             } else {
-                // Get case details from cached data
-                const cachedData = localStorage.getItem('userDashboardData');
-                let casesData = [];
-                
-                if (cachedData) {
-                    try {
-                        const parsedData = JSON.parse(cachedData);
-                        casesData = parsedData.cases || [];
-                    } catch (e) {
-                        console.error('Error parsing cached data:', e);
-                    }
-                }
-                
-                let casesHTML = '';
-                cnrs.forEach(cnr => {
-                    const caseData = casesData.find(c => c.cnr_number === cnr);
-                    const caseTitle = caseData ? caseData.case_title : 'Unknown Case';
-                    const caseType = caseData ? caseData.case_type : 'Unknown Type';
-                    const courtName = caseData ? caseData.court_name : 'Unknown Court';
-                    
-                    casesHTML += `
-                        <div class="case-item">
-                            <div class="case-info">
-                                <div class="case-cnr">${cnr}</div>
-                                <div class="case-details">
-                                    <strong>${caseTitle}</strong><br>
-                                    <span>${caseType} • ${courtName}</span>
-                                </div>
-                            </div>
-                            <div class="case-actions">
-                                <button class="btn-case btn-case-view" onclick="viewCase('${cnr}')">
-                                    View Details
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                modalBody.innerHTML = casesHTML;
+                modalBody.innerHTML = '<p>No cases found for this client.</p>';
             }
             
             modal.style.display = 'block';
         }
 
-        // View specific case
         function viewCase(cnr) {
             sessionStorage.setItem('viewCaseCNR', cnr);
             closeModal();
             window.location.href = 'case_details.html';
         }
 
-        // Close modal
         function closeModal() {
             const modal = document.getElementById('caseModal');
             modal.style.display = 'none';
@@ -929,23 +466,12 @@
             }
         }
 
-
-        // Add event listeners
-        document.getElementById('searchInput').addEventListener('input', searchClients);
-        document.getElementById('typeFilter').addEventListener('change', searchClients);
-        document.getElementById('statusFilter').addEventListener('change', searchClients);
-
-        // Simple cache listener (no complex logic)
-        function listenForCacheUpdates() {
-            // No complex cache listening - just direct API calls
-            console.log('📅 Cache listener disabled - using direct API calls only');
-        }
-
-        // Load clients when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('input', searchClients);
+            document.getElementById('typeFilter').addEventListener('change', searchClients);
+            document.getElementById('statusFilter').addEventListener('change', searchClients);
             loadClientsFromCases();
-            listenForCacheUpdates(); // Start listening for cache updates
         });
     </script>
 </body>
-</html> 
+</html>
