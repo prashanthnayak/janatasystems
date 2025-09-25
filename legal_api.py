@@ -49,6 +49,12 @@ def get_cors_origins():
         "http://127.0.0.1:8000"
     ])
     
+    # Add your specific EC2 IP
+    origins.extend([
+        "http://18.234.219.146:8000",
+        "http://18.234.219.146:5002"
+    ])
+    
     # Try to get public IP
     try:
         import requests
@@ -56,6 +62,7 @@ def get_cors_origins():
         if response.status_code == 200:
             public_ip = response.text.strip()
             origins.append(f"http://{public_ip}:8000")
+            origins.append(f"http://{public_ip}:5002")
     except Exception as e:
         print(f"Warning: Could not detect public IP for CORS: {e}")
     
@@ -64,6 +71,7 @@ def get_cors_origins():
     if additional_origins:
         origins.extend(additional_origins.split(','))
     
+    print(f"CORS Origins configured: {origins}")
     return origins
 
 CORS(app,
