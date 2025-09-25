@@ -31,7 +31,7 @@
             flex: 1;
             padding: 20px;
         }
-
+        
         .header-actions {
             display: flex;
             gap: 10px;
@@ -113,7 +113,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-top: 20px;
         }
-
+        
         .table-header {
             background: #f8f9fa;
             padding: 18px 25px;
@@ -126,7 +126,7 @@
             border-bottom: none;
             padding: 0;
         }
-
+        
         .table-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 120px;
@@ -152,7 +152,7 @@
         .table-row:last-child {
             border-bottom: none;
         }
-
+        
         .case-name {
             font-weight: 600;
             color: #2c3e50;
@@ -212,7 +212,7 @@
             margin-top: 20px;
             padding: 20px;
         }
-
+        
         .page-btn {
             padding: 8px 12px;
             border: 1px solid #ecf0f1;
@@ -228,7 +228,7 @@
             transform: translateY(-1px);
             box-shadow: 0 2px 6px rgba(243, 156, 18, 0.2);
         }
-
+        
         .page-btn.active {
             background: #1e3a8a;
             color: white;
@@ -262,7 +262,7 @@
                 </a>
             </nav>
         </div>
-
+        
         <!-- Main Content -->
         <div class="main-content">
             <!-- Header -->
@@ -274,26 +274,26 @@
             </div>
 
             <!-- Search and Filters -->
-            <div class="search-filters">
+        <div class="search-filters">
                 <div class="search-row">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search cases by name, client, or case number...">
                     <select id="typeFilter" class="filter-select">
-                        <option value="">All Types</option>
-                        <option value="Civil">Civil</option>
-                        <option value="Criminal">Criminal</option>
+                <option value="">All Types</option>
+                <option value="Civil">Civil</option>
+                <option value="Criminal">Criminal</option>
                         <option value="Commercial">Commercial</option>
-                        <option value="Family">Family</option>
+                <option value="Family">Family</option>
                         <option value="Probate">Probate</option>
                         <option value="Traffic">Traffic</option>
                         <option value="Employment">Employment</option>
                         <option value="Immigration">Immigration</option>
-                    </select>
+            </select>
                 </div>
-            </div>
-
+        </div>
+        
             <!-- Cases Table -->
-            <div class="cases-table">
-                <div class="table-header">
+        <div class="cases-table">
+            <div class="table-header">
                     <div class="table-row">
                         <div>Case Name</div>
                         <div>Type</div>
@@ -319,7 +319,7 @@
     </div>
 
     <!-- Common utilities already loaded in head -->
-    
+
     <script>
         // Database-driven case data
         let allCases = [];
@@ -351,8 +351,8 @@
                     return;
                 }
                 
-                // Make direct API call
-                const response = await fetch(config.getApiUrl('/cases'), {
+                // Make direct API call to dashboard-data endpoint (same as dashboard/calendar)
+                const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -367,8 +367,8 @@
                 const result = await response.json();
                 console.log('🔍 Cases API response:', result);
                 
-                if (result.success && result.cases) {
-                    allCases = result.cases.map(caseData => ({
+                if (result.success && result.dashboard_data && result.dashboard_data.cases) {
+                    allCases = result.dashboard_data.cases.map(caseData => ({
                         id: caseData.id,
                         name: caseData.case_title || 'Untitled Case',
                         client: caseData.petitioner || 'N/A',
@@ -382,7 +382,7 @@
                     }));
                     
                     currentCases = [...allCases];
-                    console.log('✅ API LOADED:', allCases.length, 'cases');
+                    console.log('✅ API LOADED:', allCases.length, 'cases from dashboard-data endpoint');
                     
                     // Display cases
                     displayCases();
@@ -455,7 +455,7 @@
                     <div class="case-actions">
                         <button class="btn btn-primary action-btn-view" data-cnr="${caseItem.cnr_number}">View</button>
                         <button class="btn btn-warning action-btn-edit" data-cnr="${caseItem.cnr_number}">Edit</button>
-                    </div>
+                        </div>
                 `;
                 tableBody.appendChild(row);
             });
