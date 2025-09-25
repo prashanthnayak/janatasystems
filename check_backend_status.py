@@ -6,6 +6,7 @@ Quick script to check backend status and CORS
 import requests
 import subprocess
 import time
+import os
 
 def check_backend():
     """Check if backend is running and accessible"""
@@ -23,8 +24,26 @@ def check_backend():
         else:
             print("❌ No backend process found")
             print("Starting backend...")
-            subprocess.Popen(['python3', 'legal_api.py'], cwd='/Users/prashanth/janatasystems')
-            time.sleep(3)
+            # Try different common paths for EC2
+            possible_paths = [
+                '/home/ec2-user/janatasystems',
+                '/home/ubuntu/janatasystems', 
+                '/opt/janatasystems',
+                '.'
+            ]
+            
+            for path in possible_paths:
+                try:
+                    if os.path.exists(os.path.join(path, 'legal_api.py')):
+                        print(f"Found legal_api.py at: {path}")
+                        subprocess.Popen(['python3', 'legal_api.py'], cwd=path)
+                        time.sleep(3)
+                        break
+                except Exception as e:
+                    print(f"Failed to start from {path}: {e}")
+            else:
+                print("❌ Could not find legal_api.py in any common locations")
+                print("Please start the backend manually in tmux")
     except Exception as e:
         print(f"Error checking processes: {e}")
     
