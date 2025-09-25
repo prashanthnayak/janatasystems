@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard API Test</title>
+</head>
+<body>
+    <h1>Dashboard API Test</h1>
+    <button onclick="testDashboardAPI()">Test Dashboard API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testDashboardAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testing dashboard API...</p>';
+            
+            try {
+                // Get token from localStorage
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    resultDiv.innerHTML += '<p style="color: red;">❌ No token found. Please login first.</p>';
+                    return;
+                }
+                
+                resultDiv.innerHTML += `<p>Token: ${token.substring(0, 20)}...</p>`;
+                
+                // Test dashboard API
+                console.log('Testing dashboard API...');
+                const response = await fetch('http://18.234.219.146:5002/api/user/dashboard-data', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Dashboard response:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Dashboard data:', data);
+                    
+                    resultDiv.innerHTML += `<p style="color: green;">✅ Dashboard API responded: ${response.status}</p>`;
+                    resultDiv.innerHTML += `<p>Success: ${data.success}</p>`;
+                    
+                    if (data.success && data.dashboard_data) {
+                        const dashboardData = data.dashboard_data;
+                        const cases = dashboardData.cases || [];
+                        const clients = dashboardData.clients || [];
+                        const events = dashboardData.calendar_events || [];
+                        
+                        resultDiv.innerHTML += `<p>Cases: ${cases.length}</p>`;
+                        resultDiv.innerHTML += `<p>Clients: ${clients.length}</p>`;
+                        resultDiv.innerHTML += `<p>Events: ${events.length}</p>`;
+                        
+                        if (cases.length > 0) {
+                            resultDiv.innerHTML += '<p style="color: green;">✅ Cases found!</p>';
+                            resultDiv.innerHTML += `<p>First case: ${JSON.stringify(cases[0], null, 2)}</p>`;
+                        } else {
+                            resultDiv.innerHTML += '<p style="color: red;">❌ No cases found</p>';
+                        }
+                        
+                        // Show raw data
+                        resultDiv.innerHTML += '<h3>Raw Dashboard Data:</h3>';
+                        resultDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                        
+                    } else {
+                        resultDiv.innerHTML += `<p style="color: red;">❌ API returned success: false</p>`;
+                        resultDiv.innerHTML += `<p>Error: ${data.error || 'Unknown error'}</p>`;
+                    }
+                    
+                } else {
+                    resultDiv.innerHTML += `<p style="color: red;">❌ Dashboard API failed: ${response.status}</p>`;
+                    const errorText = await response.text();
+                    resultDiv.innerHTML += `<p>Error: ${errorText}</p>`;
+                }
+                
+            } catch (error) {
+                console.error('Dashboard API test error:', error);
+                resultDiv.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
