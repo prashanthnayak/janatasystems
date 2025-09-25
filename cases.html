@@ -174,6 +174,13 @@
             try {
                 console.log('🚀 Loading cases directly from API...');
                 
+                // Check if there was a recent operation (add/delete/update)
+                const recentOperation = localStorage.getItem('recentOperation');
+                if (recentOperation) {
+                    console.log('🔄 Recent operation detected:', recentOperation);
+                    localStorage.removeItem('recentOperation'); // Clear the flag
+                }
+                
                 // Ensure config is initialized
                 if (!config.initialized) {
                     await config.init();
