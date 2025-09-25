@@ -795,6 +795,11 @@
         window.fetchFromECourts = async function() {
             console.log('🔄 fetchFromECourts function called');
             
+            // Ensure config is initialized
+            if (!config.initialized) {
+                await config.init();
+            }
+            
             const cnrNumber = document.querySelector('input[name="cnr_number"]').value.trim();
             console.log('CNR Number:', cnrNumber);
             
