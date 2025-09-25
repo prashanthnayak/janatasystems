@@ -772,11 +772,11 @@
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Cases:</span>
-                            <span class="detail-value">${client.cnrs ? client.cnrs.length : 0}</span>
+                            <span class="detail-value">${client.cases ? client.cases.length : 0}</span>
                         </div>
                     </div>
                     <div class="client-actions">
-                        <button class="btn btn-primary" onclick="viewClientCases('${client.name}', ${JSON.stringify(client.cnrs).replace(/"/g, '&quot;')})">View Cases</button>
+                        <button class="btn btn-primary" onclick="viewClientCases('${client.name}', ${JSON.stringify(client.cases).replace(/"/g, '&quot;')})">View Cases</button>
                     </div>
                 `;
                 clientsGrid.appendChild(clientCard);
