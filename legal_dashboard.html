@@ -941,9 +941,9 @@
                 return;
             }
             
-            const cases = dashboardData.cases || [];
-            const clients = dashboardData.clients || [];
-            const calendarEvents = dashboardData.calendar_events || [];
+            const cases = dashboardData.dashboard_data?.cases || dashboardData.cases || [];
+            const clients = dashboardData.dashboard_data?.clients || dashboardData.clients || [];
+            const calendarEvents = dashboardData.dashboard_data?.calendar_events || dashboardData.calendar_events || [];
             
             console.log(`📊 Dashboard Display: ${cases.length} cases, ${clients.length} clients, ${calendarEvents.length} events`);
             
