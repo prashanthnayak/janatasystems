@@ -418,10 +418,18 @@ def trigger_scraping(cnr_number):
     """Step 1: Trigger scraping"""
     return jsonify(legal_api.trigger_scraping(cnr_number))
 
-@app.route('/api/cases/save', methods=['POST'])
+@app.route('/api/cases/save', methods=['POST', 'OPTIONS'])
 @require_auth
 def save_case():
     """Step 3: Save case to database"""
+    # Handle CORS preflight request
+    if request.method == 'OPTIONS':
+        response = make_response('', 200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
+    
     try:
         # Get user from token
         auth_header = request.headers.get('Authorization')
