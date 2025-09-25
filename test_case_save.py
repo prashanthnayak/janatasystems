@@ -21,6 +21,8 @@ def test_case_save_process():
             "password": "password123"  # Default password
         }
         
+        print(f"🔑 Logging in as: {login_data['username']}")
+        
         login_response = requests.post("http://localhost:5002/api/login", json=login_data)
         print(f"Login response status: {login_response.status_code}")
         
