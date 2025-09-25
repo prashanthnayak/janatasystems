@@ -4,7 +4,6 @@
 <head>
     <script src="config.js"></script>
     <script src="common.js"></script>
-    <script src="cache-manager.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cases Management - LegalPro</title>
@@ -441,9 +440,9 @@
         const casesPerPage = 5;
 
         // Notification function
-        // Clear all cache function
+        // Simple cache clear function
         function clearAllCache() {
-            console.log('🧹 Clearing ALL cache...');
+            console.log('🧹 Clearing cache...');
             localStorage.removeItem('userDashboardData');
             localStorage.removeItem('cacheVersion');
             localStorage.removeItem('cacheUpdated');
@@ -451,11 +450,10 @@
                 delete window.userDashboardData;
             }
             console.log('🧹 Cache cleared, reloading data...');
-            alert('Cache cleared! Reloading data...');
             loadCasesFromDatabase();
         }
 
-        // Load cases from database on page load
+        // SIMPLE CASES LOADING - NO CACHE, DIRECT API CALLS
         async function loadCasesFromDatabase() {
             try {
                 console.log('🔍 DEBUG: Starting loadCasesFromDatabase...');
