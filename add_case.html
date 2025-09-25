@@ -763,6 +763,10 @@
                     showNotification(`Case saved successfully! ${result.message}`, 'success');
                     Alert.success(`SUCCESS! Case saved to database!\n\n${result.message}\n\nRedirecting to cases list in 2 seconds...`);
                     
+                    // Set flag for dashboard to refresh
+                    localStorage.setItem('recentOperation', 'add');
+                    console.log('✅ Set recentOperation flag for dashboard refresh');
+                    
                     // Clear temporary scraped data from sessionStorage
                     sessionStorage.removeItem('temp_scraped_data');
                     

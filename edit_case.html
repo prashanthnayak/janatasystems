@@ -707,20 +707,12 @@
                     const result = await legalAPI.deleteCase(cnrNumber);
                     console.log('🗑️ API response:', result);
                     if (result.success) {
-                        console.log('🗑️ Delete successful, clearing cache...');
+                        console.log('🗑️ Delete successful!');
                         CommonUtils.Alert.show('Success', 'Case deleted successfully!', 'success');
                         
-                        // UNIFIED CACHE CLEAR: Clear ALL cache data immediately
-                        localStorage.removeItem('userDashboardData');
-                        localStorage.removeItem('cacheVersion');
-                        localStorage.removeItem('cacheUpdated');
-                        localStorage.setItem('cacheCleared', 'true'); // Flag for dashboard
-                        if (window.userDashboardData) {
-                            delete window.userDashboardData;
-                        }
-                        console.log('🗑️ UNIFIED CACHE CLEAR: All cache data cleared');
-                        
-                        console.log('🗑️ Smart cache update completed');
+                        // Set flag for dashboard to refresh
+                        localStorage.setItem('recentOperation', 'delete');
+                        console.log('🗑️ Set recentOperation flag for dashboard refresh');
                         
                         // Redirect immediately to cases page with refresh parameter
                         window.location.href = 'cases.html?refresh=' + Date.now();
