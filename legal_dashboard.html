@@ -1081,53 +1081,53 @@
             loadDashboardData(true); // Force refresh
         }
 
-        async function loadDashboardData(forceRefresh = false) {
+        // SIMPLE DASHBOARD LOADING - NO CACHE, DIRECT API CALLS
+        async function loadDashboardData() {
             try {
-                // Check if cache was cleared (e.g., after delete operation)
-                const cacheCleared = localStorage.getItem('cacheCleared');
-                if (cacheCleared === 'true') {
-                    console.log('🗑️ Cache was cleared, forcing refresh...');
-                    forceRefresh = true;
-                    localStorage.removeItem('cacheCleared'); // Clear the flag
-                }
+                console.log('🚀 Loading dashboard data directly from API...');
                 
-                // Prevent duplicate loads
-                if (isLoading && !forceRefresh) {
-                    console.log('🔄 Dashboard already loading, skipping duplicate request');
-                    return;
-                }
-                
-                // BULLETPROOF FIX: Always fetch fresh data from API
-                // No more cache issues - always get latest data
-                console.log('🔄 BULLETPROOF MODE: Always fetching fresh data from API');
-                forceRefresh = true;
-                
-                console.log('🔄 CacheManager: Cache invalid or not available, fetching from API...');
-                
-                console.log('🚀 Loading ALL user data from API (SUPER FAST MODE)...');
-                isLoading = true;
-                
-                // Ensure config is initialized first
+                // Ensure config is initialized
                 if (!config.initialized) {
-                    console.log('🔄 Initializing config...');
                     await config.init();
                 }
                 
-                // Get the auth token from localStorage
+                // Get authentication token
                 const token = localStorage.getItem('userToken');
                 if (!token) {
-                    console.error('No auth token found');
-                    showNotification('❌ No authentication token found', 'error');
-                    isLoading = false;
+                    console.error('❌ No authentication token found');
                     return;
                 }
                 
-                // Call the new super-fast endpoint
-                console.log('🔍 DEBUG: About to call dashboard API:', config.getApiUrl('/user/dashboard-data'));
-                console.log('🔍 DEBUG: Token:', token ? 'Present' : 'Missing');
-                
+                // Make direct API call
                 const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
+                    method: 'GET',
                     headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('🔍 Dashboard API response:', result);
+                
+                if (result.success && result.dashboard_data) {
+                    const dashboardData = result.dashboard_data;
+                    console.log('✅ API LOADED:', dashboardData.cases?.length || 0, 'cases,', dashboardData.clients?.length || 0, 'clients,', dashboardData.calendar_events?.length || 0, 'events');
+                    
+                    // Update dashboard display
+                    updateDashboardDisplay(dashboardData, true);
+                } else {
+                    console.error('❌ API returned error:', result.error);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading dashboard data:', error);
+            }
+        }
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
