@@ -26,12 +26,26 @@
             min-height: 100vh;
         }
 
+        /* All sidebar styles moved to shared-dashboard-styles.css */
+
+        /* Nav menu styles moved to shared-dashboard-styles.css */
+
+        /* All navigation styles moved to shared-dashboard-styles.css */
+
         /* Main Content */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 20px;
         }
+
+        /* Header styles moved to shared-dashboard-styles.css */
+
+        /* Header h1 styles moved to shared-dashboard-styles.css */
+
+        /* Second header definition removed - using shared-dashboard-styles.css */
+
+        /* Duplicate header h1 styles removed - using shared-dashboard-styles.css */
 
         .header-actions {
             display: flex;
@@ -41,159 +55,200 @@
         .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
 
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.2);
+        }
+
         .btn-primary {
-            background: #007bff;
+            background: #1e3a8a;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #0056b3;
-            transform: translateY(-1px);
+            background: #1d4ed8;
         }
 
         .btn-secondary {
-            background: #6c757d;
-            color: white;
+            background: #ecf0f1;
+            color: #2c3e50;
         }
 
         .btn-secondary:hover {
-            background: #545b62;
+            background: #bdc3c7;
         }
 
-        .cases-container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-
+        /* Search and Filters */
         .search-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-row {
             display: flex;
             gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
 
-        .search-filters input,
-        .search-filters select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
             font-size: 14px;
         }
 
-        .search-filters input {
-            flex: 1;
-            min-width: 200px;
+        .search-input:focus {
+            outline: none;
+            border-color: #1e3a8a;
         }
 
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+
+        /* Cases Table */
         .cases-table {
-            width: 100%;
-            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-top: 20px;
         }
 
-        .cases-table th,
-        .cases-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .cases-table th {
+        .table-header {
             background: #f8f9fa;
+            padding: 18px 25px;
+            border-bottom: 2px solid #ecf0f1;
             font-weight: 600;
-            color: #495057;
+            color: #2c3e50;
         }
 
-        .cases-table tbody tr:hover {
-            background: #f8f9fa;
+        .table-header .table-row {
+            border-bottom: none;
+            padding: 0;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 8px;
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 120px;
+            gap: 25px;
+            padding: 18px 25px;
+            border-bottom: 1px solid #ecf0f1;
+            align-items: center;
+            transition: background 0.3s;
         }
 
-        .action-btn {
-            padding: 6px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn-view {
-            background: #007bff;
-            color: white;
-        }
-
-        .action-btn-view:hover {
-            background: #0056b3;
-        }
-
-        .action-btn-edit {
-            background: #28a745;
-            color: white;
-        }
-
-        .action-btn-edit:hover {
-            background: #1e7e34;
-        }
-
-        .pagination {
+        .table-row > div:nth-child(4) {
             display: flex;
             justify-content: center;
-            gap: 5px;
-            margin-top: 20px;
+            align-items: center;
         }
 
-        .page-btn {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .page-btn:hover {
+        .table-row:hover {
             background: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .page-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
+        .table-row:last-child {
+            border-bottom: none;
         }
 
-        .page-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .case-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .case-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .case-cnr {
+            font-size: 13px;
+            color: #7f8c8d;
+            font-weight: normal;
         }
 
         .no-data {
             text-align: center;
             padding: 40px;
-            color: #6c757d;
+            color: #7f8c8d;
         }
 
-        .no-data i {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: #dee2e6;
+        .no-data button {
+            margin-top: 15px;
+        }
+
+        .case-type {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .case-client {
+            color: #2c3e50;
+        }
+
+        .case-date {
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .case-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* Action button styles moved to shared-dashboard-styles.css */
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ecf0f1;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            background: #fef5e7;
+            color: #2c3e50;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(243, 156, 18, 0.2);
+        }
+
+        .page-btn.active {
+            background: #1e3a8a;
+            color: white;
         }
     </style>
 </head>
@@ -203,85 +258,200 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>LegalPro</h2>
+                <p>Management System</p>
             </div>
-            <nav class="sidebar-nav">
+            <nav class="nav-menu">
                 <a href="legal_dashboard.html" class="nav-item">
-                    <i class="fas fa-tachometer-alt"></i>
+                    <i>📊</i>
                     <span>Dashboard</span>
                 </a>
                 <a href="cases.html" class="nav-item active">
-                    <i class="fas fa-folder-open"></i>
+                    <i>📁</i>
                     <span>Cases</span>
                 </a>
                 <a href="clients.html" class="nav-item">
-                    <i class="fas fa-users"></i>
+                    <i>👥</i>
                     <span>Clients</span>
                 </a>
                 <a href="calendar.html" class="nav-item">
-                    <i class="fas fa-calendar-alt"></i>
+                    <i>📅</i>
                     <span>Calendar</span>
                 </a>
-                <a href="add_case.html" class="nav-item">
-                    <i class="fas fa-plus"></i>
-                    <span>Add Case</span>
+                <!-- Documents and Billing tabs removed as requested -->
+                <!-- <a href="documents.html" class="nav-item">
+                    <i>📋</i>
+                    <span>Documents</span>
                 </a>
+                <a href="billing.html" class="nav-item">
+                    <i>💰</i>
+                    <span>Billing</span>
+                </a> -->
+                <!-- <a href="settings.html" class="nav-item">
+                    <i>⚙️</i>
+                    <span>Settings</span>
+                </a> -->
             </nav>
         </div>
 
         <!-- Main Content -->
         <div class="main-content">
+            <!-- Header -->
             <div class="header">
                 <h1>Cases Management</h1>
                 <div class="header-actions">
-                    <button class="btn btn-primary" onclick="window.location.href='add_case.html'">
-                        <i class="fas fa-plus"></i> Add New Case
-                    </button>
                     <button class="btn btn-secondary" onclick="clearAllCache()" title="Clear all cached data">
                         <i class="fas fa-sync-alt"></i> Clear Cache
                     </button>
+                    <button class="btn btn-primary" onclick="window.location.href='add_case.html'">+ Add Case</button>
                 </div>
             </div>
 
-            <div class="cases-container">
-                <div class="search-filters">
-                    <input type="text" id="searchInput" placeholder="Search cases by title, client, or CNR...">
-                    <select id="typeFilter">
+            <!-- Search and Filters -->
+            <div class="search-filters">
+                <div class="search-row">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search cases by name, client, or case number...">
+                    <select id="typeFilter" class="filter-select">
                         <option value="">All Types</option>
                         <option value="Civil">Civil</option>
                         <option value="Criminal">Criminal</option>
-                        <option value="Family">Family</option>
                         <option value="Commercial">Commercial</option>
+                        <option value="Family">Family</option>
+                        <option value="Probate">Probate</option>
+                        <option value="Traffic">Traffic</option>
+                        <option value="Employment">Employment</option>
+                        <option value="Immigration">Immigration</option>
                     </select>
                 </div>
+            </div>
 
-                <table class="cases-table">
-                    <thead>
-                        <tr>
-                            <th>Case Title</th>
-                            <th>Client</th>
-                            <th>CNR Number</th>
-                            <th>Type</th>
-                            <th>Filing Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-body">
-                        <!-- Cases will be loaded here -->
-                    </tbody>
-                </table>
-
-                <div class="pagination">
-                    <!-- Pagination will be generated here -->
+            <!-- Cases Table -->
+            <div class="cases-table">
+                <div class="table-header">
+                    <div class="table-row">
+                        <div>Case Name</div>
+                        <div>Type</div>
+                        <div>Filing Date</div>
+                        <div>Actions</div>
+                    </div>
                 </div>
+                
+                <div class="table-body">
+                    <!-- Cases will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="page-btn">Previous</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">Next</button>
             </div>
         </div>
     </div>
 
+    <!-- Database Integration Script -->
     <script>
+        // LegalAPI class definition
+        class LegalAPI {
+            constructor(baseUrl = null) {
+                this.baseUrl = baseUrl;
+                this.initialized = false;
+            }
+
+            async init() {
+                if (!this.initialized) {
+                    if (!config.initialized) {
+                        await config.init();
+                    }
+                    this.baseUrl = config.getApiUrl('');
+                    this.initialized = true;
+                    console.log('🔧 Cases LegalAPI initialized with baseUrl:', this.baseUrl);
+                }
+            }
+
+            // Get all cases
+            async getCases(userId = null, limit = 50, offset = 0) {
+                try {
+                    // Ensure API is initialized
+                    if (!this.initialized) {
+                        await this.init();
+                    }
+                    
+                    let url = `${this.baseUrl}/cases?limit=${limit}&offset=${offset}`;
+                    if (userId) url += `&user_id=${userId}`;
+                    
+                    console.log('🔗 Fetching cases from:', url);
+                    
+                    // Get the auth token from localStorage
+                    const token = localStorage.getItem('userToken');
+                    if (!token) {
+                        console.error('❌ No auth token found');
+                        return { success: false, error: 'No authentication token' };
+                    }
+                    
+                    console.log('🔑 Using token:', token.substring(0, 20) + '...');
+                    
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    console.log('📡 Cases API response status:', response.status);
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('❌ Cases API error:', errorText);
+                        return { success: false, error: `API error: ${response.status} - ${errorText}` };
+                    }
+                    
+                    const result = await response.json();
+                    console.log('📊 Cases API result:', result);
+                    return result;
+                } catch (error) {
+                    console.error('Error getting cases:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // Get scraping status
+            async getScrapingStatus(cnrNumber) {
+                try {
+                    const response = await fetch(`${this.baseUrl}/scraping/status/${cnrNumber}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error getting scraping status:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        // Initialize API
+        const legalAPI = new LegalAPI();
+    </script>
+    <script>
+        // Database-driven case data
         let allCases = [];
         let currentCases = [];
         let currentPage = 1;
-        const casesPerPage = 10;
+        const casesPerPage = 5;
+
+        // Notification function
+        // Simple cache clear function
+        function clearAllCache() {
+            console.log('🧹 Clearing cache...');
+            localStorage.removeItem('userDashboardData');
+            localStorage.removeItem('cacheVersion');
+            localStorage.removeItem('cacheUpdated');
+            if (window.userDashboardData) {
+                delete window.userDashboardData;
+            }
+            console.log('🧹 Cache cleared, reloading data...');
+            loadCasesFromDatabase();
+        }
 
         // COPY EXACT DASHBOARD LOGIC - NO CACHE, DIRECT API CALLS
         async function loadCasesFromDatabase() {
@@ -353,18 +523,146 @@
             }
         }
 
-        function clearAllCache() {
-            console.log('🧹 Clearing cache...');
-            localStorage.removeItem('userDashboardData');
-            localStorage.removeItem('cacheVersion');
-            localStorage.removeItem('cacheUpdated');
-            if (window.userDashboardData) {
-                delete window.userDashboardData;
+        function loadSampleData() {
+                
+                // Use CacheManager for consistent cache handling
+                if (window.cacheManager && window.cacheManager.isCacheValid()) {
+                    const cachedData = window.cacheManager.getCachedData();
+                    if (cachedData && cachedData.cases) {
+                        console.log('🚀 FAST MODE: Using CacheManager cached data!');
+                        console.log('🚀 DEBUG: Cached cases count:', cachedData.cases.length);
+                        
+                        allCases = cachedData.cases.map(caseData => ({
+                            id: caseData.id,
+                            name: caseData.case_title || 'Untitled Case',
+                            client: caseData.petitioner || 'N/A',
+                            cnr_number: caseData.cnr_number,
+                            type: caseData.case_type || 'Unknown',
+                            date: caseData.filing_date || caseData.created_at,
+                            status: caseData.status || 'Pending',
+                            court_name: caseData.court_name,
+                            judge_name: caseData.judge_name,
+                            registration_number: caseData.registration_number
+                        }));
+                        
+                        currentCases = [...allCases];
+                        displayCases();
+                        return;
+                    }
+                }
+                
+                console.log('🔄 CacheManager: Cache invalid or not available, fetching from API...');
+                
+                // SECOND: Check if we have cached data from dashboard (same page)
+                console.log('🔍 DEBUG: window.userDashboardData exists?', !!window.userDashboardData);
+                console.log('🔍 DEBUG: window.userDashboardData.cases exists?', !!(window.userDashboardData && window.userDashboardData.cases));
+                
+                if (window.userDashboardData && window.userDashboardData.cases) {
+                    console.log('🚀 FAST MODE: Using cached data from dashboard!');
+                    console.log('🚀 DEBUG: Cached cases count:', window.userDashboardData.cases.length);
+                    const cachedCases = window.userDashboardData.cases;
+                    
+                    allCases = cachedCases.map(caseData => ({
+                        id: caseData.id,
+                        name: caseData.case_title || 'Untitled Case',
+                        client: caseData.petitioner || 'N/A',
+                        cnr_number: caseData.cnr_number,
+                        type: caseData.case_type || 'Unknown',
+                        date: caseData.filing_date || caseData.created_at,
+                        status: caseData.status || 'Pending',
+                        court_name: caseData.court_name,
+                        judge_name: caseData.judge_name,
+                        registration_number: caseData.registration_number
+                    }));
+                    
+                    currentCases = [...allCases];
+                    displayCases();
+                    //showNotification(`✅ Loaded ${allCases.length} cases from cache (INSTANT!)`, 'success');
+                    return;
+                }
+                
+                // THIRD: Fallback to API call if no cached data
+                console.log('🔄 SLOW MODE: No cached data, loading from API...');
+                console.log('🔄 DEBUG: Available global data:', Object.keys(window).filter(key => key.includes('user') || key.includes('case')));
+                
+                // Debug: Check if legalAPI is defined
+                if (typeof legalAPI === 'undefined') {
+                    console.error('❌ legalAPI is not defined!');
+                    console.log('🔄 Falling back to sample data...');
+                    loadSampleData();
+                    return;
+                }
+                
+        console.log('✅ legalAPI is defined, proceeding with API call...');
+        
+        // Debug: Show current user info
+        const currentUser = localStorage.getItem('currentUser');
+        console.log('👤 Current user from localStorage:', currentUser);
+        
+        const result = await legalAPI.getCases();
+        console.log('📊 API call result:', result);
+        
+        // Debug: Show debug info if available
+        if (result.debug_info) {
+            console.log('🔍 DEBUG INFO:', result.debug_info);
+            console.log(`👤 User: ${result.debug_info.username} (ID: ${result.debug_info.user_id}, Role: ${result.debug_info.role})`);
+            console.log(`📊 Total cases in DB: ${result.debug_info.total_cases_in_db}`);
+            console.log(`📊 Cases for this user: ${result.debug_info.user_cases_count}`);
+            
+            // If API shows 0 cases but we have cached data, clear the cache
+            if (result.debug_info.user_cases_count === 0 && localStorage.getItem('userDashboardData')) {
+                console.log('🚨 MISMATCH: API shows 0 cases but cache has data - clearing cache!');
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('cacheUpdated');
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('🧹 Cleared stale cache due to API mismatch');
             }
-            console.log('🧹 Cache cleared, reloading data...');
-            loadCasesFromDatabase();
+        }
+                
+                if (result.success) {
+                    console.log('✅ API call successful, processing cases...');
+                    console.log('📊 Raw cases data:', result.cases);
+                    
+                    console.log('🔍 DEBUG: Processing cases...');
+                    console.log('🔍 DEBUG: Raw case data structure:', result.cases[0]);
+                    
+                    allCases = result.cases.map(caseData => ({
+                        id: caseData.cnr_number || caseData.id, // Use CNR as ID if no ID field
+                        name: caseData.case_title || 'Untitled Case',
+                        client: caseData.petitioner || 'N/A',
+                        cnr_number: caseData.cnr_number,
+                        type: caseData.case_type || 'Unknown',
+                        date: caseData.filing_date || caseData.created_at,
+                        status: caseData.status || 'Pending',
+                        court_name: caseData.court_name,
+                        judge_name: caseData.judge_name,
+                        registration_number: caseData.registration_number
+                    }));
+                    
+                    console.log('📊 Processed cases:', allCases.length);
+                    console.log('📊 First processed case:', allCases[0]);
+                    console.log('🔍 DEBUG: All cases array:', allCases);
+                    
+                    currentCases = [...allCases];
+                    displayCases();
+                    showNotification(`✅ Loaded ${allCases.length} cases from API`, 'success');
+                } else {
+                    console.error('❌ API call failed:', result.error);
+                    showNotification(`❌ Error loading cases: ${result.error}`, 'error');
+                    // Fallback to sample data
+                    loadSampleData();
+                }
+            } catch (error) {
+                showNotification(`❌ Network Error: ${error.message}`, 'error');
+                // Fallback to sample data
+                loadSampleData();
+            }
         }
 
+        // Show no data when database fails
         function loadSampleData() {
             allCases = [];
             currentCases = [];
@@ -372,15 +670,16 @@
             showNotification('No cases found. Add your first case to get started.', 'info');
         }
 
+        // Search functionality
         function searchCases() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const typeFilter = document.getElementById('typeFilter').value;
 
             currentCases = allCases.filter(caseItem => {
                 const matchesSearch = caseItem.name.toLowerCase().includes(searchTerm) ||
-                                    caseItem.client.toLowerCase().includes(searchTerm) ||
-                                    caseItem.cnr_number.toLowerCase().includes(searchTerm);
+                                    caseItem.client.toLowerCase().includes(searchTerm);
                 const matchesType = typeFilter === '' || caseItem.type === typeFilter;
+
                 return matchesSearch && matchesType;
             });
 
@@ -389,55 +688,57 @@
             updatePagination();
         }
 
+        // Display cases for current page
         function displayCases() {
-            const tableBody = document.querySelector('.table-body');
-            if (!tableBody) {
-                console.error('Table body not found');
-                return;
-            }
-
-            if (currentCases.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="no-data">
-                            <i class="fas fa-folder-open"></i>
-                            <h3>No Cases Found</h3>
-                            <p>No cases match your search criteria or no cases have been added yet.</p>
-                        </td>
-                    </tr>
-                `;
-                updatePagination();
-                return;
-            }
-
+            console.log('🔍 DEBUG: displayCases() called');
+            console.log('🔍 DEBUG: currentCases length:', currentCases.length);
+            console.log('🔍 DEBUG: currentCases:', currentCases);
+            
+            const tableBody = document.querySelector('.cases-table .table-body');
             const startIndex = (currentPage - 1) * casesPerPage;
             const endIndex = startIndex + casesPerPage;
-            const casesToShow = currentCases.slice(startIndex, endIndex);
+            const pageCases = currentCases.slice(startIndex, endIndex);
+            
+            console.log('🔍 DEBUG: pageCases length:', pageCases.length);
+            console.log('🔍 DEBUG: pageCases:', pageCases);
 
-            tableBody.innerHTML = casesToShow.map(caseItem => `
-                <tr>
-                    <td>${caseItem.name}</td>
-                    <td>${caseItem.client}</td>
-                    <td>${caseItem.cnr_number}</td>
-                    <td>${caseItem.type}</td>
-                    <td>${formatDate(caseItem.date)}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn action-btn-view" data-cnr="${caseItem.cnr_number}" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn action-btn-edit" data-cnr="${caseItem.cnr_number}" title="Edit Case">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            tableBody.innerHTML = '';
 
-            updatePagination();
+            if (pageCases.length === 0) {
+                console.log('🔍 DEBUG: No cases to display, showing no-data message');
+                tableBody.innerHTML = `
+                    <div class="no-data">
+                        <p>No cases found</p>
+                        <button onclick="window.location.href='add_case.html'" class="btn btn-primary">Add New Case</button>
+                    </div>
+                `;
+                return;
+            }
+
+            pageCases.forEach(caseItem => {
+                console.log('🔍 DEBUG: Creating row for case:', caseItem);
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <div class="case-name">
+                        <div class="case-title">${caseItem.name}</div>
+                        <div class="case-cnr">CNR: ${caseItem.cnr_number || 'N/A'}</div>
+                    </div>
+                    <div class="case-type">${caseItem.type}</div>
+                    <div class="case-date">${formatDate(caseItem.date)}</div>
+                    <div class="case-actions">
+                        <button class="btn btn-primary action-btn-view" data-cnr="${caseItem.cnr_number}">View</button>
+                        <button class="btn btn-warning action-btn-edit" data-cnr="${caseItem.cnr_number}">Edit</button>
+                    </div>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Reattach event listeners
             attachEventListeners();
         }
 
+        // Update pagination
         function updatePagination() {
             const totalPages = Math.ceil(currentCases.length / casesPerPage);
             const pagination = document.querySelector('.pagination');
@@ -453,6 +754,7 @@
             pagination.innerHTML = paginationHTML;
         }
 
+        // Change page
         function changePage(page) {
             const totalPages = Math.ceil(currentCases.length / casesPerPage);
             if (page >= 1 && page <= totalPages) {
@@ -462,11 +764,13 @@
             }
         }
 
+        // Attach event listeners to action buttons
         function attachEventListeners() {
             document.querySelectorAll('.action-btn-view').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const cnrNumber = this.getAttribute('data-cnr');
                     if (cnrNumber) {
+                        // Store CNR for case details page
                         sessionStorage.setItem('viewCaseCNR', cnrNumber);
                         window.location.href = 'case_details.html';
                     }
@@ -477,6 +781,7 @@
                 btn.addEventListener('click', function() {
                     const cnrNumber = this.getAttribute('data-cnr');
                     if (cnrNumber) {
+                        // Store CNR for edit page
                         sessionStorage.setItem('editCaseCNR', cnrNumber);
                         window.location.href = 'edit_case.html';
                     }
@@ -484,6 +789,7 @@
             });
         }
 
+        // Utility function to format dates
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
             try {
@@ -493,11 +799,112 @@
             }
         }
 
+        // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners
             document.getElementById('searchInput').addEventListener('input', searchCases);
             document.getElementById('typeFilter').addEventListener('change', searchCases);
+
+            // Check if we have a refresh parameter (from redirect after save/update/delete)
+            const urlParams = new URLSearchParams(window.location.search);
+            const refreshParam = urlParams.get('refresh');
+            if (refreshParam) {
+                console.log('🔄 Cases page: Refresh parameter detected, forcing COMPLETE data reload...');
+                // Clear ALL cached data aggressively
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('cacheUpdated'); // Also clear the update flag
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('💾 Cleared ALL cache due to refresh parameter');
+                // Remove the refresh parameter from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // Load cases from database
             loadCasesFromDatabase();
+            
+            // Listen for cache updates from other pages
+            listenForCacheUpdates();
+            
+            // Check if cache was updated while this page was loading
+            checkForRecentCacheUpdate();
         });
+        
+        // Check if cache was updated recently (within last 5 seconds)
+        function checkForRecentCacheUpdate() {
+            const cacheUpdateTime = localStorage.getItem('cacheUpdated');
+            if (cacheUpdateTime) {
+                const timeSinceUpdate = Date.now() - parseInt(cacheUpdateTime);
+                if (timeSinceUpdate < 5000) { // Within last 5 seconds
+                    console.log('🔄 Cases page: Detected recent cache update, reloading data...');
+                    console.log('   Time since update:', timeSinceUpdate, 'ms');
+                    // Just reload, don't clear cache
+                    loadCasesFromDatabase();
+                } else {
+                    console.log('ℹ️ Cases page: Cache update too old, ignoring');
+                }
+            } else {
+                console.log('ℹ️ Cases page: No cache update timestamp found');
+            }
+        }
+        
+        // Listen for cache updates from other pages
+        function listenForCacheUpdates() {
+            let lastCacheUpdate = localStorage.getItem('cacheUpdated') || '0';
+            console.log('🔍 Cases page: Starting cache listener, initial value:', lastCacheUpdate);
+            
+            // Method 1: Polling every second
+            setInterval(() => {
+                const currentCacheUpdate = localStorage.getItem('cacheUpdated') || '0';
+                if (currentCacheUpdate !== lastCacheUpdate) {
+                    console.log('🔄 Cases page: Cache updated detected via polling!');
+                    console.log('   Old value:', lastCacheUpdate);
+                    console.log('   New value:', currentCacheUpdate);
+                    
+                    handleCacheUpdate();
+                    lastCacheUpdate = currentCacheUpdate;
+                }
+            }, 1000); // Check every second
+            
+            // Method 2: Storage event listener (for same-tab updates)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'cacheUpdated' && e.newValue !== lastCacheUpdate) {
+                    console.log('🔄 Cases page: Cache updated detected via storage event!');
+                    console.log('   Old value:', lastCacheUpdate);
+                    console.log('   New value:', e.newValue);
+                    
+                    handleCacheUpdate();
+                    lastCacheUpdate = e.newValue;
+                }
+            });
+            
+            // Method 3: Custom event listener (for same-tab updates)
+            window.addEventListener('cacheUpdated', () => {
+                console.log('🔄 Cases page: Cache updated detected via custom event!');
+                handleCacheUpdate();
+            });
+        }
+        
+        function handleCacheUpdate() {
+            console.log('🔄 Cases page: Handling cache update...');
+            // Use CacheManager for consistent cache handling
+            if (window.cacheManager) {
+                window.cacheManager.clearCache();
+                console.log('🔄 Cases page: Cleared cache using CacheManager');
+            } else {
+                // Fallback to manual cache clearing
+                localStorage.removeItem('userDashboardData');
+                localStorage.removeItem('cacheVersion');
+                localStorage.removeItem('cacheUpdated');
+                if (window.userDashboardData) {
+                    delete window.userDashboardData;
+                }
+                console.log('🔄 Cases page: Cleared cache manually (CacheManager not available)');
+            }
+            loadCasesFromDatabase();
+        }
     </script>
 </body>
-</html>
+</html> 
