@@ -1,0 +1,47 @@
+        // SIMPLE DASHBOARD LOADING - NO CACHE, DIRECT API CALLS
+        async function loadDashboardData() {
+            try {
+                console.log('🚀 Loading dashboard data directly from API...');
+                
+                // Ensure config is initialized
+                if (!config.initialized) {
+                    await config.init();
+                }
+                
+                // Get authentication token
+                const token = localStorage.getItem('userToken');
+                if (!token) {
+                    console.error('❌ No authentication token found');
+                    return;
+                }
+                
+                // Make direct API call
+                const response = await fetch(config.getApiUrl('/user/dashboard-data'), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('🔍 Dashboard API response:', result);
+                
+                if (result.success && result.dashboard_data) {
+                    const dashboardData = result.dashboard_data;
+                    console.log('✅ API LOADED:', dashboardData.cases?.length || 0, 'cases,', dashboardData.clients?.length || 0, 'clients,', dashboardData.calendar_events?.length || 0, 'events');
+                    
+                    // Update dashboard display
+                    updateDashboardDisplay(dashboardData, true);
+                } else {
+                    console.error('❌ API returned error:', result.error);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading dashboard data:', error);
+            }
+        }
