@@ -547,16 +547,20 @@
             displayCases();
             updatePagination();
         }
-                    if (cachedData && cachedData.cases) {
-                        console.log('🚀 FAST MODE: Using CacheManager cached data!');
-                        console.log('🚀 DEBUG: Cached cases count:', cachedData.cases.length);
-                        
-                        allCases = cachedData.cases.map(caseData => ({
-                            id: caseData.id,
-                            name: caseData.case_title || 'Untitled Case',
-                            client: caseData.petitioner || 'N/A',
-                            cnr_number: caseData.cnr_number,
-                            type: caseData.case_type || 'Unknown',
+
+        // Display cases for current page
+        function displayCases() {
+            console.log('🔍 DEBUG: displayCases() called');
+            console.log('🔍 DEBUG: currentCases length:', currentCases.length);
+            console.log('🔍 DEBUG: currentCases:', currentCases);
+            
+            const tableBody = document.querySelector('.cases-table .table-body');
+            const startIndex = (currentPage - 1) * casesPerPage;
+            const endIndex = startIndex + casesPerPage;
+            const pageCases = currentCases.slice(startIndex, endIndex);
+            
+            console.log('🔍 DEBUG: pageCases length:', pageCases.length);
+            console.log('🔍 DEBUG: pageCases:', pageCases);
                             date: caseData.filing_date || caseData.created_at,
                             status: caseData.status || 'Pending',
                             court_name: caseData.court_name,
@@ -679,32 +683,6 @@
                 // Fallback to sample data
                 loadSampleData();
             }
-        }
-
-        // Show no data when database fails
-        function loadSampleData() {
-            allCases = [];
-            currentCases = [];
-            displayCases();
-            showNotification('No cases found. Add your first case to get started.', 'info');
-        }
-
-        // Search functionality
-        function searchCases() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const typeFilter = document.getElementById('typeFilter').value;
-
-            currentCases = allCases.filter(caseItem => {
-                const matchesSearch = caseItem.name.toLowerCase().includes(searchTerm) ||
-                                    caseItem.client.toLowerCase().includes(searchTerm);
-                const matchesType = typeFilter === '' || caseItem.type === typeFilter;
-
-                return matchesSearch && matchesType;
-            });
-
-            currentPage = 1;
-            displayCases();
-            updatePagination();
         }
 
         // Display cases for current page
